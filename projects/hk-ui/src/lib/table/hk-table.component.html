@@ -1,0 +1,431 @@
+<div [class]="rootClasses()"
+  [style.--hk-table-row-h]="virtualScroll() ? virtualRowHeight() + 'px' : null">
+
+  <!-- ── Toolbar ───────────────────────────────────────────── -->
+  @if (showToolbar()) {
+    <div class="hk-toolbar">
+      @if (showSearch()) {
+        <label class="hk-search">
+          <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
+            <path d="M10.5 10.5 14 14M11 6.5a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z"
+              fill="none" stroke="currentColor" stroke-width="1.6" />
+          </svg>
+          <input type="search" [placeholder]="searchPlaceholder()" [value]="globalFilter()"
+            (input)="onSearch($event)" [attr.aria-label]="searchPlaceholder()" />
+        </label>
+      }
+
+      @if (tpl('toolbar'); as toolbarTpl) {
+        <div class="hk-toolbar-slot">
+          <ng-container *ngTemplateOutlet="toolbarTpl" />
+        </div>
+      }
+
+      <div class="hk-toolbar-actions">
+        @if (activeFilterCount() > 0) {
+          <button type="button" class="hk-chip" (click)="clearFilters()">
+            Clear {{ activeFilterCount() }} filter{{ activeFilterCount() > 1 ? 's' : '' }}
+          </button>
+        }
+
+        @if (columnToggle()) {
+          <div class="hk-toggle-wrap">
+            <button type="button" class="hk-btn" [attr.aria-expanded]="togglePanelOpen()"
+              (click)="togglePanelOpen.set(!togglePanelOpen())">Columns</button>
+            @if (togglePanelOpen()) {
+              <div class="hk-toggle-panel" role="dialog" aria-label="Toggle columns">
+                @for (column of toggleableColumns(); track column.id) {
+                  <label class="hk-toggle-row">
+                    <input type="checkbox" [checked]="!column.hidden" (change)="toggleColumn(column.id)" />
+                    <span>{{ column.label }}</span>
+                  </label>
+                }
+                <button type="button" class="hk-toggle-all" (click)="showAllColumns()">Show all</button>
+              </div>
+              <div class="hk-scrim" (click)="togglePanelOpen.set(false)" aria-hidden="true"></div>
+            }
+          </div>
+        }
+
+        @if (showExport()) {
+          <button type="button" class="hk-btn" (click)="exportCsv()">Export CSV</button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (caption() || tpl('caption')) {
+    <div class="hk-caption">
+      @if (tpl('caption'); as captionTpl) {
+        <ng-container *ngTemplateOutlet="captionTpl" />
+      } @else {
+        {{ caption() }}
+      }
+    </div>
+  }
+
+  <!-- ── Scroll viewport ───────────────────────────────────── -->
+  <div class="hk-scroll" #scroller [style.max-height]="scrollHeight() || null">
+    <table #tableEl class="hk-table" role="grid"
+      [attr.aria-rowcount]="recordCount()"
+      [attr.aria-colcount]="totalColumns()"
+      [attr.aria-busy]="loading() ? 'true' : null"
+      [style.table-layout]="layoutFixed() ? 'fixed' : null"
+      (keydown)="onKeydown($event)">
+
+      @if (layoutFixed()) {
+        <colgroup>
+          @for (id of leadingCells(); track id) { <col [style.width]="'2.75rem'" /> }
+          @for (leaf of leaves(); track leaf.id) { <col [style.width]="leaf.column.width || null" /> }
+          @if (hasEditColumn()) { <col style="width: 6rem" /> }
+        </colgroup>
+      }
+
+      <!-- ── Header ─────────────────────────────────────────── -->
+      <thead>
+        @for (headerRow of headerRows(); track $index; let rowIdx = $index) {
+          <tr class="hk-head-row" [style.top.px]="stickyHeader() ? headerTop(rowIdx) : null">
+
+            @if (rowIdx === 0) {
+              @for (id of leadingCells(); track id) {
+                <th class="hk-head hk-head-control" scope="col"
+                  [attr.data-col-id]="id" [attr.rowspan]="headerDepth()"
+                  [class.is-frozen-left]="leadingFrozen()"
+                  [style.left.px]="leadingFrozen() ? leftOffset(id) : null">
+                  @if (id === ids.select) {
+                    <input type="checkbox" class="hk-check" [checked]="allPageSelected()"
+                      [indeterminate]="somePageSelected()" (change)="toggleSelectAllOnPage()"
+                      aria-label="Select all rows on this page" />
+                  } @else if (id === ids.index) {
+                    {{ indexHeader() }}
+                  }
+                </th>
+              }
+            }
+
+            @for (cell of headerRow; track $index) {
+              @if (cell.isLeaf && cell.leaf) {
+                <th class="hk-head hk-head-leaf" scope="col"
+                  [attr.data-col-id]="cell.leaf.id"
+                  [attr.rowspan]="cell.rowSpan"
+                  [attr.aria-sort]="ariaSort(cell.leaf)"
+                  [attr.title]="cell.column.header || null"
+                  [class]="'hk-align-' + headerAlign(cell.column) + ' ' + (cell.column.headerClass || '')"
+                  [class.is-sortable]="cell.column.sortable"
+                  [class.is-sorted]="sortStateOf(cell.leaf) !== 0"
+                  [class.is-frozen-left]="frozenSideOf(cell.leaf) === 'left'"
+                  [class.is-frozen-right]="frozenSideOf(cell.leaf) === 'right'"
+                  [style.left.px]="frozenSideOf(cell.leaf) === 'left' ? leftOffset(cell.leaf.id) : null"
+                  [style.right.px]="frozenSideOf(cell.leaf) === 'right' ? rightOffset(cell.leaf.id) : null"
+                  [style.width]="cell.column.width || null"
+                  [style.min-width]="cell.column.minWidth || null"
+                  [style.max-width]="cell.column.maxWidth || null"
+                  [attr.draggable]="reorderableColumns() && cell.rowSpan === headerDepth() ? true : null"
+                  (dragstart)="onDragStart($event, cell.column.key)"
+                  (dragover)="onDragOver($event)"
+                  (drop)="onDrop($event, cell.column.key)">
+
+                  <div class="hk-head-inner">
+                    <span class="hk-head-label"
+                      [class.is-clickable]="cell.column.sortable"
+                      [attr.role]="cell.column.sortable ? 'button' : null"
+                      [attr.tabindex]="cell.column.sortable ? 0 : null"
+                      (click)="toggleSort(cell.leaf, $event)"
+                      (keydown.enter)="toggleSort(cell.leaf, $event)"
+                      (keydown.space)="toggleSort(cell.leaf, $event)">
+                      @if (headerTemplate(cell.column); as headTpl) {
+                        <ng-container *ngTemplateOutlet="headTpl; context: { $implicit: cell.column, column: cell.column }" />
+                      } @else if (cell.column.headerHtml) {
+                        <span [innerHTML]="cell.column.headerHtml"></span>
+                      } @else {
+                        {{ cell.column.header ?? cell.column.key }}
+                      }
+
+                      @if (cell.column.sortable) {
+                        <span class="hk-sort" aria-hidden="true"
+                          [class.is-asc]="sortStateOf(cell.leaf) === 1"
+                          [class.is-desc]="sortStateOf(cell.leaf) === -1">
+                          <svg viewBox="0 0 10 14" width="8" height="11">
+                            <path class="hk-sort-up" d="M5 1 8.5 5.5h-7z" fill="currentColor" />
+                            <path class="hk-sort-down" d="M5 13 1.5 8.5h7z" fill="currentColor" />
+                          </svg>
+                        </span>
+                        @if (sortIndexOf(cell.leaf) >= 0) {
+                          <span class="hk-sort-order">{{ sortIndexOf(cell.leaf) + 1 }}</span>
+                        }
+                      }
+                    </span>
+
+                    @if (filterTypeOf(cell.leaf) !== 'none') {
+                      <hk-table-filter
+                        [label]="cell.column.header ?? cell.column.key"
+                        [type]="filterTypeOf(cell.leaf)"
+                        [options]="filterOptionsOf(cell.leaf)"
+                        [meta]="filterMetaOf(cell.leaf)"
+                        [placeholder]="cell.column.filterPlaceholder ?? 'Value'"
+                        (filterChange)="onColumnFilter(cell.leaf, $event)" />
+                    }
+                  </div>
+
+                  @if (resizableColumns() && cell.column.resizable !== false) {
+                    <span class="hk-resizer" (pointerdown)="onResizeStart($event, cell.leaf)"
+                      (click)="$event.stopPropagation()" aria-hidden="true"></span>
+                  }
+                </th>
+              } @else {
+                <th class="hk-head hk-head-group" scope="colgroup"
+                  [attr.colspan]="cell.colSpan"
+                  [class]="cell.column.headerClass || ''"
+                  [attr.draggable]="reorderableColumns() ? true : null"
+                  (dragstart)="onDragStart($event, cell.column.key)"
+                  (dragover)="onDragOver($event)"
+                  (drop)="onDrop($event, cell.column.key)">
+                  @if (cell.column.headerHtml) {
+                    <span [innerHTML]="cell.column.headerHtml"></span>
+                  } @else {
+                    {{ cell.column.header ?? cell.column.key }}
+                  }
+                </th>
+              }
+            }
+
+            @if (rowIdx === 0 && hasEditColumn()) {
+              <th class="hk-head hk-head-control" scope="col" [attr.data-col-id]="ids.edit"
+                [attr.rowspan]="headerDepth()">Actions</th>
+            }
+          </tr>
+        }
+      </thead>
+
+      <!-- ── Body ───────────────────────────────────────────── -->
+      <tbody (click)="onBodyClick($event)" (dblclick)="onBodyDblClick($event)">
+        @if (padTop() > 0) {
+          <tr class="hk-spacer" aria-hidden="true">
+            <td [attr.colspan]="totalColumns()" [style.height.px]="padTop()"></td>
+          </tr>
+        }
+
+        @for (render of visibleRows(); track render.key; let rowIdx = $index) {
+          @switch (render.kind) {
+
+            @case ('groupHeader') {
+              <tr class="hk-group-row">
+                <td [attr.colspan]="totalColumns()" [attr.data-cell]="rowIdx + '-0'">
+                  <button type="button" class="hk-group-toggle" data-act="group"
+                    [disabled]="!collapsibleGroups()"
+                    [attr.aria-expanded]="!isGroupCollapsed(render)">
+                    @if (collapsibleGroups()) {
+                      <span class="hk-chevron" [class.is-open]="!isGroupCollapsed(render)" aria-hidden="true">›</span>
+                    }
+                    @if (tpl('groupHeader'); as groupTpl) {
+                      <ng-container *ngTemplateOutlet="groupTpl; context: { $implicit: render.groupValue, value: render.groupValue, rows: render.groupRows }" />
+                    } @else {
+                      <span class="hk-group-label">{{ render.groupValue }}</span>
+                      <span class="hk-group-count">{{ render.groupRows?.length }}</span>
+                    }
+                  </button>
+                </td>
+              </tr>
+            }
+
+            @case ('groupFooter') {
+              <tr class="hk-group-footer">
+                @for (id of leadingCells(); track id) {
+                  <td class="hk-cell" [class.is-frozen-left]="leadingFrozen()"
+                    [style.left.px]="leadingFrozen() ? leftOffset(id) : null"></td>
+                }
+                @for (leaf of leaves(); track leaf.id) {
+                  <td [class]="'hk-cell hk-align-' + (leaf.column.align ?? (leaf.column.numeric ? 'right' : 'left'))"
+                    [class.is-frozen-left]="frozenSideOf(leaf) === 'left'"
+                    [class.is-frozen-right]="frozenSideOf(leaf) === 'right'"
+                    [style.left.px]="frozenSideOf(leaf) === 'left' ? leftOffset(leaf.id) : null"
+                    [style.right.px]="frozenSideOf(leaf) === 'right' ? rightOffset(leaf.id) : null">
+                    @if (leaf.column.aggregate) {
+                      {{ groupAggregate(render, leaf) }}
+                    } @else if (leaf.index === 0) {
+                      Subtotal
+                    }
+                  </td>
+                }
+                @if (hasEditColumn()) { <td class="hk-cell"></td> }
+              </tr>
+            }
+
+            @default {
+              <tr [class]="rowClasses(render)"
+                [attr.aria-selected]="selectionMode() ? isSelected(render.row) : null">
+
+                @for (id of leadingCells(); track id; let leadIdx = $index) {
+                  <td class="hk-cell hk-cell-control"
+                    [attr.data-cell]="rowIdx + '-' + leadIdx"
+                    [attr.tabindex]="cellTabIndex(rowIdx, leadIdx)"
+                    [class.is-frozen-left]="leadingFrozen()"
+                    [style.left.px]="leadingFrozen() ? leftOffset(id) : null"
+                    [attr.rowspan]="null">
+                    @if (id === ids.expander) {
+                      <button type="button" class="hk-expander" data-act="expand"
+                        [attr.aria-expanded]="isExpanded(render)"
+                        [attr.aria-label]="isExpanded(render) ? 'Collapse row' : 'Expand row'">
+                        <span class="hk-chevron" [class.is-open]="isExpanded(render)" aria-hidden="true">›</span>
+                      </button>
+                    } @else if (id === ids.select) {
+                      <input type="checkbox" class="hk-check" data-act="select"
+                        [checked]="isSelected(render.row)"
+                        [attr.aria-label]="'Select row ' + render.serial" />
+                    } @else if (id === ids.index) {
+                      {{ render.serial }}
+                    }
+                  </td>
+                }
+
+                @for (leaf of leaves(); track leaf.id) {
+                  @if (!skipGroupCell(render, leaf)) {
+                    <td [class]="cellClasses(render.row, leaf)"
+                      [attr.data-cell]="rowIdx + '-' + (leadingCells().length + leaf.index)"
+                      [attr.tabindex]="cellTabIndex(rowIdx, leadingCells().length + leaf.index)"
+                      [attr.rowspan]="groupCellSpan(render, leaf)"
+                      [attr.title]="leaf.column.truncate ? cellTitle(render.row, leaf) : null"
+                      [class.is-frozen-left]="frozenSideOf(leaf) === 'left'"
+                      [class.is-frozen-right]="frozenSideOf(leaf) === 'right'"
+                      [class.is-editable]="isEditableCell(leaf)"
+                      [style.left.px]="frozenSideOf(leaf) === 'left' ? leftOffset(leaf.id) : null"
+                      [style.right.px]="frozenSideOf(leaf) === 'right' ? rightOffset(leaf.id) : null"
+                      [style.max-width]="leaf.column.maxWidth || null">
+
+                      @if (isCellEditing(render, leaf)) {
+                        @if (editorTemplate(leaf); as editTpl) {
+                          <ng-container *ngTemplateOutlet="editTpl; context: cellContext(render, leaf)" />
+                        } @else if (leaf.column.editor === 'select') {
+                          <select class="hk-editor" [value]="editorValue(render, leaf)"
+                            (change)="onEditorCommit(render, leaf, $event)"
+                            (click)="$event.stopPropagation()">
+                            @for (option of editorOptionsOf(leaf); track option.label) {
+                              <option [value]="option.value">{{ option.label }}</option>
+                            }
+                          </select>
+                        } @else {
+                          <input class="hk-editor" [type]="editorType(leaf)"
+                            [value]="editorValue(render, leaf)"
+                            (click)="$event.stopPropagation()"
+                            (input)="onEditorInput(render, leaf, $event)"
+                            (keydown.enter)="onEditorCommit(render, leaf, $event)"
+                            (keydown.escape)="onEditorCancel(render, leaf)"
+                            (blur)="onEditorCommit(render, leaf, $event)" />
+                        }
+                      } @else {
+                        @if (cellTemplate(leaf); as cellTpl) {
+                          <ng-container *ngTemplateOutlet="cellTpl; context: cellContext(render, leaf)" />
+                        } @else {
+                          {{ formatCell(render.row, leaf) }}
+                        }
+                      }
+                    </td>
+                  }
+                }
+
+                @if (hasEditColumn()) {
+                  <td class="hk-cell hk-cell-actions"
+                    [attr.data-cell]="rowIdx + '-' + (leadingCells().length + leaves().length)">
+                    @if (isRowEditing(render)) {
+                      <button type="button" class="hk-btn hk-btn-xs" data-act="edit-save">Save</button>
+                      <button type="button" class="hk-btn hk-btn-xs" data-act="edit-cancel">Cancel</button>
+                    } @else {
+                      <button type="button" class="hk-btn hk-btn-xs" data-act="edit-start">Edit</button>
+                    }
+                  </td>
+                }
+              </tr>
+
+              @if (rowExpansion() && isExpanded(render) && tpl('expansion')) {
+                <tr class="hk-expansion-row">
+                  <td [attr.colspan]="totalColumns()" class="hk-expansion-cell">
+                    <ng-container *ngTemplateOutlet="tpl('expansion')!; context: { $implicit: render.row, row: render.row, index: render.dataIndex }" />
+                  </td>
+                </tr>
+              }
+            }
+          }
+        }
+
+        @if (padBottom() > 0) {
+          <tr class="hk-spacer" aria-hidden="true">
+            <td [attr.colspan]="totalColumns()" [style.height.px]="padBottom()"></td>
+          </tr>
+        }
+
+        @if (!visibleRows().length && !loading()) {
+          <tr class="hk-empty-row">
+            <td [attr.colspan]="totalColumns()">
+              @if (tpl('empty'); as emptyTpl) {
+                <ng-container *ngTemplateOutlet="emptyTpl" />
+              } @else {
+                <div class="hk-empty">{{ emptyMessage() }}</div>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+
+      <!-- ── Footer ─────────────────────────────────────────── -->
+      @if (footerVisible() && recordCount() > 0) {
+        <tfoot>
+          <tr class="hk-foot-row">
+            @for (id of leadingCells(); track id) {
+              <td class="hk-cell" [class.is-frozen-left]="leadingFrozen()"
+                [style.left.px]="leadingFrozen() ? leftOffset(id) : null"></td>
+            }
+            @for (leaf of leaves(); track leaf.id) {
+              <td [class]="'hk-cell hk-align-' + (leaf.column.align ?? (leaf.column.numeric ? 'right' : 'left')) + ' ' + (leaf.column.footerClass || '')"
+                [class.is-frozen-left]="frozenSideOf(leaf) === 'left'"
+                [class.is-frozen-right]="frozenSideOf(leaf) === 'right'"
+                [style.left.px]="frozenSideOf(leaf) === 'left' ? leftOffset(leaf.id) : null"
+                [style.right.px]="frozenSideOf(leaf) === 'right' ? rightOffset(leaf.id) : null">
+                @if (footerTemplate(leaf); as footTpl) {
+                  <ng-container *ngTemplateOutlet="footTpl; context: { $implicit: footerValues()[leaf.id], column: leaf.column }" />
+                } @else if (leaf.column.aggregate) {
+                  {{ formatAggregate(leaf) }}
+                } @else {
+                  {{ leaf.column.footer ?? (leaf.index === 0 ? 'Total' : '') }}
+                }
+              </td>
+            }
+            @if (hasEditColumn()) { <td class="hk-cell"></td> }
+          </tr>
+        </tfoot>
+      }
+    </table>
+
+    @if (loading()) {
+      <div class="hk-loading" role="status" aria-live="polite">
+        @if (tpl('loading'); as loadTpl) {
+          <ng-container *ngTemplateOutlet="loadTpl" />
+        } @else {
+          <span class="hk-spinner" aria-hidden="true"></span>
+          <span class="hk-sr">Loading</span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ── Paginator ─────────────────────────────────────────── -->
+  @if (paginator()) {
+    <div class="hk-pager-shell">
+      @if (tpl('paginatorLeft'); as leftTpl) {
+        <ng-container *ngTemplateOutlet="leftTpl" />
+      }
+      <hk-table-paginator
+        [first]="first()" [rows]="rows()" [totalRecords]="recordCount()"
+        [rowsPerPageOptions]="rowsPerPageOptions()" [showJump]="showPageJump()"
+        (pageChange)="onPage($event)" />
+      @if (tpl('paginatorRight'); as rightTpl) {
+        <ng-container *ngTemplateOutlet="rightTpl" />
+      }
+    </div>
+  }
+
+  @if (tpl('footer'); as footerTpl) {
+    <div class="hk-footer-slot">
+      <ng-container *ngTemplateOutlet="footerTpl" />
+    </div>
+  }
+</div>

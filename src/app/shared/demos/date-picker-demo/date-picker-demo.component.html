@@ -1,0 +1,85 @@
+<div class="w-full max-w-sm">
+
+  <!-- Controls -->
+  <div class="mb-3 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.03]">
+    <div role="group" aria-label="Selection mode">
+      <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Mode</span>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        @for (item of modes; track item) {
+          <button type="button" (click)="setMode(item)" [attr.aria-pressed]="mode() === item"
+            [class]="chip(mode() === item)">{{ item }}</button>
+        }
+      </div>
+    </div>
+
+    <div role="group" aria-label="Output format">
+      <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Format</span>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        @for (item of formats; track item.id) {
+          <button type="button" (click)="format.set(item.id)" [attr.aria-pressed]="format() === item.id"
+            [class]="chip(format() === item.id) + ' normal-case'">{{ item.label }}</button>
+        }
+      </div>
+    </div>
+
+    <label class="flex cursor-pointer items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
+      <input type="checkbox" [checked]="showTime()" (change)="showTime.set($any($event.target).checked)"
+        class="h-3.5 w-3.5 accent-red-600" />
+      Include time
+    </label>
+  </div>
+
+  <!-- Calendar -->
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-neutral-950">
+    <div class="mb-3 flex items-center justify-between">
+      <button type="button" class="px-2 text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+        (click)="shift(-1)" aria-label="Previous month">‹</button>
+      <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ label() }}</span>
+      <button type="button" class="px-2 text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+        (click)="shift(1)" aria-label="Next month">›</button>
+    </div>
+
+    <div class="grid grid-cols-7 gap-0.5 text-center text-[0.72rem] text-slate-600 dark:text-gray-400">
+      @for (day of dayNames; track $index) { <span class="py-1">{{ day }}</span> }
+    </div>
+
+    <div class="grid grid-cols-7 gap-0.5">
+      @for (day of days(); track $index) {
+        @if (day === 0) {
+          <span></span>
+        } @else {
+          <button type="button" (click)="pick(day)"
+            class="aspect-square rounded-lg text-xs transition-colors"
+            [class]="tone(day)"
+            [attr.aria-pressed]="isSelected(day)">{{ day }}</button>
+        }
+      }
+    </div>
+
+    @if (showTime()) {
+      <div class="mt-3 flex items-center gap-2 border-t border-slate-200/60 pt-3 dark:border-white/5">
+        <span class="text-xs text-slate-600 dark:text-gray-400">Time</span>
+        <input type="number" min="0" max="23" [value]="hour()" (input)="setHour($any($event.target).value)"
+          aria-label="Hour"
+          class="w-12 rounded-lg border border-slate-200 bg-white px-2 py-1 text-center text-xs text-slate-900 outline-none focus:border-red-500 dark:border-white/10 dark:bg-neutral-950 dark:text-white dark:focus:border-red-600/70" />
+        <span class="text-slate-400 dark:text-gray-500">:</span>
+        <input type="number" min="0" max="59" [value]="minute()" (input)="setMinute($any($event.target).value)"
+          aria-label="Minute"
+          class="w-12 rounded-lg border border-slate-200 bg-white px-2 py-1 text-center text-xs text-slate-900 outline-none focus:border-red-500 dark:border-white/10 dark:bg-neutral-950 dark:text-white dark:focus:border-red-600/70" />
+        <button type="button" (click)="now()"
+          class="ml-auto rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 transition hover:text-slate-900 dark:border-white/10 dark:text-gray-400 dark:hover:text-white">
+          Now
+        </button>
+      </div>
+    }
+
+    <!-- Output: whatever the caller would actually receive. -->
+    <div class="mt-3 border-t border-slate-200/60 pt-3 dark:border-white/5">
+      <p class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">
+        (dateChange) emits
+      </p>
+      <p class="mt-1 break-all font-mono text-xs text-red-600 dark:text-red-400">{{ output() }}</p>
+      <p class="mt-1.5 text-xs text-slate-600 dark:text-gray-400">{{ hint() }}</p>
+    </div>
+  </div>
+</div>

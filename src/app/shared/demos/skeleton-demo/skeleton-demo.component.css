@@ -1,0 +1,42 @@
+/* One class paints every placeholder; the variants only change how it moves. */
+:host {
+  --sk-base: #e8ecf1;
+  --sk-sheen: #f6f8fa;
+}
+:host-context(.dark) {
+  --sk-base: rgb(255 255 255 / 0.07);
+  --sk-sheen: rgb(255 255 255 / 0.14);
+}
+
+.sk {
+  background-color: var(--sk-base);
+}
+
+/* A sheen travelling across a fixed-size gradient — cheaper than animating
+   background-position on a huge image, and it never reflows. */
+.sk-shimmer {
+  background-image: linear-gradient(90deg, transparent, var(--sk-sheen), transparent);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: sk-sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes sk-sweep {
+  from { background-position: -120% 0; }
+  to   { background-position: 220% 0; }
+}
+
+.sk-pulse {
+  animation: sk-fade 1.6s ease-in-out infinite;
+}
+
+@keyframes sk-fade {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+/* `none` is a real option: some users just want the box, and reduced-motion
+   should land there too rather than on a slowed-down animation. */
+@media (prefers-reduced-motion: reduce) {
+  .sk-shimmer, .sk-pulse { animation: none; }
+}

@@ -1,0 +1,158 @@
+<section id="theming" class="relative overflow-hidden bg-white dark:bg-neutral-950 py-28">
+  <div aria-hidden="true" class="bg-grid mask-fade absolute inset-0 opacity-40"></div>
+
+  <div class="relative mx-auto max-w-7xl px-6">
+    <div class="max-w-2xl">
+      <p appReveal class="text-sm font-semibold uppercase tracking-[0.2em] text-red-600 dark:text-red-400">Theming</p>
+      <h2 appReveal [revealDelay]="80"
+        class="mt-4 text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl">
+        Eight tokens. Any look you want.
+      </h2>
+      <p appReveal [revealDelay]="160" class="mt-5 text-lg leading-relaxed text-slate-600 dark:text-gray-400">
+        No preset objects, no theme compiler. Change the custom properties on the left and
+        watch every component follow — this panel is doing exactly that, live.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+
+      <!-- Controls + generated tokens -->
+      <div appReveal class="flex flex-col gap-6">
+
+        <div class="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] p-6">
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-gray-400">Accent</p>
+          <div class="mt-4 flex flex-wrap gap-3">
+            @for (item of presets; track item.id) {
+              <button type="button" (click)="choose(item.id)"
+                [attr.aria-label]="item.name"
+                [attr.aria-pressed]="presetId() === item.id"
+                class="group flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-xs font-semibold transition cursor-pointer"
+                [class]="presetId() === item.id
+                  ? 'border-white/40 text-slate-900 dark:text-white'
+                  : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-gray-400 hover:border-slate-400 dark:hover:border-white/25 hover:text-slate-700 dark:hover:text-gray-300'">
+                <span class="h-4 w-4 rounded-full ring-2 ring-white/10"
+                  [style.backgroundColor]="item.accent"></span>
+                {{ item.name }}
+              </button>
+            }
+          </div>
+
+          <p class="mt-7 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-gray-400">Radius</p>
+          <div class="mt-4 flex gap-2">
+            @for (step of radiusSteps; track step.value) {
+              <button type="button" (click)="radius.set(step.value)"
+                class="flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition cursor-pointer"
+                [class]="radius() === step.value
+                  ? 'border-red-300 dark:border-red-700/60 bg-red-50 dark:bg-red-950/40 text-slate-900 dark:text-white'
+                  : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'">
+                {{ step.label }}
+              </button>
+            }
+          </div>
+
+          <div class="mt-7 flex items-center justify-between">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-gray-400">Density</p>
+            <span class="font-mono text-xs text-red-600 dark:text-red-400">{{ density().toFixed(2) }}</span>
+          </div>
+          <input
+            type="range" min="0.7" max="1.6" step="0.05"
+            [value]="density()"
+            (input)="setDensity($event)"
+            aria-label="Density"
+            class="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-800
+                   accent-red-600" />
+        </div>
+
+        <pre class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] p-6 font-mono text-xs leading-relaxed text-slate-600 dark:text-gray-400"><code>{{ tokenCss() }}</code></pre>
+      </div>
+
+      <!-- Live preview — every colour here comes off the preset object -->
+      <div appReveal [revealDelay]="120"
+        class="rounded-2xl border p-7 transition-colors duration-500"
+        [style.backgroundColor]="preset().surface"
+        [style.borderColor]="preset().border"
+        [style.color]="preset().text">
+
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-lg font-bold">Deploy settings</p>
+            <p class="text-sm opacity-60">Preview card, themed by tokens only</p>
+          </div>
+          <span class="rounded-full px-3 py-1 text-xs font-semibold"
+            [style.backgroundColor]="preset().accentSoft"
+            [style.color]="preset().accent">
+            Live
+          </span>
+        </div>
+
+        <!-- Buttons -->
+        <div class="mt-7 flex flex-wrap gap-3">
+          <button type="button"
+            class="text-sm font-semibold text-slate-900 dark:text-white transition hover:brightness-110 cursor-pointer"
+            [style.backgroundColor]="preset().accent"
+            [style.borderRadius.px]="radius()"
+            [style.padding]="padding() + ' ' + (density() * 1.5) + 'rem'">
+            Primary
+          </button>
+          <button type="button"
+            class="border text-sm font-semibold transition cursor-pointer"
+            [style.borderColor]="preset().accent"
+            [style.color]="preset().accent"
+            [style.borderRadius.px]="radius()"
+            [style.padding]="padding() + ' ' + (density() * 1.5) + 'rem'">
+            Outline
+          </button>
+          <button type="button"
+            class="text-sm font-semibold transition cursor-pointer"
+            [style.backgroundColor]="preset().accentSoft"
+            [style.color]="preset().accent"
+            [style.borderRadius.px]="radius()"
+            [style.padding]="padding() + ' ' + (density() * 1.5) + 'rem'">
+            Subtle
+          </button>
+        </div>
+
+        <!-- Field -->
+        <label class="mt-7 block text-xs font-semibold uppercase tracking-wider opacity-60" for="theme-field">
+          Project name
+        </label>
+        <input id="theme-field" type="text" value="hellskitchen-ui"
+          class="mt-2 w-full border bg-transparent text-sm outline-none transition"
+          [style.borderColor]="preset().border"
+          [style.borderRadius.px]="radius()"
+          [style.padding]="padding() + ' ' + (density() * 0.9) + 'rem'"
+          [style.color]="preset().text" />
+
+        <!-- Chips + progress -->
+        <div class="mt-6 flex flex-wrap gap-2">
+          @for (chip of ['edge', 'ssr', 'preview', 'signals']; track chip) {
+            <span class="px-3 py-1 text-xs font-medium"
+              [style.backgroundColor]="preset().accentSoft"
+              [style.color]="preset().accent"
+              [style.borderRadius.px]="radius()">
+              {{ chip }}
+            </span>
+          }
+        </div>
+
+        <div class="mt-7">
+          <div class="flex items-center justify-between text-xs opacity-60">
+            <span>Build</span>
+            <span>72%</span>
+          </div>
+          <div class="mt-2 h-2 w-full overflow-hidden rounded-full"
+            [style.backgroundColor]="preset().accentSoft">
+            <div class="h-full w-[72%] rounded-full transition-all duration-500"
+              [style.backgroundColor]="preset().accent"></div>
+          </div>
+        </div>
+
+        <div class="mt-7 flex items-center gap-3 border-t pt-5 text-xs opacity-60"
+          [style.borderColor]="preset().border">
+          <i class="pi pi-shield" [style.color]="preset().accent"></i>
+          Same markup as the crimson version. Only the token values changed.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

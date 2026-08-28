@@ -1,0 +1,68 @@
+/* Demo chrome. Colours come off the same token pair the rest of the site uses,
+   so the demo follows the theme toggle without a second set of classes. */
+:host {
+  --demo-muted: #64748b;
+  --demo-ink: #0f172a;
+  --demo-surface: rgb(15 23 42 / 0.03);
+  --demo-border: #e2e8f0;
+}
+:host-context(.dark) {
+  --demo-muted: #a1a1aa;
+  --demo-ink: #e5e7eb;
+  --demo-surface: rgb(255 255 255 / 0.03);
+  --demo-border: rgb(255 255 255 / 0.1);
+}
+
+/* Fills whatever the stage gives it — the grid handles its own overflow. */
+.demo { width: 100%; min-width: 0; }
+.demo-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-bottom: 0.6rem; }
+.demo-chips button {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  color: var(--demo-muted);
+  cursor: pointer;
+  background: var(--demo-surface);
+  border: 1px solid var(--demo-border);
+  border-radius: 999px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.demo-chips button:hover { color: var(--demo-ink); }
+.demo-chips button.on {
+  color: #b91c1c;
+  border-color: rgb(220 38 38 / 0.45);
+  background: rgb(220 38 38 / 0.08);
+}
+:host-context(.dark) .demo-chips button.on { color: #fca5a5; }
+.demo-note { font-size: 0.75rem; color: var(--demo-muted); }
+.demo-hint { margin: 0.55rem 0 0; font-size: 0.75rem; color: var(--demo-muted); }
+.demo-hint b { color: var(--demo-ink); font-weight: 600; }
+
+.tag {
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+.tag.is-ok { color: #047857; background: rgb(16 185 129 / 0.1); border-color: rgb(16 185 129 / 0.35); }
+.tag.is-warn { color: #b45309; background: rgb(245 158 11 / 0.12); border-color: rgb(245 158 11 / 0.4); }
+.tag.is-bad { color: #b91c1c; background: rgb(239 68 68 / 0.1); border-color: rgb(239 68 68 / 0.35); }
+:host-context(.dark) .tag.is-ok { color: #6ee7b7; }
+:host-context(.dark) .tag.is-warn { color: #fcd34d; }
+:host-context(.dark) .tag.is-bad { color: #fca5a5; }
+
+.svc { display: inline-flex; align-items: center; gap: 0.4rem; }
+.dot { width: 0.4rem; height: 0.4rem; border-radius: 50%; background: currentColor; }
+.dot.is-ok { color: #10b981; }
+.dot.is-warn { color: #f59e0b; }
+.dot.is-bad { color: #ef4444; }
+
+.grp { font-weight: 600; }
+.grp-sub { font-size: 0.72rem; font-weight: 400; color: var(--demo-muted); }
+
+.exp { padding: 0.75rem 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem 1.75rem; }
+.exp > div { display: flex; flex-direction: column; }
+.exp b { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--demo-muted); }
+.exp span { font-size: 0.78rem; color: var(--demo-ink); }
+.exp p { flex: 1 1 100%; margin: 0.2rem 0 0; font-size: 0.75rem; color: var(--demo-muted); }

@@ -1,0 +1,31 @@
+<div class="flex w-full max-w-lg flex-col items-center gap-6">
+  <div class="flex flex-wrap justify-center gap-3">
+    @for (item of tones; track item.tone) {
+      <button type="button" (click)="push(item.tone)" [class]="triggerClass(item.tone)">
+        {{ item.label }}
+      </button>
+    }
+  </div>
+
+  <div aria-live="polite" class="flex min-h-[9rem] w-full flex-col gap-2.5">
+    @for (toast of toasts(); track toast.id) {
+      <div class="animate-toast-in flex items-start gap-3 rounded-xl border px-4 py-3 backdrop-blur"
+        [class]="toneClass(toast.tone)"
+        [attr.role]="toast.tone === 'danger' ? 'alert' : 'status'">
+        <i [class]="toneIcon(toast.tone) + ' mt-0.5'"></i>
+        <div class="flex-1">
+          <p class="text-sm font-semibold">{{ toast.title }}</p>
+          <p class="text-xs opacity-70">{{ toast.body }}</p>
+        </div>
+        <button type="button" (click)="dismiss(toast.id)" aria-label="Dismiss"
+          class="opacity-50 transition hover:opacity-100 cursor-pointer">
+          <i class="pi pi-times text-xs"></i>
+        </button>
+      </div>
+    } @empty {
+      <p class="my-auto text-center text-xs text-slate-600 dark:text-gray-400">
+        Stack is empty — push one. Max three, oldest drops out.
+      </p>
+    }
+  </div>
+</div>

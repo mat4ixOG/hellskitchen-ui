@@ -1,0 +1,31 @@
+:host { display: block; width: 100%; }
+
+.stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--hairline);
+  background: var(--surface-2);
+  transition: background 300ms ease;
+}
+
+/* Only the glass variant gets a scene behind it. It is tuned per theme rather
+   than fixed, because glass borrows the page's ink colour: a dark scene under
+   near-black light-theme text would be unreadable. */
+.stage-scene {
+  background:
+    radial-gradient(110% 120% at 12% 8%, #fecdd3 0%, transparent 55%),
+    radial-gradient(100% 110% at 88% 92%, #c7d2fe 0%, transparent 60%),
+    linear-gradient(135deg, #fff7ed 0%, #eef2ff 100%);
+}
+
+:host-context(.dark) .stage-scene {
+  background:
+    radial-gradient(110% 120% at 12% 8%, rgb(190 18 60 / 0.55) 0%, transparent 55%),
+    radial-gradient(100% 110% at 88% 92%, rgb(37 99 235 / 0.40) 0%, transparent 60%),
+    linear-gradient(135deg, #1a0b11 0%, #08080d 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage { transition: none; }
+}

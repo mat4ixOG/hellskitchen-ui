@@ -1,0 +1,444 @@
+/* Every colour here is a token, so the navbar retunes with the page rather
+   than carrying its own palette. */
+:host {
+  --nav-accent: #dc2626;
+  --nav-accent-2: #b91c1c;
+  --nav-surface: rgb(255 255 255 / 0.78);
+  --nav-edge: rgb(15 23 42 / 0.10);
+  --nav-ink: #0f172a;
+  --nav-ink-dim: #64748b;
+  --nav-ease: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --nav-speed: 380ms;
+
+  display: block;
+  width: 100%;
+}
+
+:host-context(.dark) {
+  --nav-surface: rgb(18 18 20 / 0.72);
+  --nav-edge: rgb(255 255 255 / 0.10);
+  --nav-ink: #f5f5f5;
+  --nav-ink-dim: #9ca3af;
+}
+
+/* ── Stage ───────────────────────────────────────────────────── */
+.nav-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--hairline);
+  background:
+    radial-gradient(90% 120% at 10% 0%, color-mix(in srgb, var(--nav-accent) 14%, transparent), transparent 60%),
+    var(--surface-2);
+  padding: 1.75rem 1.25rem;
+  min-height: 12rem;
+}
+.nav-stage[data-variant='dock'] {
+  display: grid;
+  place-items: end center;
+  padding-bottom: 1.25rem;
+}
+
+/* ── Shared strip ────────────────────────────────────────────────
+   The indicator is one element that translates. Which of its properties
+   animate is what `data-motion` swaps, so the travel logic is written once. */
+.nav-strip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+}
+
+.nav-indicator {
+  position: absolute;
+  inset-block: 0.25rem;
+  left: 0;
+  z-index: -1;
+  border-radius: 0.6rem;
+  background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-2));
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--nav-accent) 35%, transparent);
+  transition: transform var(--nav-speed) var(--nav-ease), box-shadow 300ms ease;
+}
+
+/* Glow: no solid fill, just a bloom that trails the selection. */
+.nav-strip[data-motion='glow'] .nav-indicator {
+  background: radial-gradient(60% 120% at 50% 50%, color-mix(in srgb, var(--nav-accent) 55%, transparent), transparent 70%);
+  box-shadow: none;
+  filter: blur(2px);
+}
+
+/* Underline: a rule under the label rather than a pill behind it. */
+.nav-strip[data-motion='underline'] .nav-indicator {
+  inset-block: auto;
+  bottom: 0.15rem;
+  height: 2px;
+  border-radius: 999px;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--nav-accent) 60%, transparent);
+}
+
+.nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  flex: 1 1 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--nav-ink-dim);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 220ms ease, transform 220ms var(--nav-ease);
+}
+.nav-item:hover { color: var(--nav-ink); }
+.nav-item.is-active { color: #ffffff; }
+.nav-item:active { transform: scale(0.96); }
+.nav-item:focus-visible {
+  outline: 2px solid var(--nav-accent);
+  outline-offset: 2px;
+}
+
+/* Glow and underline leave the item on its own ground, so white text would
+   be invisible — the active item takes the accent instead. */
+.nav-strip[data-motion='glow'] .nav-item.is-active,
+.nav-strip[data-motion='underline'] .nav-item.is-active {
+  color: var(--nav-ink);
+}
+
+.nav-item .pi { font-size: 0.85rem; }
+
+.nav-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--nav-accent);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.nav-item.is-active .nav-badge { background: rgb(255 255 255 / 0.9); color: var(--nav-accent-2); }
+.nav-strip[data-motion='glow'] .nav-item.is-active .nav-badge,
+.nav-strip[data-motion='underline'] .nav-item.is-active .nav-badge {
+  background: var(--nav-accent);
+  color: #fff;
+}
+
+/* ── Variant: floating pill ──────────────────────────────────── */
+.nav-pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 auto;
+  max-width: 44rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--nav-edge);
+  background: var(--nav-surface);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: 0 10px 30px rgb(15 23 42 / 0.10);
+}
+:host-context(.dark) .nav-pill { box-shadow: 0 10px 34px rgb(0 0 0 / 0.5); }
+
+.nav-pill .nav-strip { flex: 1; }
+.nav-pill .nav-item,
+.nav-pill .nav-indicator { border-radius: 999px; }
+
+.nav-brand,
+.nav-avatar {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.nav-brand {
+  background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-2));
+  color: #fff;
+}
+.nav-avatar {
+  background: color-mix(in srgb, var(--nav-accent) 14%, transparent);
+  color: var(--nav-ink);
+  border: 1px solid var(--nav-edge);
+}
+
+/* The label is what goes first when the pill runs out of room; the icon
+   still identifies the item. */
+@media (max-width: 40rem) {
+  .nav-pill .nav-label { display: none; }
+}
+
+/* ── Variant: app bar ────────────────────────────────────────── */
+.nav-bar {
+  border-radius: 0.9rem;
+  border: 1px solid var(--nav-edge);
+  background: var(--nav-surface);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  overflow: hidden;
+}
+.nav-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0.85rem;
+}
+.nav-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: var(--nav-ink);
+  white-space: nowrap;
+}
+.nav-logo .pi { color: var(--nav-accent); }
+
+.nav-strip-wide { flex: 1; justify-content: center; }
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+.nav-ghost {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.55rem;
+  border: 0;
+  background: transparent;
+  color: var(--nav-ink-dim);
+  cursor: pointer;
+  transition: background 200ms ease, color 200ms ease;
+}
+.nav-ghost:hover { background: color-mix(in srgb, var(--nav-accent) 12%, transparent); color: var(--nav-accent); }
+.nav-cta {
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.55rem;
+  border: 0;
+  background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-2));
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 200ms ease, transform 150ms var(--nav-ease);
+}
+.nav-cta:hover { filter: brightness(1.1); }
+.nav-cta:active { transform: scale(0.96); }
+
+.nav-burger {
+  display: none;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.55rem;
+  border: 0;
+  background: transparent;
+  color: var(--nav-ink);
+  cursor: pointer;
+}
+.nav-burger-bars {
+  position: relative;
+  display: block;
+  width: 1.05rem;
+  height: 0.7rem;
+}
+.nav-burger-bars > span {
+  position: absolute;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  border-radius: 999px;
+  background: currentColor;
+  transition: transform 300ms var(--nav-ease), opacity 180ms ease, top 300ms var(--nav-ease);
+}
+.nav-burger-bars > span:nth-child(1) { top: 0; }
+.nav-burger-bars > span:nth-child(2) { top: 0.34rem; }
+.nav-burger-bars > span:nth-child(3) { top: 0.68rem; }
+.nav-burger-bars.is-open > span:nth-child(1) { top: 0.34rem; transform: rotate(45deg); }
+.nav-burger-bars.is-open > span:nth-child(2) { opacity: 0; }
+.nav-burger-bars.is-open > span:nth-child(3) { top: 0.34rem; transform: rotate(-45deg); }
+
+/* Collapsed by grid rather than by height, so the sheet animates open
+   without anyone having to measure its content. */
+.nav-sheet {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 320ms var(--nav-ease);
+}
+.nav-sheet.is-open { grid-template-rows: 1fr; }
+.nav-sheet-inner {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.nav-sheet-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  border: 0;
+  border-top: 1px solid var(--nav-edge);
+  background: transparent;
+  color: var(--nav-ink-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease;
+}
+.nav-sheet-item:hover { background: color-mix(in srgb, var(--nav-accent) 8%, transparent); color: var(--nav-ink); }
+.nav-sheet-item.is-active { color: var(--nav-accent); }
+
+@media (max-width: 52rem) {
+  .nav-bar .nav-strip-wide { display: none; }
+  .nav-burger { display: grid; }
+}
+@media (min-width: 52.01rem) {
+  /* Above the breakpoint the sheet must stay shut even if it was left open on
+     a narrower viewport. `.is-open` has to be matched here too — a bare
+     `.nav-sheet` loses to `.nav-sheet.is-open` on specificity, so the sheet
+     would hang open under a nav strip that is already showing every link. */
+  .nav-sheet,
+  .nav-sheet.is-open { grid-template-rows: 0fr; }
+}
+
+/* ── Variant: dock ───────────────────────────────────────────────
+   `--lift` is written per item from the pointer's distance, so one custom
+   property drives scale, offset and the tooltip. Transitions stay short:
+   a dock that eases slowly feels like lag, not polish. */
+.nav-dock {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 1.1rem;
+  border: 1px solid var(--nav-edge);
+  background: var(--nav-surface);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  box-shadow: 0 14px 34px rgb(15 23 42 / 0.16);
+}
+:host-context(.dark) .nav-dock { box-shadow: 0 14px 40px rgb(0 0 0 / 0.55); }
+
+.nav-dock-item {
+  --lift: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform: translateY(calc(var(--lift) * -0.5rem));
+  transition: transform 160ms ease-out;
+}
+.nav-dock-tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--nav-accent) 12%, transparent);
+  border: 1px solid var(--nav-edge);
+  color: var(--nav-ink);
+  transform: scale(calc(1 + var(--lift) * 0.4));
+  transform-origin: bottom center;
+  transition: transform 160ms ease-out, background 200ms ease, color 200ms ease;
+}
+.nav-dock-item:hover .nav-dock-tile { color: var(--nav-accent); }
+.nav-dock-item.is-active .nav-dock-tile {
+  background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-2));
+  color: #fff;
+  border-color: transparent;
+}
+.nav-dock-item:focus-visible .nav-dock-tile {
+  outline: 2px solid var(--nav-accent);
+  outline-offset: 2px;
+}
+.nav-dock-tile .pi { font-size: 1rem; }
+
+/* The running dot only exists for the active item, so it is the one thing
+   in the dock that is not driven by the pointer. */
+.nav-dock-dot {
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--nav-accent);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.nav-dock-item.is-active .nav-dock-dot { opacity: 1; }
+
+.nav-dock-tip {
+  position: absolute;
+  /* The tile scales from its bottom edge, so it grows *upward* by the lift
+     without its layout box moving. The tooltip has to climb by the same
+     amount or the magnified tile rises straight through it. The tile is
+     2.5rem tall and scales to 1.4, so a full lift adds exactly 1rem. */
+  bottom: calc(100% + 0.5rem + var(--lift) * 1rem);
+  z-index: 2;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.4rem;
+  background: var(--nav-ink);
+  color: var(--surface);
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(0.25rem);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.nav-dock-item:hover .nav-dock-tip,
+.nav-dock-item:focus-visible .nav-dock-tip { opacity: 1; transform: translateY(0); }
+
+/* The dock has no overflow to clip against, so the row needs headroom for a
+   tile at full lift plus its tooltip — otherwise the stage crops both. */
+.nav-dock { margin-top: 3.5rem; }
+
+.nav-badge.is-corner {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  min-width: 0.95rem;
+  height: 0.95rem;
+  font-size: 0.55rem;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* Motion is decoration here; the selection still has to be readable without
+   it, which the colour change alone already achieves. */
+@media (prefers-reduced-motion: reduce) {
+  .nav-indicator,
+  .nav-item,
+  .nav-dock-item,
+  .nav-dock-tile,
+  .nav-dock-tip,
+  .nav-sheet,
+  .nav-burger-bars > span,
+  .nav-cta {
+    transition: none;
+  }
+  .nav-dock-item { transform: none; }
+  .nav-dock-tile { transform: none; }
+}

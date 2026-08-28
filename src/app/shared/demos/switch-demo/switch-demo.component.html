@@ -1,0 +1,32 @@
+<div class="flex flex-col items-center gap-7">
+  <button
+    type="button"
+    role="switch"
+    [attr.aria-checked]="checked()"
+    aria-label="Email me on deploy"
+    (click)="checked.set(!checked())"
+    class="relative flex shrink-0 items-center rounded-full p-1 transition-colors duration-300 cursor-pointer
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50"
+    [class]="trackClass() + ' ' + (checked()
+      ? 'bg-gradient-to-r from-red-600 to-red-800 shadow-lg shadow-red-500/25'
+      : 'bg-slate-300 dark:bg-neutral-800')">
+    <span
+      class="rounded-full bg-white dark:bg-neutral-950 shadow-md transition-transform duration-300
+             [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]"
+      [class]="thumbClass()">
+    </span>
+  </button>
+
+  <p class="text-sm text-slate-600 dark:text-gray-400">
+    Email me on deploy —
+    <span class="font-semibold" [class]="checked() ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-gray-400'">
+      {{ checked() ? 'on' : 'off' }}
+    </span>
+  </p>
+
+  <button type="button" (click)="cycleSize()"
+    class="rounded-lg border border-slate-200 dark:border-white/10 px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-400
+           transition hover:border-red-400 dark:hover:border-red-600/50 hover:text-slate-900 dark:hover:text-white cursor-pointer">
+    size = "{{ size() }}" — click to cycle
+  </button>
+</div>

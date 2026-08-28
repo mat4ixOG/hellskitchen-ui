@@ -1,0 +1,161 @@
+<section id="top" class="relative isolate min-h-[92vh] flex items-center overflow-hidden bg-white dark:bg-neutral-950">
+
+  <!-- Layer 1: stock video (optional — see public/videos/README.md) -->
+  @if (!videoFailed()) {
+    <video
+      class="absolute inset-0 -z-20 h-full w-full object-cover opacity-10 mix-blend-luminosity
+             dark:opacity-25 dark:mix-blend-normal"
+      [src]="videoSrc"
+      (error)="videoFailed.set(true)"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      aria-hidden="true">
+    </video>
+  }
+
+  <!-- Layer 2: animated crimson orbs -->
+  <div aria-hidden="true" class="absolute inset-0 -z-20 overflow-hidden">
+    <div class="animate-float absolute -top-40 -left-24 h-[34rem] w-[34rem] rounded-full
+                bg-red-300/40 blur-[120px] dark:bg-red-700/25"></div>
+    <div class="animate-float-delayed absolute -bottom-52 right-0 h-[38rem] w-[38rem] rounded-full
+                bg-rose-200/50 blur-[130px] dark:bg-red-900/30"></div>
+    <div class="animate-pulse-glow absolute left-1/2 top-1/3 h-72 w-72 -translate-x-1/2 rounded-full
+                bg-red-200/40 blur-[90px] dark:bg-red-500/15"></div>
+  </div>
+
+  <!-- Layer 3: grid + vignette -->
+  <div aria-hidden="true" class="bg-grid mask-fade absolute inset-0 -z-10 opacity-60"></div>
+  <div aria-hidden="true"
+    class="absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-white/70 to-white
+           dark:from-white/40 dark:via-black/60 dark:to-black"></div>
+
+  <div class="relative mx-auto w-full max-w-7xl px-6 py-24">
+    <div class="grid items-center gap-16 lg:grid-cols-[1.1fr_0.9fr]">
+
+      <!-- ── Copy ───────────────────────────────────────────── -->
+      <div>
+        <div appReveal
+          class="inline-flex items-center gap-2 rounded-full border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-950/40 px-4 py-1.5 text-xs font-medium text-red-700 dark:text-red-300">
+          <span class="relative flex h-1.5 w-1.5">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500"></span>
+          </span>
+          v0.1 preview — free forever, MIT licensed
+        </div>
+
+        <h1 appReveal [revealDelay]="80"
+          class="mt-7 text-5xl font-black leading-[1.05] tracking-tight text-slate-900 dark:text-white sm:text-6xl lg:text-7xl">
+          Angular components
+          <br />
+          that are
+          <span class="relative inline-block align-baseline">
+            <span class="text-shimmer">{{ word }}</span>
+            <span class="animate-caret ml-0.5 inline-block h-[0.9em] w-[3px] translate-y-[0.08em] bg-red-500"></span>
+          </span>
+        </h1>
+
+        <p appReveal [revealDelay]="160"
+          class="mt-6 max-w-xl text-lg leading-relaxed text-slate-600 dark:text-gray-400">
+          Small, composable building blocks with animation baked in — every prop, token
+          and transition open to you. No licence tiers, no pro edition, no lock-in.
+          Just Angular, done properly.
+        </p>
+
+        <!-- Install command -->
+        <div appReveal [revealDelay]="240"
+          class="ring-gradient mt-9 flex max-w-md items-center gap-3 rounded-xl border border-slate-200
+                 bg-slate-50 px-4 py-3 font-mono text-sm dark:border-transparent dark:bg-neutral-950/80">
+          <span class="select-none text-red-600 dark:text-red-400">$</span>
+          <code class="flex-1 truncate text-slate-700 dark:text-gray-300">{{ installCommand }}</code>
+          <button
+            type="button"
+            (click)="copyInstall()"
+            [attr.aria-label]="copied() ? 'Copied' : 'Copy install command'"
+            class="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-600 dark:text-gray-400 transition
+                   hover:bg-slate-100 dark:hover:bg-white/5 hover:text-red-700 dark:hover:text-red-400 active:scale-90 cursor-pointer">
+            <i [class]="copied() ? 'pi pi-check text-red-600 dark:text-red-400' : 'pi pi-copy'"></i>
+          </button>
+        </div>
+
+        <!-- CTAs -->
+        <div appReveal [revealDelay]="320" class="mt-8 flex flex-wrap items-center gap-4">
+          <a href="#components"
+            class="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-800
+                   px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-500/25
+                   transition duration-200 hover:brightness-110 active:scale-95">
+            Browse components
+            <i class="pi pi-arrow-right text-xs transition-transform duration-200 group-hover:translate-x-1"></i>
+          </a>
+          <a href="#motion"
+            class="group inline-flex items-center gap-2 rounded-xl border border-slate-300 dark:border-white/20 px-7 py-3.5
+                   text-sm font-semibold text-slate-700 dark:text-gray-300 transition duration-200
+                   hover:border-red-400 hover:bg-red-50 hover:text-slate-900
+                   dark:hover:border-red-600/50 dark:hover:bg-red-950/30 dark:hover:text-white">
+            <i class="pi pi-play-circle text-base text-red-600 dark:text-red-400"></i>
+            Watch the reel
+          </a>
+        </div>
+
+        <!-- Badges -->
+        <ul appReveal [revealDelay]="400" class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+          @for (badge of badges; track badge) {
+            <li class="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-gray-500">
+              <i class="pi pi-check-circle text-[0.7rem] text-red-700 dark:text-red-300"></i>
+              {{ badge }}
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- ── Floating code card ─────────────────────────────── -->
+      <div appReveal [revealDelay]="200" class="relative hidden lg:block">
+        <div aria-hidden="true"
+          class="animate-spin-slow absolute -inset-10 rounded-[3rem] blur-2xl
+                 bg-[conic-gradient(from_0deg,transparent,rgba(239,68,68,0.14),transparent_55%)]
+                 dark:bg-[conic-gradient(from_0deg,transparent,rgba(239,68,68,0.25),transparent_55%)]">
+        </div>
+
+        <div class="ring-gradient glass relative rounded-2xl p-1 shadow-2xl shadow-slate-900/15 dark:shadow-black">
+          <!-- Window chrome -->
+          <div class="flex items-center gap-2 px-4 py-3">
+            <span class="h-3 w-3 rounded-full bg-red-500/80"></span>
+            <span class="h-3 w-3 rounded-full bg-yellow-500/50"></span>
+            <span class="h-3 w-3 rounded-full bg-green-500/50"></span>
+            <span class="ml-3 font-mono text-xs text-slate-600 dark:text-gray-400">app.component.ts</span>
+          </div>
+
+          <pre class="overflow-x-auto rounded-xl bg-white dark:bg-neutral-950 px-5 py-5 font-mono text-[0.8rem] leading-relaxed"><code><span class="text-red-600 dark:text-red-400">import</span> <span class="text-slate-700 dark:text-gray-300">&#123; HkSwitch, HkToast &#125;</span> <span class="text-red-600 dark:text-red-400">from</span> <span class="text-emerald-600 dark:text-emerald-400">'&#64;hellskitchen/ui'</span>;
+
+<span class="text-slate-500 dark:text-gray-500">&#64;Component</span>(<span class="text-slate-700 dark:text-gray-300">&#123;</span>
+  <span class="text-sky-700 dark:text-sky-300">imports</span>: [<span class="text-slate-700 dark:text-gray-300">HkSwitch, HkToast</span>],
+  <span class="text-sky-700 dark:text-sky-300">template</span>: <span class="text-emerald-600 dark:text-emerald-400">`</span>
+<span class="text-emerald-600 dark:text-emerald-400">    &lt;hk-switch</span>
+<span class="text-emerald-600 dark:text-emerald-400">      [(checked)]="dark"</span>
+<span class="text-emerald-600 dark:text-emerald-400">      size="lg"</span>
+<span class="text-emerald-600 dark:text-emerald-400">      accent="crimson" /&gt;</span>
+<span class="text-emerald-600 dark:text-emerald-400">  `</span>
+<span class="text-slate-700 dark:text-gray-300">&#125;</span>)
+<span class="text-red-600 dark:text-red-400">export class</span> <span class="text-amber-700 dark:text-yellow-200">DemoComponent</span> <span class="text-slate-700 dark:text-gray-300">&#123;</span>
+  <span class="text-sky-700 dark:text-sky-300">dark</span> = <span class="text-amber-700 dark:text-yellow-200">signal</span>(<span class="text-orange-700 dark:text-orange-300">true</span>);
+<span class="text-slate-700 dark:text-gray-300">&#125;</span></code></pre>
+        </div>
+
+        <!-- Floating stat chip -->
+        <div
+          class="glass animate-float absolute -bottom-8 -left-8 rounded-xl px-5 py-4 shadow-xl shadow-slate-900/10 dark:shadow-black/60">
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">3.4 kB</p>
+          <p class="text-xs text-slate-600 dark:text-gray-400">gzipped, per component</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll hint -->
+  <a href="#features" aria-label="Scroll to features"
+    class="absolute bottom-8 left-1/2 -translate-x-1/2 text-slate-500 dark:text-gray-500 transition hover:text-red-700 dark:hover:text-red-400">
+    <i class="pi pi-chevron-down animate-bounce text-xl"></i>
+  </a>
+</section>

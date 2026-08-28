@@ -1,0 +1,306 @@
+/* Every variant is the same box with different tokens filled in, so a new tone
+   is five custom properties rather than a new block of CSS.
+   Wrapped in `components` so a consumer's Tailwind utility can still win. */
+@layer components {
+  :host {
+    /* Resolved per tone below. */
+    --hk-btn-accent: var(--hk-accent, #dc2626);
+    --hk-btn-accent-strong: #b91c1c;
+    --hk-btn-accent-soft: rgb(220 38 38 / 0.1);
+    --hk-btn-on-accent: #ffffff;
+    --hk-btn-ink: #0f172a;
+
+    --hk-btn-radius: var(--hk-radius, 10px);
+    --hk-btn-ring: var(--hk-btn-accent);
+
+    /* Glass surface. Retuned wholesale under .dark below. */
+    --hk-glass-fill: rgb(255 255 255 / 0.16);
+    --hk-glass-fill-hover: rgb(255 255 255 / 0.24);
+    --hk-glass-edge: rgb(255 255 255 / 0.34);
+    --hk-glass-edge-hover: rgb(255 255 255 / 0.48);
+    --hk-glass-bevel: inset 0 1px 0 0 rgb(255 255 255 / 0.55), inset 0 -1px 0 0 rgb(0 0 0 / 0.12);
+    --hk-glass-drop: 0 4px 16px rgb(15 23 42 / 0.18);
+    --hk-glass-ink-shadow: 0 1px 1px rgb(255 255 255 / 0.35);
+    --hk-btn-mx: 50%;
+    --hk-btn-my: 50%;
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    overflow: hidden;
+    isolation: isolate;
+    box-sizing: border-box;
+
+    font: inherit;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    vertical-align: middle;
+
+    border: 1px solid transparent;
+    border-radius: var(--hk-btn-radius);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease,
+      box-shadow 160ms ease,
+      transform 120ms ease;
+  }
+
+  :host-context(.dark) {
+    --hk-btn-ink: #f5f5f5;
+    --hk-glass-fill: rgb(255 255 255 / 0.10);
+    --hk-glass-fill-hover: rgb(255 255 255 / 0.16);
+    --hk-glass-edge: rgb(255 255 255 / 0.16);
+    --hk-glass-edge-hover: rgb(255 255 255 / 0.28);
+    --hk-glass-bevel: inset 0 1px 0 0 rgb(255 255 255 / 0.24), inset 0 -1px 0 0 rgb(0 0 0 / 0.35);
+    --hk-glass-drop: 0 4px 20px rgb(0 0 0 / 0.45);
+    --hk-glass-ink-shadow: 0 1px 2px rgb(0 0 0 / 0.45);
+  }
+
+  /* ── Tones ───────────────────────────────────────────────── */
+  :host([data-tone='brand']) {
+    --hk-btn-accent: #dc2626;
+    --hk-btn-accent-strong: #b91c1c;
+    --hk-btn-accent-soft: rgb(220 38 38 / 0.1);
+  }
+  :host([data-tone='neutral']) {
+    --hk-btn-accent: #475569;
+    --hk-btn-accent-strong: #334155;
+    --hk-btn-accent-soft: rgb(71 85 105 / 0.1);
+  }
+  :host([data-tone='success']) {
+    --hk-btn-accent: #047857;
+    --hk-btn-accent-strong: #065f46;
+    --hk-btn-accent-soft: rgb(4 120 87 / 0.1);
+  }
+  :host([data-tone='warning']) {
+    --hk-btn-accent: #b45309;
+    --hk-btn-accent-strong: #92400e;
+    --hk-btn-accent-soft: rgb(180 83 9 / 0.1);
+  }
+  :host([data-tone='danger']) {
+    --hk-btn-accent: #b91c1c;
+    --hk-btn-accent-strong: #991b1b;
+    --hk-btn-accent-soft: rgb(185 28 28 / 0.1);
+  }
+
+  /* ── Sizes ───────────────────────────────────────────────── */
+  :host(.hk-btn-xs) { min-height: 1.75rem; padding: 0 0.6rem; font-size: 0.75rem; }
+  :host(.hk-btn-sm) { min-height: 2rem;    padding: 0 0.75rem; font-size: 0.8rem; }
+  :host(.hk-btn-md) { min-height: 2.375rem; padding: 0 1rem;   font-size: 0.85rem; }
+  :host(.hk-btn-lg) { min-height: 2.75rem; padding: 0 1.35rem; font-size: 0.95rem; }
+
+  :host(.is-icon) { padding: 0; aspect-ratio: 1; }
+  :host(.is-block) { display: flex; width: 100%; }
+
+  :host(.hk-shape-pill) { --hk-btn-radius: 999px; }
+  :host(.hk-shape-square) { --hk-btn-radius: 4px; }
+
+  /* ── Variants ────────────────────────────────────────────── */
+  :host([data-variant='solid']) {
+    background: var(--hk-btn-accent);
+    color: var(--hk-btn-on-accent);
+  }
+  :host([data-variant='solid']:hover:not(.is-disabled):not(.is-loading)) {
+    background: var(--hk-btn-accent-strong);
+  }
+
+  :host([data-variant='soft']) {
+    background: var(--hk-btn-accent-soft);
+    color: var(--hk-btn-accent);
+  }
+  :host([data-variant='soft']:hover:not(.is-disabled):not(.is-loading)) {
+    background: color-mix(in srgb, var(--hk-btn-accent) 18%, transparent);
+  }
+
+  :host([data-variant='outline']) {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--hk-btn-accent) 45%, transparent);
+    color: var(--hk-btn-accent);
+  }
+  :host([data-variant='outline']:hover:not(.is-disabled):not(.is-loading)) {
+    border-color: var(--hk-btn-accent);
+    background: var(--hk-btn-accent-soft);
+  }
+
+  :host([data-variant='ghost']) { background: transparent; color: var(--hk-btn-ink); }
+  :host([data-variant='ghost']:hover:not(.is-disabled):not(.is-loading)) {
+    background: var(--hk-btn-accent-soft);
+    color: var(--hk-btn-accent);
+  }
+
+  :host([data-variant='link']) {
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--hk-btn-accent);
+    text-underline-offset: 3px;
+  }
+  :host([data-variant='link']:hover:not(.is-disabled)) { text-decoration: underline; }
+
+  /* ── Glass ───────────────────────────────────────────────────
+     Apple's "liquid glass" is not one effect but four layered together:
+       1. a blurred, *saturated* backdrop — saturation is what stops it
+          looking like frosted grey plastic;
+       2. a translucent fill so the backdrop still reads through;
+       3. a bright hairline along the top edge and a dark one along the
+          bottom, faking the way light catches a bevel;
+       4. a specular highlight that tracks the pointer (.hk-btn-shine).
+     Blur is the expensive part, so it is only ever applied to this variant. */
+  :host([data-variant='glass']) {
+    background: var(--hk-glass-fill);
+    color: var(--hk-btn-ink);
+    /* Glass sits over whatever the page put behind it, so the label needs a
+       little help holding its edge against a busy backdrop. */
+    text-shadow: var(--hk-glass-ink-shadow);
+    border-color: var(--hk-glass-edge);
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    box-shadow: var(--hk-glass-bevel), var(--hk-glass-drop);
+  }
+  :host([data-variant='glass']:hover:not(.is-disabled):not(.is-loading)) {
+    background: var(--hk-glass-fill-hover);
+    border-color: var(--hk-glass-edge-hover);
+  }
+
+  /* Where the backdrop cannot be blurred the glass would read as a flat
+     translucent box, so fall back to an opaque surface instead. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    :host([data-variant='glass']) {
+      background: color-mix(in srgb, var(--hk-btn-accent) 12%, #ffffff);
+      border-color: color-mix(in srgb, var(--hk-btn-accent) 30%, transparent);
+      color: var(--hk-btn-accent-strong);
+      text-shadow: none;
+    }
+  }
+
+  .hk-btn-shine {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    /* The host stops clipping when a corner badge has to escape it, so the
+       highlight clips itself rather than relying on the host to do it. */
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      12rem circle at var(--hk-btn-mx) var(--hk-btn-my),
+      rgb(255 255 255 / 0.45),
+      transparent 60%
+    );
+    transition: opacity 220ms ease;
+  }
+  :host(.has-shine:hover:not(.is-disabled)) .hk-btn-shine { opacity: 1; }
+
+
+  /* ── Badge ───────────────────────────────────────────────────
+     A count carried by the button itself. `inline` is a chip in the normal
+     flex flow, so the button grows to fit it and nothing overlaps. `corner`
+     floats over the top-right for icon buttons, where there is no room in the
+     flow — and that is the one case the button must stop clipping, or the
+     badge is sliced off by its own border radius. */
+  .hk-btn-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.35em;
+    height: 1.35em;
+    padding: 0 0.4em;
+    border-radius: 999px;
+    font-size: 0.72em;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    white-space: nowrap;
+    background: var(--hk-btn-badge-bg, var(--hk-btn-accent));
+    color: var(--hk-btn-badge-ink, #ffffff);
+  }
+
+  .hk-btn-badge.is-corner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(38%, -38%);
+    /* Cuts the badge out of the button edge, so it reads as sitting on top
+       rather than welded to the corner. */
+    box-shadow: 0 0 0 2px var(--hk-btn-badge-ring, var(--surface, #ffffff));
+  }
+
+  :host(.has-corner-badge) { overflow: visible; }
+
+  /* A filled button has no contrast left for an accent chip, so the badge
+     inverts instead: the button's ink becomes the badge's ground. */
+  :host([data-badge-tone='contrast']) {
+    --hk-btn-badge-bg: var(--hk-btn-on-accent, #ffffff);
+    --hk-btn-badge-ink: var(--hk-btn-accent-strong);
+  }
+  :host([data-badge-tone='brand'])   { --hk-btn-badge-bg: #dc2626; --hk-btn-badge-ink: #ffffff; }
+  :host([data-badge-tone='neutral']) { --hk-btn-badge-bg: #475569; --hk-btn-badge-ink: #ffffff; }
+  :host([data-badge-tone='success']) { --hk-btn-badge-bg: #047857; --hk-btn-badge-ink: #ffffff; }
+  :host([data-badge-tone='warning']) { --hk-btn-badge-bg: #b45309; --hk-btn-badge-ink: #ffffff; }
+  :host([data-badge-tone='danger'])  { --hk-btn-badge-bg: #b91c1c; --hk-btn-badge-ink: #ffffff; }
+
+  /* The label hides while loading; the badge goes with it, or it floats over
+     the spinner as if it were part of it. */
+  :host(.is-loading) .hk-btn-badge { visibility: hidden; }
+
+  /* A link has no box, so an inline badge needs the gap the padding gave it. */
+  :host([data-variant='link']) .hk-btn-badge { margin-left: 0.15em; }
+
+  /* ── States ──────────────────────────────────────────────── */
+  :host(:focus-visible) {
+    outline: 2px solid var(--hk-btn-ring);
+    outline-offset: 2px;
+  }
+  :host(:active:not(.is-disabled):not(.is-loading)) { transform: scale(0.97); }
+
+  :host(.is-disabled), :host([disabled]) {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  /* aria-disabled must still block the click, so keep events flowing here. */
+  :host([aria-disabled='true']) { opacity: 0.5; cursor: not-allowed; }
+
+  :host(.is-loading) { cursor: progress; }
+  /* Hidden, not removed — the button must not change width mid-request. */
+  :host(.is-loading) .hk-btn-label { visibility: hidden; }
+
+  .hk-btn-spinner {
+    position: absolute;
+    width: 1.1em;
+    height: 1.1em;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    opacity: 0.85;
+    animation: hk-btn-spin 0.7s linear infinite;
+  }
+
+  @keyframes hk-btn-spin { to { transform: rotate(360deg); } }
+
+  .hk-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :host { transition: none; }
+    :host(:active:not(.is-disabled)) { transform: none; }
+    .hk-btn-shine { transition: none; }
+    .hk-btn-spinner { animation-duration: 2s; }
+  }
+}

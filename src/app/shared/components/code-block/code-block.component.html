@@ -1,0 +1,21 @@
+<div class="group relative overflow-hidden rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03]">
+  @if (file()) {
+    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-white/10 px-4 py-2.5">
+      <i class="pi pi-file text-[0.7rem] text-red-700 dark:text-red-300"></i>
+      <span class="font-mono text-xs text-slate-600 dark:text-gray-400">{{ file() }}</span>
+    </div>
+  }
+
+  <button
+    type="button"
+    (click)="copy()"
+    [attr.aria-label]="copied() ? 'Copied' : 'Copy code'"
+    class="absolute right-3 grid h-8 w-8 place-items-center rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03]
+           text-slate-600 dark:text-gray-400 opacity-0 transition hover:text-red-700 dark:hover:text-red-400 focus:opacity-100 group-hover:opacity-100
+           active:scale-90 cursor-pointer"
+    [class]="file() ? 'top-11' : 'top-3'">
+    <i [class]="copied() ? 'pi pi-check text-red-600 dark:text-red-400' : 'pi pi-copy'"></i>
+  </button>
+
+  <pre class="overflow-x-auto px-5 py-5 font-mono text-[0.8rem] leading-relaxed text-slate-700 dark:text-gray-300"><code>{{ code() }}</code></pre>
+</div>

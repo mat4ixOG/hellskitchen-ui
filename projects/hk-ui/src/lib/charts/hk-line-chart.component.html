@@ -1,0 +1,134 @@
+<figure class="hk-chart">
+  @if (title() || subtitle() || tableView()) {
+    <figcaption class="hk-chart-head">
+      <div>
+        @if (title()) { <p class="hk-chart-title">{{ title() }}</p> }
+        @if (subtitle()) { <p class="hk-chart-sub">{{ subtitle() }}</p> }
+      </div>
+      @if (tableView()) {
+        <button type="button" class="hk-chart-toggle" (click)="toggleTable()"
+          [attr.aria-pressed]="showTable()">
+          {{ showTable() ? 'Chart' : 'Table' }}
+        </button>
+      }
+    </figcaption>
+  }
+
+  @if (!hasData()) {
+    <p class="hk-chart-empty">{{ emptyMessage() }}</p>
+  } @else if (showTable()) {
+    <!-- The table is the relief for low-contrast hues, and the accessible
+         equivalent of the plot. Same numbers, no colour needed. -->
+    <div class="hk-chart-table-wrap">
+      <table class="hk-chart-table">
+        <caption class="hk-sr">{{ title() || 'Chart data' }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ xAxis().label || 'Category' }}</th>
+            @for (s of resolved(); track s.id) { <th scope="col">{{ s.label }}</th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (label of labels(); track $index) {
+            <tr>
+              <th scope="row">{{ label }}</th>
+              @for (s of resolved(); track s.id) {
+                <td>{{ formatCell(cellValue(s, $index)) }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="hk-chart-plot" [style.height.px]="height()">
+      <svg [attr.viewBox]="'0 0 ' + width() + ' ' + height()"
+        [attr.width]="width()" [attr.height]="height()"
+        role="img" tabindex="0"
+        [attr.aria-label]="(title() || 'Line chart') + ' — ' + resolved().length + ' series, ' + labels().length + ' points. Use arrow keys to read values.'"
+        (pointermove)="onMove($event)" (pointerleave)="onLeave()" (keydown)="onKeydown($event)">
+
+        <!-- Gridlines: hairline, solid, recessive. Never dashed. -->
+        <g class="hk-grid" aria-hidden="true">
+          @for (tick of yTicks(); track tick.value) {
+            <line [attr.x1]="plot().left" [attr.x2]="plot().left + plot().width"
+              [attr.y1]="tick.position" [attr.y2]="tick.position" />
+          }
+        </g>
+
+        <!-- Axis labels wear text tokens, never a series colour. -->
+        <g class="hk-axis" aria-hidden="true">
+          @for (tick of yTicks(); track tick.value) {
+            <text [attr.x]="plot().left - 8" [attr.y]="tick.position" text-anchor="end"
+              dominant-baseline="middle">{{ tick.label }}</text>
+          }
+          @for (tick of xTicks(); track tick.index) {
+            <text [attr.x]="tick.position" [attr.y]="height() - 8" text-anchor="middle">
+              {{ tick.label }}
+            </text>
+          }
+        </g>
+
+        @if (crosshairX() !== null) {
+          <line class="hk-crosshair" [attr.x1]="crosshairX()" [attr.x2]="crosshairX()"
+            [attr.y1]="plot().top" [attr.y2]="plot().top + plot().height" aria-hidden="true" />
+        }
+
+        @for (s of paths(); track s.id) {
+          @if (s.area) {
+            <path class="hk-area" [attr.d]="s.area" [attr.fill]="s.color" aria-hidden="true" />
+          }
+          <path class="hk-line" [attr.d]="s.line" [attr.stroke]="s.color"
+            [attr.stroke-dasharray]="s.dashed ? '6 4' : null" aria-hidden="true" />
+
+          @if (markers()) {
+            @for (p of s.points; track $index) {
+              @if (p.y !== null) {
+                <circle class="hk-dot" [attr.cx]="p.x" [attr.cy]="p.y" r="4"
+                  [attr.fill]="s.color" (click)="activate(s.id, $index)" />
+              }
+            }
+          }
+
+          <!-- The hovered point gets a marker even when markers are off. -->
+          @if (hoveredPoint(s.points); as hovered) {
+            <circle class="hk-dot hk-dot-active" [attr.cx]="hovered.x" [attr.cy]="hovered.y"
+              r="4.5" [attr.fill]="s.color" aria-hidden="true" />
+          }
+
+          @if (endLabels() && s.last) {
+            <text class="hk-end-label" [attr.x]="s.last.x + 8" [attr.y]="s.last.y"
+              dominant-baseline="middle" aria-hidden="true">
+              {{ compactValue(s.lastValue) }}
+            </text>
+          }
+        }
+      </svg>
+
+      @if (hoverIndex() !== null) {
+        <div class="hk-tooltip" [style.left.px]="tooltipLeft()" [style.top.px]="plot().top"
+          role="status" aria-live="polite">
+          <p class="hk-tooltip-title">{{ tooltipTitle() }}</p>
+          @for (row of tooltipRows(); track row.id) {
+            <p class="hk-tooltip-row">
+              <span class="hk-swatch" [style.background]="row.color"></span>
+              <span class="hk-tooltip-label">{{ row.label }}</span>
+              <b>{{ row.formatted }}</b>
+            </p>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (showLegend() && !showTable()) {
+    <ul class="hk-legend">
+      @for (s of resolved(); track s.id) {
+        <li>
+          <span class="hk-swatch" [style.background]="s.color"></span>
+          <span>{{ s.label }}</span>
+        </li>
+      }
+    </ul>
+  }
+</figure>

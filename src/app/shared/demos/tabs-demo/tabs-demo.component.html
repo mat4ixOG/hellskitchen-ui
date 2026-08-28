@@ -1,0 +1,71 @@
+<div class="w-full max-w-md">
+  <div role="tablist" (keydown)="onKey($event)"
+    class="relative flex rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 p-1">
+    <span
+      aria-hidden="true"
+      class="absolute inset-y-1 rounded-lg bg-gradient-to-r from-red-600 to-red-800
+             shadow-lg shadow-red-500/25 transition-transform duration-300
+             [transition-timing-function:cubic-bezier(0.34,1.4,0.64,1)]"
+      [style.width]="'calc((100% - 0.5rem) / ' + tabs().length + ')'"
+      [style.transform]="'translateX(' + index() * 100 + '%)'">
+    </span>
+
+    @for (tab of tabs(); track tab.value) {
+      <button type="button" role="tab"
+        [attr.aria-selected]="active() === tab.value"
+        [tabindex]="active() === tab.value ? 0 : -1"
+        (click)="select(tab.value)"
+        class="relative z-10 flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors duration-200 cursor-pointer"
+        [class]="active() === tab.value ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'">
+        {{ tab.label }}
+
+        <!-- The badge is bound to a count, so an empty one is absent rather
+             than a zero. aria-label carries the meaning the glyph cannot. -->
+        @if (tab.badge) {
+          @if (badgeStyle() === 'dot') {
+            <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500 dark:bg-red-400"
+              [attr.aria-label]="tab.badge + ' unread'"></span>
+          } @else {
+            <span
+              class="min-w-4 shrink-0 rounded-full px-1 text-center text-[0.65rem] font-bold leading-4 transition-colors"
+              [class]="active() === tab.value
+                ? 'bg-white/90 text-red-700'
+                : 'bg-red-600 text-white'"
+              [attr.aria-label]="tab.badge + ' unread'">
+              {{ label(tab.badge) }}
+            </span>
+          }
+        }
+      </button>
+    }
+  </div>
+
+  <div role="tabpanel" class="mt-6 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] p-6 text-sm leading-relaxed text-slate-600 dark:text-gray-400">
+    @switch (active()) {
+      @case ('overview') {
+        <p>A tab strip that measures its own indicator, so labels of any width line up. Arrow keys move between tabs, Home and End jump to the ends.</p>
+      }
+      @case ('api') {
+        <p><code class="text-red-600 dark:text-red-400">[(active)]</code>, <code class="text-red-600 dark:text-red-400">[orientation]</code>, <code class="text-red-600 dark:text-red-400">(changed)</code> — plus one <code class="text-red-600 dark:text-red-400">hk-tab</code> per panel, each with an optional <code class="text-red-600 dark:text-red-400">[badge]</code>.</p>
+      }
+      @case ('theming') {
+        <p>Indicator colour, track background and radius come off <code class="text-red-600 dark:text-red-400">--hk-tabs-*</code> tokens. Restyle it without touching a class name.</p>
+      }
+      @case ('alerts') {
+        <p>Opening a tab clears its badge — the count is bound, not baked in, so whatever feeds it decides when it goes back up.</p>
+      }
+    }
+  </div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200 dark:border-white/10 pt-4">
+    <button type="button" (click)="notify()"
+      class="cursor-pointer rounded-lg border border-slate-200 dark:border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-gray-300 transition hover:text-slate-900 dark:hover:text-white">
+      Simulate notification
+    </button>
+    <button type="button" (click)="badgeStyle.set(badgeStyle() === 'count' ? 'dot' : 'count')"
+      class="cursor-pointer rounded-lg border border-slate-200 dark:border-white/10 px-3 py-1.5 text-xs text-slate-600 dark:text-gray-400 transition hover:text-slate-900 dark:hover:text-white">
+      Style: {{ badgeStyle() }}
+    </button>
+    <span class="text-xs text-slate-500 dark:text-gray-500">Badges clear when you open the tab.</span>
+  </div>
+</div>

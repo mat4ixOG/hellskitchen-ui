@@ -1,0 +1,144 @@
+import { Component, signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import {
+  HkAuroraComponent,
+  HkBeamsComponent,
+  HkDitherComponent,
+  HkDotMatrixComponent,
+  HkGridMotionComponent,
+  HkParticleFieldComponent,
+  HkSpotlightComponent,
+  HkWavesComponent
+} from './index';
+
+@Component({
+  imports: [
+    HkAuroraComponent,
+    HkParticleFieldComponent,
+    HkGridMotionComponent,
+    HkBeamsComponent,
+    HkDotMatrixComponent,
+    HkDitherComponent,
+    HkWavesComponent,
+    HkSpotlightComponent
+  ],
+  template: `
+    <hk-aurora [color]="color()" [speed]="speed()" />
+    <hk-particle-field [color]="color()" />
+    <hk-grid-motion [color]="color()" />
+    <hk-beams [color]="color()" />
+    <hk-dot-matrix [color]="color()" />
+    <hk-dither [color]="color()" />
+    <hk-waves [color]="color()" />
+    <hk-spotlight [color]="color()" [grid]="true" />
+  `
+})
+class HostComponent {
+  readonly color = signal('#dc2626');
+  readonly speed = signal(1);
+}
+
+describe('backgrounds', () => {
+  let fixture: ComponentFixture<HostComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({ imports: [HostComponent] }).compileComponents();
+    fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+  });
+
+  it('gives every canvas background a canvas element', () => {
+    // Seven canvas backgrounds; spotlight is deliberately CSS-only.
+    const canvases = fixture.debugElement.queryAll(By.css('canvas'));
+    expect(canvases.length).toBe(7);
+  });
+
+  it('hides every decorative layer from assistive tech', () => {
+    const layers = fixture.debugElement.queryAll(
+      By.css('canvas, .hk-spot-layer, .hk-spot-grid')
+    );
+    expect(layers.length).toBeGreaterThan(0);
+    for (const layer of layers) {
+      expect(layer.nativeElement.getAttribute('aria-hidden')).toBe('true');
+    }
+  });
+
+  it('renders the spotlight without a canvas', () => {
+    const spotlight = fixture.debugElement.query(By.directive(HkSpotlightComponent));
+    expect(spotlight.query(By.css('canvas'))).toBeNull();
+    expect(spotlight.query(By.css('.hk-spot-layer'))).toBeTruthy();
+    expect(spotlight.query(By.css('.hk-spot-grid'))).toBeTruthy();
+  });
+
+  it('accepts the shared inputs on every background', () => {
+    // Inputs live on the abstract base; without @Directive() on it these would
+    // silently not bind, which is exactly the bug this guards.
+    const aurora = fixture.debugElement.query(By.directive(HkAuroraComponent))
+      .componentInstance as HkAuroraComponent;
+    expect(aurora.color()).toBe('#dc2626');
+    expect(aurora.speed()).toBe(1);
+    expect(aurora.opacity()).toBe(1);
+    expect(aurora.paused()).toBeFalse();
+  });
+
+  it('reflects a changed colour input', () => {
+    fixture.componentInstance.color.set('#3b82f6');
+    fixture.detectChanges();
+    const beams = fixture.debugElement.query(By.directive(HkBeamsComponent))
+      .componentInstance as HkBeamsComponent;
+    expect(beams.color()).toBe('#3b82f6');
+  });
+
+  it('renders aurora whether or not WebGL is available', async () => {
+    // WebGL is missing on plenty of real machines — old GPUs, VMs, browsers
+    // with it disabled. A background that renders nothing there is worse than
+    // one that renders something simpler, so the fallback is the contract.
+    const original = HTMLCanvasElement.prototype.getContext;
+    const asked: string[] = [];
+    spyOn(HTMLCanvasElement.prototype, 'getContext').and.callFake(function (
+      this: HTMLCanvasElement,
+      type: string,
+      ...rest: unknown[]
+    ) {
+      asked.push(type);
+      // Force the no-WebGL path.
+      if (type === 'webgl2' || type === 'webgl') return null;
+      return (original as Function).call(this, type, ...rest);
+    } as typeof HTMLCanvasElement.prototype.getContext);
+
+    const local = TestBed.createComponent(HostComponent);
+    local.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(asked).toContain('webgl2');
+    // Having been refused WebGL, it must have fallen back to 2D rather than
+    // giving up and leaving an empty canvas.
+    expect(asked).toContain('2d');
+    expect(local.debugElement.query(By.directive(HkAuroraComponent))).toBeTruthy();
+    local.destroy();
+  });
+
+  it('tears down cleanly, leaving no live animation frames', () => {
+    // A background that kept its rAF alive after destroy would leak a loop per
+    // navigation — the failure mode that makes these unusable in an SPA.
+    const pending = new Set<number>();
+    const realRaf = window.requestAnimationFrame;
+    const realCancel = window.cancelAnimationFrame;
+    spyOn(window, 'requestAnimationFrame').and.callFake((cb) => {
+      const id = realRaf(cb);
+      pending.add(id);
+      return id;
+    });
+    spyOn(window, 'cancelAnimationFrame').and.callFake((id: number) => {
+      pending.delete(id);
+      realCancel(id);
+    });
+
+    const local = TestBed.createComponent(HostComponent);
+    local.detectChanges();
+    local.destroy();
+
+    expect(pending.size).toBe(0);
+  });
+});

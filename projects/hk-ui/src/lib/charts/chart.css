@@ -1,0 +1,178 @@
+/* Chart chrome. Every colour is a token so light and dark are one swap, and
+   text never wears a series colour — identity comes from the swatch beside it. */
+:host {
+  display: block;
+  width: 100%;
+
+  --hk-chart-ink: #0f172a;
+  --hk-chart-ink-2: #475569;
+  --hk-chart-muted: #64748b;
+  --hk-chart-grid: #e8ecf1;
+  --hk-chart-surface: #ffffff;
+  --hk-chart-border: #e2e8f0;
+  --hk-chart-radius: var(--hk-radius, 12px);
+}
+:host-context(.dark) {
+  --hk-chart-ink: #f5f5f5;
+  --hk-chart-ink-2: #d4d4d8;
+  --hk-chart-muted: #a1a1aa;
+  --hk-chart-grid: rgb(255 255 255 / 0.08);
+  --hk-chart-surface: #0b0b0c;
+  --hk-chart-border: rgb(255 255 255 / 0.1);
+}
+
+.hk-chart { margin: 0; }
+
+.hk-chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.hk-chart-title { margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--hk-chart-ink); }
+.hk-chart-sub { margin: 0.15rem 0 0; font-size: 0.78rem; color: var(--hk-chart-muted); }
+.hk-chart-toggle {
+  flex-shrink: 0;
+  padding: 0.2rem 0.55rem;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--hk-chart-ink-2);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--hk-chart-border);
+  border-radius: calc(var(--hk-chart-radius) / 2);
+}
+.hk-chart-toggle:hover { color: var(--hk-chart-ink); }
+.hk-chart-toggle:focus-visible { outline: 2px solid var(--hk-accent, #dc2626); outline-offset: 1px; }
+
+.hk-chart-plot { position: relative; }
+.hk-chart-plot svg { display: block; overflow: visible; }
+.hk-chart-plot svg:focus-visible { outline: 2px solid var(--hk-accent, #dc2626); outline-offset: 2px; }
+
+/* Hairline, solid, one step off the surface. Dashed gridlines add ink that
+   competes with the data. */
+.hk-grid line { stroke: var(--hk-chart-grid); stroke-width: 1; shape-rendering: crispEdges; }
+
+.hk-axis text { fill: var(--hk-chart-muted); font-size: 0.7rem; }
+
+.hk-crosshair { stroke: var(--hk-chart-muted); stroke-width: 1; opacity: 0.45; }
+
+.hk-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* A wash, never a saturated block — the line carries the value. */
+.hk-area { opacity: 0.1; stroke: none; }
+
+/* The 2px surface ring keeps a dot legible where it crosses a line, and makes
+   the hit target bigger than the mark. */
+.hk-dot { stroke: var(--hk-chart-surface); stroke-width: 2; }
+.hk-dot-active { stroke-width: 2.5; }
+
+.hk-end-label { fill: var(--hk-chart-ink-2); font-size: 0.7rem; font-weight: 600; }
+
+.hk-tooltip {
+  position: absolute;
+  z-index: 5;
+  min-width: 9rem;
+  max-width: 11rem;
+  padding: 0.45rem 0.55rem;
+  pointer-events: none;
+  background: var(--hk-chart-surface);
+  border: 1px solid var(--hk-chart-border);
+  border-radius: calc(var(--hk-chart-radius) / 1.5);
+  box-shadow: 0 12px 28px rgb(15 23 42 / 0.14);
+  font-size: 0.75rem;
+}
+:host-context(.dark) .hk-tooltip { box-shadow: 0 12px 28px rgb(0 0 0 / 0.55); }
+.hk-tooltip-title {
+  margin: 0 0 0.3rem;
+  font-weight: 700;
+  color: var(--hk-chart-ink);
+}
+.hk-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.15rem 0 0;
+  color: var(--hk-chart-ink-2);
+}
+.hk-tooltip-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hk-tooltip-row b { color: var(--hk-chart-ink); font-variant-numeric: tabular-nums; }
+
+.hk-swatch {
+  flex-shrink: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 3px;
+}
+
+.hk-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.75rem;
+  color: var(--hk-chart-ink-2);
+}
+.hk-legend li { display: inline-flex; align-items: center; gap: 0.4rem; }
+
+.hk-chart-empty {
+  margin: 0;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--hk-chart-muted);
+  font-size: 0.8rem;
+}
+
+.hk-chart-table-wrap { overflow-x: auto; }
+.hk-chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+.hk-chart-table th, .hk-chart-table td {
+  padding: 0.35rem 0.6rem;
+  text-align: right;
+  border-bottom: 1px solid var(--hk-chart-border);
+  white-space: nowrap;
+}
+.hk-chart-table thead th { color: var(--hk-chart-muted); font-weight: 600; }
+.hk-chart-table tbody th { text-align: left; color: var(--hk-chart-ink); font-weight: 500; }
+.hk-chart-table td { color: var(--hk-chart-ink-2); font-variant-numeric: tabular-nums; }
+
+.hk-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Bars carry no stroke — the 2px surface gap does the separating. */
+.hk-bar {
+  stroke: none;
+  transition: opacity 150ms ease;
+  cursor: pointer;
+}
+.hk-bar.is-dim { opacity: 0.45; }
+
+.hk-bar-label {
+  fill: var(--hk-chart-ink-2);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.hk-hit { fill: transparent; }
+.hk-hit.is-hovered { fill: var(--hk-chart-grid); opacity: 0.4; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hk-bar { transition: none; }
+}

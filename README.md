@@ -1,59 +1,87 @@
-# TodoList
+# Hell's Kitchen UI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.0.
+Themeable Angular components, and the documentation site that shows them
+running.
 
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+[![npm](https://img.shields.io/npm/v/@hellskitchen/ui.svg)](https://www.npmjs.com/package/@hellskitchen/ui)
+[![licence](https://img.shields.io/npm/l/@hellskitchen/ui.svg)](./LICENSE)
 
 ```bash
-ng generate component component-name
+npm i @hellskitchen/ui
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## What ships, and what does not
+
+This repository holds two things, and the difference matters:
+
+| | What it is | Published? |
+| --- | --- | --- |
+| `projects/hk-ui` | The library: button, data table, charts, eight animated backgrounds | **Yes** — `@hellskitchen/ui` |
+| `src` | The documentation site, and ~60 demo components | No |
+
+The catalogue on the site documents far more components than the package
+exports. **Those extra entries are reference implementations, not exports** —
+self-contained code you can read and copy, written to show how the pattern is
+built. Only the four families in `projects/hk-ui` are importable from npm.
+
+Every component is standalone and signal-based, styled with plain CSS. The
+package pulls in no Tailwind, no icon font and no global stylesheet.
+
+## Layout
+
+```
+projects/hk-ui/src/lib/   the library — button, table, charts, backgrounds
+projects/hk-ui/src/       public-api.ts: the entire published surface
+src/app/shared/demos/     demo components rendered by the docs site
+src/app/shared/data/      the component catalogue (drives the site)
+src/app/modules/          the site itself — home, catalogue, docs
+```
+
+## Developing
+
+The docs site resolves `@hellskitchen/ui` to the **built** library in
+`dist/hk-ui`, so it consumes exactly what npm ships rather than the source. That
+means the library has to be built first — the npm scripts handle it, so prefer
+them over bare `ng` commands:
 
 ```bash
-ng generate --help
+npm start          # builds the library, then serves the docs site
+npm run build      # builds the library, then the site
+npm run test:all   # both suites: library, then site
 ```
 
-## Building
-
-To build the project run:
+Library-only:
 
 ```bash
-ng build
+npm run build:lib
+npm run test:lib
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Publishing
 
 ```bash
-ng test
+npm login
+npm run pack:lib      # inspect the tarball first — always worth it
+npm run publish:lib
 ```
 
-## Running end-to-end tests
+`publishConfig.access` is already `public`, so a scoped package publishes
+without extra flags. Bump `version` in `projects/hk-ui/package.json` before each
+release; npm will not accept the same version twice, and it cannot be renamed
+afterwards.
 
-For end-to-end (e2e) testing, run:
+## Contributing
+
+Both suites must pass:
 
 ```bash
-ng e2e
+npm run test:all
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+If you add a component to the library, export it from
+`projects/hk-ui/src/public-api.ts` — anything not re-exported there is internal
+and can change without it being a breaking change.
 
-## Additional Resources
+## Licence
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+MIT — see [LICENSE](./LICENSE).

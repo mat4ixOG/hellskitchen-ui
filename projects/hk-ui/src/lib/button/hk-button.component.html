@@ -1,0 +1,23 @@
+@if (hasShine()) {
+  <span class="hk-btn-shine" aria-hidden="true"></span>
+}
+
+<!-- The label stays in the DOM while loading so the button keeps its width
+     and nothing beside it reflows. -->
+<span class="hk-btn-label">
+  <ng-content />
+</span>
+
+@if (hasBadge()) {
+  <!-- The glyph may be collapsed ("99+"), so the real value is announced
+       separately rather than read out as punctuation. -->
+  <span class="hk-btn-badge" [class.is-corner]="badgePosition() === 'corner'" aria-hidden="true">
+    {{ badgeLabel() }}
+  </span>
+  <span class="hk-sr">{{ badgeAnnounced() }}</span>
+}
+
+@if (loading()) {
+  <span class="hk-btn-spinner" aria-hidden="true"></span>
+  <span class="hk-sr">Loading</span>
+}
