@@ -4,6 +4,7 @@ import {
   ElementRef,
   NgZone,
   afterNextRender,
+  effect,
   inject,
   input,
   signal
@@ -69,6 +70,13 @@ export abstract class HkBackgroundBase {
   protected onResize(): void {}
 
   constructor() {
+    // `paused` and `speed` are live inputs, not construction-time options, so
+    // the loop is driven from an effect. Reading them once in `start()` meant
+    // flipping `paused` on a running background did nothing at all.
+    effect(() => {
+      if (this.paused() || this.speed() === 0) this.stop();
+      else this.start();
+    });
     afterNextRender(() => this.init());
   }
 
@@ -177,6 +185,9 @@ export abstract class HkBackgroundBase {
   }
 
   protected stop(): void {
+    // Nothing running — and nothing to repaint: the canvas keeps its last frame,
+    // and `stop()` is also the scroll-out and tab-hidden path, where painting
+    // would be pure waste.
     if (this.rafId === null) return;
     cancelAnimationFrame(this.rafId);
     this.rafId = null;

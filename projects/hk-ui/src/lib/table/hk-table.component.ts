@@ -511,6 +511,27 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   constructor() {
     this.restoreState();
 
+    // A table is very often destroyed while something is still in flight: a
+    // debounced search the user typed just before navigating away, or a column
+    // drag interrupted by a route change. Both outlive the component otherwise —
+    // the timer keeps the whole row set reachable and then fires an output on a
+    // destroyed ref, and the drag listeners stay bound to `window` for good.
+    this.destroyRef.onDestroy(() => {
+      if (this.searchTimer) clearTimeout(this.searchTimer);
+      this.searchTimer = null;
+      if (this.resizeFrame !== null) cancelAnimationFrame(this.resizeFrame);
+      this.resizeFrame = null;
+      // Not `onResizeEnd()` — that emits `columnResize`, and outputs are already
+      // torn down by the time this runs.
+      this.resizeState = null;
+      // Guarded: destroy also runs on the server, where there is no `window` to
+      // detach from — and an SSR render destroys the app on every request.
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('pointermove', this.onResizeMove);
+        window.removeEventListener('pointerup', this.onResizeEnd);
+      }
+    });
+
     // Seed the sort stack from the convenience inputs, once, if not already set.
     effect(() => {
       const field = this.sortField();
@@ -1512,8 +1533,15 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
     const anchor = document.createElement('a');
     anchor.href = url;
     anchor.download = `${this.exportFilename()}.csv`;
+    anchor.rel = 'noopener';
+    anchor.style.display = 'none';
+    // Firefox ignores a click on an anchor that is not in the document, and both
+    // Firefox and Safari fetch the blob *after* the handler returns — so the URL
+    // has to outlive this tick or the download is cancelled before it starts.
+    document.body.appendChild(anchor);
     anchor.click();
-    URL.revokeObjectURL(url);
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url));
   }
 
   // ── Public helpers ───────────────────────────────────────────

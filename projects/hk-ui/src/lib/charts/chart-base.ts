@@ -73,8 +73,21 @@ export abstract class HkChartBase {
 
     if (tail.length) {
       const length = Math.max(...tail.map((s) => s.data.length));
+      /**
+       * x comes from whichever series actually has a point at this index.
+       * Reading it off `tail[0]` alone breaks as soon as that series is the
+       * shortest — the bucket then falls back to the bare index and mixes raw
+       * numbers into what may well be a categorical axis.
+       */
+      const xAt = (index: number): HkSeries['data'][number]['x'] => {
+        for (const candidate of all) {
+          const point = candidate.data[index];
+          if (point) return point.x;
+        }
+        return index;
+      };
       const merged = Array.from({ length }, (_, index) => ({
-        x: tail[0].data[index]?.x ?? index,
+        x: xAt(index),
         y: tail.reduce((sum, s) => {
           const value = s.data[index]?.y;
           return value === null || value === undefined ? sum : sum + value;

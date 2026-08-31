@@ -1,17 +1,33 @@
-# @hellskitchen/ui
+# @hellskitchen/ui — Angular UI component library
 
-Themeable Angular components: a button, a real data table, two charts and eight
-animated backgrounds. Standalone, signal-based, and styled with plain CSS — no
-Tailwind, no icon font, no global stylesheet to import.
+Themeable **Angular components** for Angular 19, 20, 21 and 22: a button, a real
+**data table** with sorting, filtering, grouped headers, virtual scroll and CSV
+export, **line and bar charts**, and eight **animated WebGL backgrounds**.
+Standalone, signal-based, and styled with plain CSS — no Tailwind, no icon font,
+no global stylesheet to import.
 
 ```bash
 npm i @hellskitchen/ui
 ```
 
-Requires Angular 19 or later. `@angular/core` and `@angular/common` are peer
-dependencies, so you keep the Angular version you already have.
+## Angular version support
 
-## What is in it
+`@angular/core` and `@angular/common` are peer dependencies, so you keep the
+Angular version you already have.
+
+| Angular | Supported |
+| --- | --- |
+| 22.x | ✅ |
+| 21.x | ✅ |
+| 20.x | ✅ |
+| 19.x | ✅ |
+| ≤ 18 | ❌ — the package is built on the signal inputs API |
+
+Works in both zone-based and **zoneless** applications, and is safe to render
+under **SSR** — nothing touches `window`, `document` or a canvas before
+`afterNextRender`.
+
+## Components
 
 This package ships four families. The [documentation site][docs] catalogues many
 more components — those are **reference implementations you can copy**, not
@@ -92,7 +108,7 @@ put `components` before Tailwind's `utilities` and utility classes such as
 Skip it and the components still work — but an override placed in a layer may
 lose to the component default depending on load order.
 
-## Accessibility and motion
+## Accessibility (a11y) and reduced motion
 
 Interactive components ship their ARIA wiring rather than leaving it to the
 caller: the button announces `aria-busy` while loading and blocks the press, the

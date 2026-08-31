@@ -551,14 +551,41 @@ export function aggregate(rows: any[], column: HkColumn, field: string): unknown
 
 // ── Export ─────────────────────────────────────────────────────
 
-/** RFC 4180 quoting — a field with a quote, comma or newline gets wrapped. */
-export function csvCell(value: unknown): string {
-  const raw = value == null ? '' : String(value);
-  return /[",\n\r]/.test(raw) ? `"${raw.replace(/"/g, '""')}"` : raw;
+/**
+ * A leading `=`, `+`, `-` or `@` makes Excel, LibreOffice and Sheets evaluate
+ * the cell as a formula, so a value typed into the table by one user runs as
+ * code on whoever opens the export. Prefixing a tab keeps the text intact and
+ * inert.
+ *
+ * Numbers are exempt, and have to be: `-5` is a negative number in every real
+ * dataset, and neutralising it would turn a numeric column into text.
+ */
+function neutralise(raw: string): string {
+  if (!/^[=+\-@\t\r]/.test(raw)) return raw;
+  const numeric = raw !== '' && Number.isFinite(Number(raw));
+  return numeric ? raw : `\t${raw}`;
+}
+
+/**
+ * RFC 4180 quoting — a field containing a quote, a newline or the active
+ * separator gets wrapped. The separator matters: quoting only against `,` while
+ * joining on `;` shifts every column after the first offending cell.
+ */
+export function csvCell(value: unknown, separator = ','): string {
+  const raw = neutralise(value == null ? '' : String(value));
+  const needsQuotes =
+    raw.includes('"') ||
+    raw.includes('\n') ||
+    raw.includes('\r') ||
+    (separator !== '' && raw.includes(separator));
+  return needsQuotes ? `"${raw.replace(/"/g, '""')}"` : raw;
 }
 
 export function toCsv(headers: string[], rows: unknown[][], separator = ','): string {
-  const lines = [headers.map(csvCell).join(separator)];
-  for (const row of rows) lines.push(row.map(csvCell).join(separator));
+  // Wrapped rather than passed straight to `map`, which would hand `csvCell`
+  // the array index as its separator.
+  const cell = (value: unknown): string => csvCell(value, separator);
+  const lines = [headers.map(cell).join(separator)];
+  for (const row of rows) lines.push(row.map(cell).join(separator));
   return lines.join('\r\n');
 }

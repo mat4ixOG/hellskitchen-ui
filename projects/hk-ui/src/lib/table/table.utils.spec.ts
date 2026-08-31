@@ -261,6 +261,31 @@ describe('table.utils', () => {
     it('joins with CRLF so Excel reads it', () => {
       expect(toCsv(['a', 'b'], [[1, 2]])).toBe('a,b\r\n1,2');
     });
+
+    it('quotes against the separator actually in use', () => {
+      // Quoting only against ',' while joining on ';' shifts every column after
+      // the offending cell.
+      expect(csvCell('a;b', ';')).toBe('"a;b"');
+      expect(toCsv(['x', 'y'], [['a;b', 'c']], ';')).toBe('x;y\r\n"a;b";c');
+      // And a comma is just data once ';' is the separator.
+      expect(csvCell('a,b', ';')).toBe('a,b');
+    });
+
+    it('defuses spreadsheet formulas without touching numbers', () => {
+      expect(csvCell('=1+1')).toBe('\t=1+1');
+      expect(csvCell('=HYPERLINK("http://x","go")')).toBe(
+        '"\t=HYPERLINK(""http://x"",""go"")"'
+      );
+      expect(csvCell('@SUM(A1)')).toBe('\t@SUM(A1)');
+      expect(csvCell('+cmd|calc')).toBe('\t+cmd|calc');
+      // Negative and signed numbers are data, not formulas.
+      expect(csvCell(-5)).toBe('-5');
+      expect(csvCell('-12.5')).toBe('-12.5');
+      expect(csvCell('+7')).toBe('+7');
+      expect(csvCell('-1e3')).toBe('-1e3');
+      // ...but a leading '-' on something non-numeric is not.
+      expect(csvCell('-1+1')).toBe('\t-1+1');
+    });
   });
 
   describe('misc helpers', () => {

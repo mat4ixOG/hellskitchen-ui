@@ -1,18 +1,46 @@
 {
   "name": "@hellskitchen/ui",
   "version": "0.1.0",
-  "description": "Themeable Angular components — button, data table, charts and animated backgrounds. Signal-based, standalone, no Tailwind or icon-font required.",
+  "description": "Angular UI component library for Angular 19-22: a data table with sorting, filtering, virtual scroll and CSV export, line and bar charts, a themeable button, and eight animated WebGL backgrounds. Standalone, signal-based, SSR-safe.",
   "keywords": [
     "angular",
     "angular-components",
-    "ui",
+    "angular-ui",
+    "angular-library",
     "component-library",
-    "table",
+    "ui-components",
+    "design-system",
+    "angular-table",
+    "data-table",
     "datatable",
+    "data-grid",
+    "table",
+    "virtual-scroll",
+    "csv-export",
+    "angular-charts",
     "charts",
+    "line-chart",
+    "bar-chart",
+    "svg-charts",
+    "animated-background",
+    "webgl",
+    "shader",
+    "canvas",
+    "particles",
+    "aurora",
+    "button",
     "signals",
     "standalone",
-    "themeable"
+    "zoneless",
+    "ssr",
+    "themeable",
+    "accessible",
+    "a11y",
+    "tailwind-free",
+    "angular-19",
+    "angular-20",
+    "angular-21",
+    "angular-22"
   ],
   "license": "MIT",
   "author": "mat4ixOG",
@@ -26,8 +54,8 @@
     "url": "https://github.com/mat4ixOG/hellskitchen-ui/issues"
   },
   "peerDependencies": {
-    "@angular/common": "^19.0.0 || ^20.0.0",
-    "@angular/core": "^19.0.0 || ^20.0.0"
+    "@angular/common": "^19.0.0 || ^20.0.0 || ^21.0.0 || ^22.0.0",
+    "@angular/core": "^19.0.0 || ^20.0.0 || ^21.0.0 || ^22.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

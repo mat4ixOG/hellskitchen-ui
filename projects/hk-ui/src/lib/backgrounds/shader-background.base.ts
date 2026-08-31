@@ -42,6 +42,28 @@ void main() {
 }`;
 
   protected createContext(canvas: HTMLCanvasElement): boolean {
+    return this.acquire(canvas, true);
+  }
+
+  /**
+   * `register` is false on a context restore: the listeners and the teardown
+   * hook are already in place from the first acquisition, and adding a second
+   * set on every GPU reset would leak both.
+   */
+  private acquire(canvas: HTMLCanvasElement, register: boolean): boolean {
+    // Uniform locations belong to the program that was queried, so a cache kept
+    // across a rebuild silently addresses a deleted program and every uniform
+    // write is dropped — the background freezes on its last frame.
+    this.uniforms.clear();
+
+    // The shader is compiled on a throwaway canvas first. An element that has
+    // handed out a WebGL context can never return a 2D one, so asking the real
+    // canvas for WebGL and *then* discovering the shader will not build leaves
+    // no route to the fallback — and the background renders nothing at all.
+    // Drivers that advertise WebGL2 but reject a shader are exactly the ones
+    // that need the fallback most.
+    if (!this.shaderBuilds()) return this.useFallback(canvas);
+
     const gl = canvas.getContext('webgl2', {
       alpha: true,
       antialias: false,
@@ -56,17 +78,39 @@ void main() {
 
     this.gl = gl;
 
-    // A lost context is recoverable and not rare — a GPU reset, a laptop
-    // switching graphics. Stop cleanly rather than spewing GL errors.
-    canvas.addEventListener('webglcontextlost', this.onContextLost, false);
-    canvas.addEventListener('webglcontextrestored', this.onContextRestored, false);
+    if (register) {
+      // A lost context is recoverable and not rare — a GPU reset, a laptop
+      // switching graphics. Stop cleanly rather than spewing GL errors.
+      canvas.addEventListener('webglcontextlost', this.onContextLost, false);
+      canvas.addEventListener('webglcontextrestored', this.onContextRestored, false);
 
-    this.destroyRef.onDestroy(() => {
-      canvas.removeEventListener('webglcontextlost', this.onContextLost);
-      canvas.removeEventListener('webglcontextrestored', this.onContextRestored);
-      this.releaseGl();
-    });
+      this.destroyRef.onDestroy(() => {
+        canvas.removeEventListener('webglcontextlost', this.onContextLost);
+        canvas.removeEventListener('webglcontextrestored', this.onContextRestored);
+        this.releaseGl();
+      });
+    }
     return true;
+  }
+
+  /** Compiles and links on a 1x1 scratch context, leaving the real one untouched. */
+  private shaderBuilds(): boolean {
+    const probe = document.createElement('canvas');
+    probe.width = 1;
+    probe.height = 1;
+    const gl = probe.getContext('webgl2', {
+      alpha: true,
+      antialias: false,
+      powerPreference: 'low-power'
+    }) as WebGL2RenderingContext | null;
+    if (!gl) return false;
+
+    const built = this.buildProgram(gl);
+    // `buildProgram` records the program it made; this one is scratch.
+    if (this.program) gl.deleteProgram(this.program);
+    this.program = null;
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    return built;
   }
 
   private useFallback(canvas: HTMLCanvasElement): boolean {
@@ -120,13 +164,17 @@ void main() {
   };
 
   private readonly onContextRestored = (): void => {
-    if (this.createContext(this.canvas)) this.start();
+    if (!this.acquire(this.canvas, false)) return;
+    // The new context starts with its own default viewport and no uniforms set.
+    this.onResize();
+    this.start();
   };
 
   private releaseGl(): void {
     if (this.gl && this.program) this.gl.deleteProgram(this.program);
     this.program = null;
     this.gl = null;
+    this.uniforms.clear();
   }
 
   protected override onResize(): void {

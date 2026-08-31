@@ -116,6 +116,11 @@ export class HkSpotlightComponent {
     };
 
     const leave = (): void => {
+      // Drop the queued write, or it lands after the reset and the light sticks
+      // wherever the pointer happened to leave.
+      if (this.frameId !== null) cancelAnimationFrame(this.frameId);
+      this.frameId = null;
+      this.pending = null;
       element.style.setProperty('--hk-spot-x', '50%');
       element.style.setProperty('--hk-spot-y', '50%');
     };

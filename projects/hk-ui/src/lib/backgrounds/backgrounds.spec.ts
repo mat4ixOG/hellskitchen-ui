@@ -24,7 +24,7 @@ import {
     HkSpotlightComponent
   ],
   template: `
-    <hk-aurora [color]="color()" [speed]="speed()" />
+    <hk-aurora [color]="color()" [speed]="speed()" [paused]="paused()" />
     <hk-particle-field [color]="color()" />
     <hk-grid-motion [color]="color()" />
     <hk-beams [color]="color()" />
@@ -37,6 +37,7 @@ import {
 class HostComponent {
   readonly color = signal('#dc2626');
   readonly speed = signal(1);
+  readonly paused = signal(false);
 }
 
 describe('backgrounds', () => {
@@ -116,6 +117,80 @@ describe('backgrounds', () => {
     // giving up and leaving an empty canvas.
     expect(asked).toContain('2d');
     expect(local.debugElement.query(By.directive(HkAuroraComponent))).toBeTruthy();
+    local.destroy();
+  });
+
+  it('falls back to 2D when WebGL2 exists but the shader will not build', async () => {
+    // The nastier half of the no-WebGL story: a driver that advertises WebGL2
+    // and then refuses the shader. A canvas that has vended a WebGL context can
+    // never return a 2D one, so the shader has to be proven on a scratch canvas
+    // before the real one is committed — otherwise this renders nothing at all.
+    const realCompileShader = WebGL2RenderingContext.prototype.compileShader;
+    if (!realCompileShader) {
+      pending('no WebGL2 in this browser');
+      return;
+    }
+    // Fail every fragment compile, leaving the vertex path alone.
+    spyOn(WebGL2RenderingContext.prototype, 'getShaderParameter').and.returnValue(false);
+
+    const contexts: string[] = [];
+    const realGetContext = HTMLCanvasElement.prototype.getContext;
+    spyOn(HTMLCanvasElement.prototype, 'getContext').and.callFake(function (
+      this: HTMLCanvasElement,
+      type: string,
+      ...rest: unknown[]
+    ) {
+      contexts.push(type);
+      return (realGetContext as Function).call(this, type, ...rest);
+    } as typeof HTMLCanvasElement.prototype.getContext);
+
+    const local = TestBed.createComponent(HostComponent);
+    local.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const aurora = local.debugElement.query(By.directive(HkAuroraComponent));
+    const canvas = aurora.query(By.css('canvas')).nativeElement as HTMLCanvasElement;
+    // The real canvas must have been asked for 2D — which is only possible
+    // because it was never handed a WebGL context.
+    expect(contexts).toContain('2d');
+    expect(canvas.getContext('2d')).toBeTruthy();
+
+    local.destroy();
+  });
+
+  it('stops and resumes the loop when `paused` is toggled', async () => {
+    // `paused` is documented as pausing without unmounting, so it has to act on
+    // a loop that is already running. Reading it once inside start() meant
+    // flipping it on a live background did nothing at all.
+    // Reduced motion is pinned off, or the loop never starts and the assertions
+    // below would pass without testing anything.
+    spyOn(window, 'matchMedia').and.returnValue({
+      matches: false,
+      media: '',
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false
+    } as unknown as MediaQueryList);
+
+    const local = TestBed.createComponent(HostComponent);
+    local.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const aurora = local.debugElement.query(By.directive(HkAuroraComponent))
+      .componentInstance as HkAuroraComponent;
+    expect(aurora.running()).toBeTrue();
+
+    local.componentInstance.paused.set(true);
+    local.detectChanges();
+    expect(aurora.running()).toBeFalse();
+
+    local.componentInstance.paused.set(false);
+    local.detectChanges();
+    expect(aurora.running()).toBeTrue();
+
     local.destroy();
   });
 

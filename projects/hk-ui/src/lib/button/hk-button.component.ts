@@ -1,8 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
+  NgZone,
   computed,
+  effect,
   inject,
   input,
   output,
@@ -53,9 +56,7 @@ export type HkButtonBadgeTone = 'auto' | 'contrast' | 'brand' | 'neutral' | 'suc
     '[attr.aria-disabled]': '!isNativeButton && (disabled() || loading()) ? "true" : null',
     '[attr.aria-busy]': 'loading() ? "true" : null',
     '[attr.type]': 'isNativeButton ? type() : null',
-    '(click)': 'onClick($event)',
-    '(pointermove)': 'onPointerMove($event)',
-    '(pointerleave)': 'onPointerLeave()'
+    '(click)': 'onClick($event)'
   }
 })
 export class HkButtonComponent {
@@ -96,6 +97,8 @@ export class HkButtonComponent {
   readonly pressed = output<MouseEvent>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly zone = inject(NgZone);
+  private readonly destroyRef = inject(DestroyRef);
   /** An anchor cannot carry `disabled`, so the two need different treatment. */
   readonly isNativeButton = this.host.nativeElement.tagName === 'BUTTON';
 
@@ -144,6 +147,56 @@ export class HkButtonComponent {
   );
 
   private frame: number | null = null;
+  private detachShine: (() => void) | null = null;
+
+  constructor() {
+    // The shine listeners are attached only while the shine is actually on, and
+    // always outside the zone. A `(pointermove)` host binding would be far
+    // simpler, but it runs change detection on every pointer event for every
+    // button on the page — including buttons that have no shine to update.
+    effect(() => (this.hasShine() ? this.attachShine() : this.releaseShine()));
+    this.destroyRef.onDestroy(() => this.releaseShine());
+  }
+
+  private attachShine(): void {
+    if (this.detachShine) return;
+    const element = this.host.nativeElement;
+    const move = (event: PointerEvent): void => {
+      if (this.frame !== null) return;
+      // Pointer events outrun frames; collapse them to one write per frame.
+      this.frame = requestAnimationFrame(() => {
+        this.frame = null;
+        const rect = element.getBoundingClientRect();
+        element.style.setProperty('--hk-btn-mx', `${event.clientX - rect.left}px`);
+        element.style.setProperty('--hk-btn-my', `${event.clientY - rect.top}px`);
+      });
+    };
+    const leave = (): void => {
+      // Drop any queued write, or it lands after the reset and the highlight
+      // sticks where the pointer left.
+      if (this.frame !== null) cancelAnimationFrame(this.frame);
+      this.frame = null;
+      element.style.setProperty('--hk-btn-mx', '50%');
+      element.style.setProperty('--hk-btn-my', '50%');
+    };
+
+    this.zone.runOutsideAngular(() => {
+      element.addEventListener('pointermove', move, { passive: true });
+      element.addEventListener('pointerleave', leave, { passive: true });
+    });
+
+    this.detachShine = () => {
+      element.removeEventListener('pointermove', move);
+      element.removeEventListener('pointerleave', leave);
+    };
+  }
+
+  private releaseShine(): void {
+    if (this.frame !== null) cancelAnimationFrame(this.frame);
+    this.frame = null;
+    this.detachShine?.();
+    this.detachShine = null;
+  }
 
   onClick(event: MouseEvent): void {
     if (this.disabled() || this.loading()) {
@@ -155,25 +208,4 @@ export class HkButtonComponent {
     this.pressed.emit(event);
   }
 
-  /**
-   * Writes the pointer position as CSS variables so the highlight can follow
-   * it. Coalesced to one write per frame — pointermove outruns rendering.
-   */
-  onPointerMove(event: PointerEvent): void {
-    if (!this.hasShine() || this.frame !== null) return;
-    const element = this.host.nativeElement;
-    this.frame = requestAnimationFrame(() => {
-      this.frame = null;
-      const rect = element.getBoundingClientRect();
-      element.style.setProperty('--hk-btn-mx', `${event.clientX - rect.left}px`);
-      element.style.setProperty('--hk-btn-my', `${event.clientY - rect.top}px`);
-    });
-  }
-
-  onPointerLeave(): void {
-    if (!this.hasShine()) return;
-    const element = this.host.nativeElement;
-    element.style.setProperty('--hk-btn-mx', '50%');
-    element.style.setProperty('--hk-btn-my', '50%');
-  }
 }
