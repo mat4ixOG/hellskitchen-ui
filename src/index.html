@@ -6,6 +6,39 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- Baseline tags. The router's TitleStrategy overwrites title/description/
+       canonical/og per page, and because that runs during prerendering the
+       per-page values are already in each generated HTML file. These are the
+       fallback for anything not routed. -->
+  <meta name="description" content="Free, MIT-licensed Angular component library for Angular 19-22: a data table with sorting, filtering and virtual scroll, charts, and animated WebGL backgrounds. Standalone and signal-based.">
+  <meta name="theme-color" content="#dc2626">
+  <meta name="color-scheme" content="dark light">
+  <link rel="canonical" href="https://hellskitchen-ui.pages.dev/">
+
+  <meta property="og:site_name" content="Hell's Kitchen UI">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Hell's Kitchen UI — free Angular component library">
+  <meta property="og:description" content="A data table with sorting, filtering and virtual scroll, charts, and animated WebGL backgrounds. Standalone, signal-based, MIT licensed.">
+  <meta property="og:url" content="https://hellskitchen-ui.pages.dev/">
+  <meta property="og:image" content="https://hellskitchen-ui.pages.dev/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Google reads this for the software/package rich result. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "Hell's Kitchen UI",
+    "description": "Free, MIT-licensed Angular component library: data table, charts, animated WebGL backgrounds and a themeable button.",
+    "url": "https://hellskitchen-ui.pages.dev/",
+    "codeRepository": "https://github.com/mat4ixOG/hellskitchen-ui",
+    "programmingLanguage": "TypeScript",
+    "runtimePlatform": "Angular",
+    "license": "https://opensource.org/licenses/MIT",
+    "author": { "@type": "Person", "name": "mat4ixOG" }
+  }
+  </script>
   <script>
     // Runs before the first paint, so the stored theme is already on <html>
     // when the page renders. HkThemeService owns it from then on.

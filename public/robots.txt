@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hellskitchen-ui.pages.dev/sitemap.xml

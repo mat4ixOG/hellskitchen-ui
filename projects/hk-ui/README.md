@@ -10,6 +10,8 @@ no global stylesheet to import.
 npm i hellskitchen-ui
 ```
 
+**[Live documentation, with every component running →](https://hellskitchen-ui.pages.dev)**
+
 ## Angular version support
 
 `@angular/core` and `@angular/common` are peer dependencies, so you keep the
@@ -124,4 +126,4 @@ matters to you.
 
 MIT
 
-[docs]: https://github.com/mat4ixOG/hellskitchen-ui
+[docs]: https://hellskitchen-ui.pages.dev

@@ -1,10 +1,19 @@
-# Hell's Kitchen UI
+# Hell's Kitchen UI — free Angular component library
 
-Themeable Angular components, and the documentation site that shows them
-running.
+[![og](public/og-image.png)](https://hellskitchen-ui.pages.dev)
+
+Free, MIT-licensed **Angular components** for Angular 19, 20, 21 and 22: a real
+**data table** with sorting, filtering, grouped headers, virtual scroll and CSV
+export, **line and bar charts**, a themeable **button**, and eight **animated
+WebGL backgrounds**. Standalone, signal-based, SSR-safe — no Tailwind, no icon
+font, no global stylesheet.
+
+**[Live docs and demos →](https://hellskitchen-ui.pages.dev)** · **[All components →](https://hellskitchen-ui.pages.dev/components/)** · **[npm →](https://www.npmjs.com/package/hellskitchen-ui)**
 
 [![npm](https://img.shields.io/npm/v/hellskitchen-ui.svg)](https://www.npmjs.com/package/hellskitchen-ui)
+[![downloads](https://img.shields.io/npm/dm/hellskitchen-ui.svg)](https://www.npmjs.com/package/hellskitchen-ui)
 [![licence](https://img.shields.io/npm/l/hellskitchen-ui.svg)](./LICENSE)
+![Angular](https://img.shields.io/badge/Angular-19%20%7C%2020%20%7C%2021%20%7C%2022-dd0031)
 
 ```bash
 npm i hellskitchen-ui

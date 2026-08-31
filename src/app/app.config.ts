@@ -10,6 +10,8 @@ import Aura from '@primeng/themes/aura';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { TitleStrategy } from '@angular/router';
+import { HkSeoStrategy } from './shared/services/seo.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -37,6 +39,10 @@ export const appConfig: ApplicationConfig = {
           }
         }
       }
-    }), provideClientHydration(withEventReplay())
+    }),
+    provideClientHydration(withEventReplay()),
+    // Sets title, description, canonical and social cards as part of routing,
+    // so the tags are baked into every prerendered page.
+    { provide: TitleStrategy, useClass: HkSeoStrategy }
   ]
 };
