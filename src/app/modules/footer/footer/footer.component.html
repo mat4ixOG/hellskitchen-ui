@@ -36,30 +36,6 @@
           can pick Angular and ship fast.
         </p>
 
-        <form class="mt-7 flex max-w-sm gap-2" (submit)="submit($event)">
-          <label class="sr-only" for="footer-email">Email address</label>
-          <input
-            id="footer-email"
-            type="email"
-            required
-            placeholder="you@example.com"
-            class="min-w-0 flex-1 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] px-4 py-2.5 text-sm
-                   text-slate-900 dark:text-white transition duration-200 placeholder:text-slate-400 dark:placeholder:text-gray-500
-                   focus:border-red-500 dark:focus:border-red-600/70 focus:outline-none focus:ring-2 focus:ring-red-600/25" />
-          <button
-            type="submit"
-            class="rounded-lg bg-gradient-to-r from-red-600 to-red-900 px-4 py-2.5 text-sm font-semibold text-white
-                   transition duration-200 hover:brightness-110 active:scale-95 cursor-pointer">
-            {{ subscribed() ? 'Done' : 'Release notes' }}
-          </button>
-        </form>
-
-        @if (subscribed()) {
-          <p class="animate-toast-in mt-3 text-xs text-red-600 dark:text-red-400">
-            <i class="pi pi-check-circle mr-1"></i>
-            You're on the list — one mail per release, nothing else.
-          </p>
-        }
       </div>
 
       <!-- Link columns -->

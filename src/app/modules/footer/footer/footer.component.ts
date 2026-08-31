@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 
 interface FooterColumn {
   title: string;
@@ -19,7 +19,6 @@ interface SocialLink {
 })
 export class FooterComponent {
   readonly year = new Date().getFullYear();
-  readonly subscribed = signal(false);
 
   readonly columns: FooterColumn[] = [
     {
@@ -46,7 +45,6 @@ export class FooterComponent {
       title: 'Community',
       links: [
         { label: 'GitHub', href: 'https://github.com/mat4ixOG/hellskitchen-ui' },
-        { label: 'Discussions', href: 'https://github.com/mat4ixOG/hellskitchen-ui/discussions' },
         { label: 'Changelog', href: 'https://github.com/mat4ixOG/hellskitchen-ui/releases' }
       ]
     }
@@ -59,8 +57,4 @@ export class FooterComponent {
     { label: 'Email', icon: 'pi pi-envelope', href: '#community' }
   ];
 
-  submit(event: Event): void {
-    event.preventDefault();
-    this.subscribed.set(true);
-  }
 }
