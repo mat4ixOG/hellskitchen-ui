@@ -9,6 +9,4 @@ import { FooterComponent } from './modules/footer/footer/footer.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
-  title = 'todo-list';
-}
+export class AppComponent {}

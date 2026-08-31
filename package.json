@@ -9,7 +9,7 @@
     "test": "npm run build:lib && ng test",
     "build:lib": "ng build hk-ui",
     "test:lib": "ng test hk-ui",
-    "test:all": "npm run build:lib && ng test --watch=false",
+    "test:all": "npm run build:lib && ng test hk-ui --watch=false --browsers=ChromeHeadless && ng test hk-docs --watch=false --browsers=ChromeHeadless",
     "pack:lib": "npm run build:lib && cd dist/hk-ui && npm pack",
     "publish:lib": "npm run build:lib && cd dist/hk-ui && npm publish"
   },
@@ -48,5 +48,5 @@
     "ng-packagr": "^19.2.0",
     "typescript": "~5.7.2"
   },
-  "description": "Workspace for @hellskitchen/ui \u2014 the library lives in projects/hk-ui, the docs site in src."
+  "description": "Workspace for @hellskitchen/ui — the library lives in projects/hk-ui, the docs site in src."
 }

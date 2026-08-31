@@ -158,38 +158,41 @@ describe('backgrounds', () => {
     local.destroy();
   });
 
-  it('stops and resumes the loop when `paused` is toggled', async () => {
+  it('acts on `paused` while the loop is live, not just at startup', () => {
     // `paused` is documented as pausing without unmounting, so it has to act on
     // a loop that is already running. Reading it once inside start() meant
     // flipping it on a live background did nothing at all.
-    // Reduced motion is pinned off, or the loop never starts and the assertions
-    // below would pass without testing anything.
-    spyOn(window, 'matchMedia').and.returnValue({
-      matches: false,
-      media: '',
-      onchange: null,
-      addListener: () => {},
-      removeListener: () => {},
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      dispatchEvent: () => false
-    } as unknown as MediaQueryList);
-
+    //
+    // This asserts on the loop's entry points rather than on `running()`,
+    // deliberately: `start()` also declines when the tab is hidden or the host
+    // is scrolled out of view, so a `running()` assertion passes or fails on
+    // whether the browser window happens to be visible — which is how this test
+    // first went red in a headed browser while passing headless.
     const local = TestBed.createComponent(HostComponent);
     local.detectChanges();
-    await new Promise((resolve) => setTimeout(resolve, 0));
 
     const aurora = local.debugElement.query(By.directive(HkAuroraComponent))
       .componentInstance as HkAuroraComponent;
-    expect(aurora.running()).toBeTrue();
+    const loop = aurora as unknown as { start(): void; stop(): void };
+    const stop = spyOn(loop, 'stop').and.callThrough();
+    const start = spyOn(loop, 'start').and.callThrough();
 
     local.componentInstance.paused.set(true);
     local.detectChanges();
-    expect(aurora.running()).toBeFalse();
+    expect(stop).toHaveBeenCalled();
 
+    stop.calls.reset();
+    start.calls.reset();
     local.componentInstance.paused.set(false);
     local.detectChanges();
-    expect(aurora.running()).toBeTrue();
+    expect(start).toHaveBeenCalled();
+
+    // Speed 0 is the same idea by another route: nothing to animate, so the
+    // loop should not be burning frames.
+    start.calls.reset();
+    local.componentInstance.speed.set(0);
+    local.detectChanges();
+    expect(stop).toHaveBeenCalled();
 
     local.destroy();
   });

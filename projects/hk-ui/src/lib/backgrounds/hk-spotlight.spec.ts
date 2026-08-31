@@ -44,11 +44,19 @@ describe('HkSpotlightComponent', () => {
     const hostEl = fixture.debugElement.query(By.directive(HkSpotlightComponent))
       .nativeElement as HTMLElement;
 
+    // The write is coalesced to one per animation frame. A background or
+    // occluded tab suspends rAF entirely, so waiting on a real frame hangs the
+    // test instead of failing it — drive the frame from a timer and the result
+    // no longer depends on whether the browser window is visible.
+    spyOn(window, 'requestAnimationFrame').and.callFake((callback) => {
+      setTimeout(() => callback(performance.now()));
+      return 1;
+    });
+
     hostEl.dispatchEvent(
       new PointerEvent('pointermove', { clientX: 120, clientY: 90, bubbles: true })
     );
-    // The write is coalesced to one per animation frame, so wait for one.
-    await new Promise((r) => requestAnimationFrame(() => r(null)));
+    await new Promise((r) => setTimeout(r, 10));
 
     const x = hostEl.style.getPropertyValue('--hk-spot-x');
     const y = hostEl.style.getPropertyValue('--hk-spot-y');
