@@ -96,7 +96,7 @@ export const COMPONENTS: ComponentEntry[] = [
     description:
       'A checkbox that reads as an on/off control. Model-bound through a signal, so no ControlValueAccessor boilerplate unless you want reactive forms — in which case it implements one too.',
     tags: ['toggle', 'checkbox', 'boolean'],
-    usage: `import { HkSwitch } from '@hellskitchen/ui';
+    usage: `import { HkSwitch } from 'hellskitchen-ui';
 
 @Component({
   imports: [HkSwitch],
@@ -330,7 +330,7 @@ export class SettingsComponent {
     description:
       'A select that holds many values without growing without bound. Past maxChips the rest collapse into a "+n more" control, so a field with forty selections is the same height as one with two. Select-all acts on the filtered rows rather than the whole list, and reports that as an indeterminate state — the one detail a multi-select usually gets wrong.',
     tags: ['select', 'multiple', 'chips', 'tags', 'filter'],
-    usage: `import { HkMultiSelect } from '@hellskitchen/ui';
+    usage: `import { HkMultiSelect } from 'hellskitchen-ui';
 
 @Component({
   imports: [HkMultiSelect],
@@ -705,7 +705,7 @@ export class RegionPicker {
     description:
       'A password field that tells the user what it wants before they get it wrong. Strength is the count of satisfied rules rather than a function of length — twelve lowercase characters are not strong, and saying so does real harm — which also means the meter and the checklist can never disagree. Caps Lock is surfaced as a warning, because it is the most common reason a correct password is rejected and the browser will not mention it.',
     tags: ['password', 'strength', 'security', 'form', 'reveal'],
-    usage: `import { HkPassword } from '@hellskitchen/ui';
+    usage: `import { HkPassword } from 'hellskitchen-ui';
 
 @Component({
   imports: [HkPassword, ReactiveFormsModule],
@@ -761,7 +761,7 @@ export class SignupComponent { /* … */ }`,
     description:
       'A whole signup flow rather than a field: reactive controls, per-field validators, a cross-field confirm check on the group, and SSO offered above the form instead of buried under it. Errors appear on touched or submitted, never on the first keystroke, and the submit button is never disabled by invalidity — a dead button gives no reason, while a rejected submit surfaces every message at once.',
     tags: ['form', 'signup', 'reactive', 'validation', 'sso', 'auth'],
-    usage: `import { HkSignupForm } from '@hellskitchen/ui';
+    usage: `import { HkSignupForm } from 'hellskitchen-ui';
 
 @Component({
   imports: [HkSignupForm],
@@ -859,7 +859,7 @@ export class SignupPage {
     description:
       'Three presentations of one navbar. The active indicator is a single element that travels between items rather than a border that reappears on whichever item is current: one element transitioning is what makes the movement readable, and it means the motion style is a swap of which properties animate, not three implementations. Offsets are arithmetic — every item in a strip is one nth wide — so there is no ResizeObserver and nothing to go stale on a re-render.',
     tags: ['navbar', 'nav', 'header', 'menu', 'dock', 'responsive'],
-    usage: `import { HkNavbar } from '@hellskitchen/ui';
+    usage: `import { HkNavbar } from 'hellskitchen-ui';
 
 @Component({
   imports: [HkNavbar],
@@ -1930,7 +1930,7 @@ if (ok) this.remove();`,
     description:
       'The one component that has to do everything: hierarchical headers of any depth, per-column and global filtering, single or multi-column sort, client or server paging, selection, row expansion, row grouping, frozen columns, resize, reorder, column visibility, inline editing, footer aggregates, virtual scrolling, CSV export and persisted state. It renders through delegated events and a windowed body, so ten thousand rows scroll at frame rate instead of turning into a slideshow.',
     tags: ['grid', 'datatable', 'virtual', 'filter', 'sort'],
-    usage: `import { HkTableComponent, HkTemplate, HkColumn } from '@hellskitchen/ui/table';
+    usage: `import { HkTableComponent, HkTemplate, HkColumn } from 'hellskitchen-ui';
 
 @Component({
   imports: [HkTableComponent, HkTemplate],

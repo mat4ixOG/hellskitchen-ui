@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, signal, untracked } from '@angular/core';
-import { HkBarChartComponent, HkLineChartComponent, HkSeries } from '@hellskitchen/ui';
+import { HkBarChartComponent, HkLineChartComponent, HkSeries } from 'hellskitchen-ui';
 
 type ChartId = 'line' | 'area' | 'bar' | 'stacked';
 

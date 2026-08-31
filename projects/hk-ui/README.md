@@ -1,4 +1,4 @@
-# @hellskitchen/ui — Angular UI component library
+# hellskitchen-ui — Angular UI component library
 
 Themeable **Angular components** for Angular 19, 20, 21 and 22: a button, a real
 **data table** with sorting, filtering, grouped headers, virtual scroll and CSV
@@ -7,7 +7,7 @@ Standalone, signal-based, and styled with plain CSS — no Tailwind, no icon fon
 no global stylesheet to import.
 
 ```bash
-npm i @hellskitchen/ui
+npm i hellskitchen-ui
 ```
 
 ## Angular version support
@@ -47,7 +47,7 @@ your bundle.
 
 ```ts
 import { Component, signal } from '@angular/core';
-import { HkButtonComponent } from '@hellskitchen/ui';
+import { HkButtonComponent } from 'hellskitchen-ui';
 
 @Component({
   selector: 'app-deploy',

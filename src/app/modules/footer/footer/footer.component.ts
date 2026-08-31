@@ -45,15 +45,15 @@ export class FooterComponent {
     {
       title: 'Community',
       links: [
-        { label: 'GitHub', href: '#community' },
-        { label: 'Discussions', href: '#community' },
-        { label: 'Changelog', href: '#community' }
+        { label: 'GitHub', href: 'https://github.com/mat4ixOG/hellskitchen-ui' },
+        { label: 'Discussions', href: 'https://github.com/mat4ixOG/hellskitchen-ui/discussions' },
+        { label: 'Changelog', href: 'https://github.com/mat4ixOG/hellskitchen-ui/releases' }
       ]
     }
   ];
 
   readonly socials: SocialLink[] = [
-    { label: 'GitHub', icon: 'pi pi-github', href: '#community' },
+    { label: 'GitHub', icon: 'pi pi-github', href: 'https://github.com/mat4ixOG/hellskitchen-ui' },
     { label: 'X', icon: 'pi pi-twitter', href: '#community' },
     { label: 'Discord', icon: 'pi pi-comments', href: '#community' },
     { label: 'Email', icon: 'pi pi-envelope', href: '#community' }

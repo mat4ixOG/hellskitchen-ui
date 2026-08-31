@@ -6,7 +6,7 @@
     "outDir": "./dist/out-tsc",
     "strict": true,
     "paths": {
-      "@hellskitchen/ui": [
+      "hellskitchen-ui": [
         "./dist/hk-ui"
       ]
     },

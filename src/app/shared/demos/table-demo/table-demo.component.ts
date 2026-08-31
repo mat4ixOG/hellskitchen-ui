@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { HkColumn, HkEditEvent, HkTableComponent, HkTemplate } from '@hellskitchen/ui';
+import { HkColumn, HkEditEvent, HkTableComponent, HkTemplate } from 'hellskitchen-ui';
 
 interface Deploy {
   id: number;

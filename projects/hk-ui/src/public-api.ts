@@ -1,5 +1,5 @@
 /*
- * Public API surface of @hellskitchen/ui.
+ * Public API surface of hellskitchen-ui.
  *
  * Everything a consumer can import lives here, and nothing else is reachable —
  * anything not re-exported below is an internal detail we are free to change

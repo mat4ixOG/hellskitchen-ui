@@ -3,11 +3,11 @@
 Themeable Angular components, and the documentation site that shows them
 running.
 
-[![npm](https://img.shields.io/npm/v/@hellskitchen/ui.svg)](https://www.npmjs.com/package/@hellskitchen/ui)
-[![licence](https://img.shields.io/npm/l/@hellskitchen/ui.svg)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/hellskitchen-ui.svg)](https://www.npmjs.com/package/hellskitchen-ui)
+[![licence](https://img.shields.io/npm/l/hellskitchen-ui.svg)](./LICENSE)
 
 ```bash
-npm i @hellskitchen/ui
+npm i hellskitchen-ui
 ```
 
 ## What ships, and what does not
@@ -16,7 +16,7 @@ This repository holds two things, and the difference matters:
 
 | | What it is | Published? |
 | --- | --- | --- |
-| `projects/hk-ui` | The library: button, data table, charts, eight animated backgrounds | **Yes** — `@hellskitchen/ui` |
+| `projects/hk-ui` | The library: button, data table, charts, eight animated backgrounds | **Yes** — `hellskitchen-ui` |
 | `src` | The documentation site, and ~60 demo components | No |
 
 The catalogue on the site documents far more components than the package
@@ -39,7 +39,7 @@ src/app/modules/          the site itself — home, catalogue, docs
 
 ## Developing
 
-The docs site resolves `@hellskitchen/ui` to the **built** library in
+The docs site resolves `hellskitchen-ui` to the **built** library in
 `dist/hk-ui`, so it consumes exactly what npm ships rather than the source. That
 means the library has to be built first — the npm scripts handle it, so prefer
 them over bare `ng` commands:

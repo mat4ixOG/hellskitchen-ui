@@ -48,5 +48,5 @@
     "ng-packagr": "^19.2.0",
     "typescript": "~5.7.2"
   },
-  "description": "Workspace for @hellskitchen/ui — the library lives in projects/hk-ui, the docs site in src."
+  "description": "Workspace for hellskitchen-ui — the library lives in projects/hk-ui, the docs site in src."
 }

@@ -17,18 +17,18 @@ export class DocsHomeComponent {
   readonly total = COMPONENTS.length;
   readonly demos = COMPONENTS.filter((entry) => hasDemo(entry.slug));
 
-  readonly quickStart = `npm i @hellskitchen/ui`;
+  readonly quickStart = `npm i hellskitchen-ui`;
 
   readonly firstComponent = `import { Component, signal } from '@angular/core';
-import { HkSwitch } from '@hellskitchen/ui';
-import { hasDemo } from '../../../shared/demos/demo-registry';
+import { HkButtonComponent } from 'hellskitchen-ui';
 
 @Component({
   selector: 'app-settings',
-  imports: [HkSwitch],
-  template: \`<hk-switch [(checked)]="dark" label="Dark mode" />\`
+  imports: [HkButtonComponent],
+  template: \`<hk-button tone="brand" [loading]="saving()" (pressed)="save()">Save</hk-button>\`
 })
 export class SettingsComponent {
-  dark = signal(true);
+  readonly saving = signal(false);
+  save() { this.saving.set(true); }
 }`;
 }

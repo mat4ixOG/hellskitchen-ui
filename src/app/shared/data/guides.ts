@@ -31,26 +31,29 @@ export const GUIDES: Guide[] = [
     blocks: [
       { kind: 'p', text: 'Every component is standalone. There is no module to import, no global config to register, and nothing to bootstrap before first use.' },
       { kind: 'h', text: 'Install', id: 'install' },
-      { kind: 'code', code: 'npm i @hellskitchen/ui\n# or\npnpm add @hellskitchen/ui', file: 'terminal' },
-      { kind: 'h', text: 'Add the token layer', id: 'tokens' },
-      { kind: 'p', text: 'One stylesheet import gives you the default dark theme. Skip it and every component falls back to the browser defaults for colour — nothing breaks, it just looks unstyled.' },
-      { kind: 'code', code: '/* styles.css */\n@import "@hellskitchen/ui/tokens.css";', file: 'src/styles.css' },
+      { kind: 'code', code: 'npm i hellskitchen-ui\n# or\npnpm add hellskitchen-ui', file: 'terminal' },
+      { kind: 'h', text: 'Declare the layer order', id: 'tokens' },
+      { kind: 'p', text: 'There is no stylesheet to import — every component carries its own CSS. The one line worth adding declares cascade layer order, so your overrides beat the component defaults instead of depending on bundle order. Skip it and everything still works; which rule wins just stops being predictable.' },
+      { kind: 'code', code: '/* styles.css */\n@layer components, utilities;', file: 'src/styles.css' },
       { kind: 'h', text: 'Use a component', id: 'use' },
       {
         kind: 'code',
         file: 'settings.component.ts',
         code: `import { Component, signal } from '@angular/core';
-import { HkSwitch } from '@hellskitchen/ui';
+import { HkButtonComponent } from 'hellskitchen-ui';
 
 @Component({
   selector: 'app-settings',
-  imports: [HkSwitch],
+  imports: [HkButtonComponent],
   template: \`
-    <hk-switch [(checked)]="notify" label="Email me on deploy" />
+    <hk-button variant="solid" tone="brand" [loading]="saving()" (pressed)="save()">
+      Save changes
+    </hk-button>
   \`
 })
 export class SettingsComponent {
-  notify = signal(true);
+  readonly saving = signal(false);
+  save() { this.saving.set(true); }
 }`
       },
       { kind: 'note', tone: 'good', text: 'That is the whole setup. Import what you use; the bundler drops the rest.' },
@@ -200,7 +203,7 @@ export class SettingsComponent {
     blocks: [
       { kind: 'p', text: 'The whole reason this is MIT is so more people can pick Angular and ship without a licence conversation. Contributions are the fastest way to make that true.' },
       { kind: 'h', text: 'Local setup', id: 'setup' },
-      { kind: 'code', code: 'git clone https://github.com/hellskitchen-ui/ui\ncd ui\nnpm ci\nnpm start        # docs site\nnpm test         # unit tests\nnpm run build:lib', file: 'terminal' },
+      { kind: 'code', code: 'git clone https://github.com/mat4ixOG/hellskitchen-ui.git\ncd hellskitchen-ui\nnpm ci\nnpm start        # docs site\nnpm test         # unit tests\nnpm run build:lib', file: 'terminal' },
       { kind: 'h', text: 'What a finished component looks like', id: 'bar' },
       {
         kind: 'list',

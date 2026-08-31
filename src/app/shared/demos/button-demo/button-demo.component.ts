@@ -6,7 +6,7 @@ import {
   HkButtonSize,
   HkButtonTone,
   HkButtonVariant
-} from '@hellskitchen/ui';
+} from 'hellskitchen-ui';
 
 /**
  * The full matrix, plus the two states that are easy to get wrong: a loading

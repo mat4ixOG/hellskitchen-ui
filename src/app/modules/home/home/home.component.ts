@@ -3,7 +3,7 @@ import { HeroComponent } from '../sections/hero/hero.component';
 import { MarqueeComponent } from '../sections/marquee/marquee.component';
 import { FeaturesComponent } from '../sections/features/features.component';
 import { ShowcaseComponent } from '../sections/showcase/showcase.component';
-import { MotionComponent } from '../sections/motion/motion.component';
+// import { MotionComponent } from '../sections/motion/motion.component';
 import { ThemingComponent } from '../sections/theming/theming.component';
 import { StatsComponent } from '../sections/stats/stats.component';
 import { CtaComponent } from '../sections/cta/cta.component';
@@ -15,7 +15,7 @@ import { CtaComponent } from '../sections/cta/cta.component';
     MarqueeComponent,
     FeaturesComponent,
     ShowcaseComponent,
-    MotionComponent,
+    // MotionComponent,
     ThemingComponent,
     StatsComponent,
     CtaComponent

@@ -8,7 +8,7 @@ import { RevealDirective } from '../../../../shared/directives/reveal.directive'
   styleUrl: './cta.component.css'
 })
 export class CtaComponent {
-  readonly command = 'npm i @hellskitchen/ui';
+  readonly command = 'npm i hellskitchen-ui';
   readonly copied = signal(false);
 
   async copy(): Promise<void> {

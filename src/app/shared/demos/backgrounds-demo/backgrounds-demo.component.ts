@@ -8,7 +8,7 @@ import {
   HkParticleFieldComponent,
   HkSpotlightComponent,
   HkWavesComponent
-} from '@hellskitchen/ui';
+} from 'hellskitchen-ui';
 
 type BgId =
   | 'aurora'

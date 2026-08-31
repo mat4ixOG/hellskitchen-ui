@@ -15,7 +15,7 @@ export class HeroComponent {
   readonly videoSrc = 'videos/hero.mp4';
   readonly videoFailed = signal(false);
 
-  readonly installCommand = 'npm i @hellskitchen/ui';
+  readonly installCommand = 'npm i hellskitchen-ui';
   readonly copied = signal(false);
 
   /** Cycled through in the headline. */

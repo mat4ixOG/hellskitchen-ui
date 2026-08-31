@@ -35,7 +35,7 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
   `
 })
 export class ClipboardDemoComponent {
-  readonly snippet = 'npm i @hellskitchen/ui';
+  readonly snippet = 'npm i hellskitchen-ui';
   readonly token = 'hk_live_9f2c41d8a7b3';
 
   readonly copied = signal('');
