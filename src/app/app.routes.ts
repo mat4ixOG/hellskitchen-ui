@@ -38,5 +38,20 @@ export const routes: Routes = [
       }
     ]
   },
-  { path: '**', redirectTo: '' }
+  {
+    // Prerendered so the build emits a real page that static hosts can serve
+    // for unmatched paths (copied to /404.html after the build).
+    path: '404',
+    loadComponent: () =>
+      import('./modules/not-found/not-found.component').then((m) => m.NotFoundComponent),
+    title: 'Page not found — Hell\'s Kitchen UI'
+  },
+  {
+    // A real 404 rather than `redirectTo: ''` — that answered every bad URL with
+    // the homepage on a 200, which reads as duplicate content to a crawler.
+    path: '**',
+    loadComponent: () =>
+      import('./modules/not-found/not-found.component').then((m) => m.NotFoundComponent),
+    title: 'Page not found — Hell\'s Kitchen UI'
+  }
 ];

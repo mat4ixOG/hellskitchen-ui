@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, afterNextRender, inject, signal } from '@angular/core';
 import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 @Component({
@@ -24,12 +24,18 @@ export class HeroComponent {
 
   readonly badges = ['Angular 19+', 'Standalone', 'Signals', 'Zero deps', 'MIT'];
 
-  constructor() {
-    const rotate = setInterval(() => {
-      this.wordIndex.update((i) => (i + 1) % this.words.length);
-    }, 2400);
+  private readonly destroyRef = inject(DestroyRef);
 
-    inject(DestroyRef).onDestroy(() => clearInterval(rotate));
+  constructor() {
+    // Started after render, which means never on the server. A `setInterval`
+    // inside the zone keeps the application permanently unstable, so during
+    // prerendering this hung the whole route until the 30s render timeout.
+    afterNextRender(() => {
+      const rotate = setInterval(() => {
+        this.wordIndex.update((i) => (i + 1) % this.words.length);
+      }, 2400);
+      this.destroyRef.onDestroy(() => clearInterval(rotate));
+    });
   }
 
   get word(): string {
