@@ -1,0 +1,21 @@
+<div class="flex flex-col items-center gap-5">
+  <div role="radiogroup" aria-label="Rating" tabindex="0" (keydown)="onKey($event)"
+    (pointerleave)="hovered.set(0)"
+    class="flex items-center gap-1.5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50">
+    @for (star of stars; track star) {
+      <button type="button" role="radio"
+        [attr.aria-checked]="value() === star"
+        [attr.aria-label]="star + ' of 5'"
+        (click)="value.set(star)"
+        (pointerenter)="hovered.set(star)"
+        class="p-1 transition-transform duration-200 hover:scale-125 active:scale-95 cursor-pointer">
+        <i class="pi pi-star-fill text-2xl transition-colors duration-200"
+          [class]="star <= (hovered() || value()) ? 'text-red-600 dark:text-red-400' : 'text-slate-300 dark:text-neutral-800'"></i>
+      </button>
+    }
+  </div>
+  <p class="text-sm text-slate-600 dark:text-gray-400">
+    value = <span class="font-semibold text-red-600 dark:text-red-400">{{ value() }}</span>
+    <span class="ml-2 text-xs text-slate-600 dark:text-gray-400">arrow keys work too</span>
+  </p>
+</div>

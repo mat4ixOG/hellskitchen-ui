@@ -1,0 +1,101 @@
+<footer class="relative overflow-hidden border-t border-red-200 dark:border-red-800/50 bg-white dark:bg-neutral-950 text-slate-600 dark:text-gray-400">
+
+  <!-- Ambient glow -->
+  <div aria-hidden="true"
+    class="pointer-events-none absolute -top-32 left-1/2 h-64 w-[42rem] -translate-x-1/2 rounded-full
+           bg-red-700/15 blur-3xl">
+  </div>
+
+  <div class="relative mx-auto max-w-7xl px-6 py-16">
+
+    <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-6">
+
+      <!-- Brand + release notes -->
+      <div class="lg:col-span-3">
+        <div class="flex items-center gap-3">
+          <span
+            class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-red-600 to-red-900
+                   text-white shadow-lg shadow-red-500/25 ring-1 ring-red-500/40">
+            <!-- Daredevil double-D emblem -->
+            <svg viewBox="0 0 48 48" class="h-7 w-7" fill="currentColor" fill-rule="evenodd"
+                 aria-hidden="true">
+              <path d="M25 7h5a17 17 0 0 1 0 34h-5zm6 7v20a10 10 0 0 0 0-20z" />
+              <path d="M25 7h5a17 17 0 0 1 0 34h-5zm6 7v20a10 10 0 0 0 0-20z"
+                    transform="translate(48 0) scale(-1 1)" />
+            </svg>
+          </span>
+          <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Hell's
+            <span class="bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">Kitchen</span>
+          </span>
+        </div>
+
+        <p class="mt-5 max-w-sm text-sm leading-relaxed text-slate-600 dark:text-gray-400">
+          Free, fully configurable Angular components with animation built in.
+          MIT licensed — no pro tier, no seats, no invoice. Built so more people
+          can pick Angular and ship fast.
+        </p>
+
+      </div>
+
+      <!-- Link columns -->
+      @for (column of columns; track column.title) {
+        <div>
+          <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-white">{{ column.title }}</h3>
+          <ul class="mt-4 space-y-3 text-sm">
+            @for (link of column.links; track link.label) {
+              <li>
+                <a [href]="link.href"
+                  class="group inline-flex items-center gap-1.5 text-slate-600 dark:text-gray-400 transition-colors duration-200 hover:text-red-700 dark:hover:text-red-400">
+                  <span
+                    class="h-px w-0 bg-gradient-to-r from-red-600 to-red-500 transition-all duration-300 group-hover:w-3">
+                  </span>
+                  {{ link.label }}
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+
+    <!-- Divider -->
+    <div class="mt-14 h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
+
+    <!-- Bottom bar -->
+    <div class="mt-6 flex flex-col-reverse items-center gap-6 sm:flex-row sm:justify-between">
+      <div class="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
+        <p class="m-0 text-xs text-slate-500 dark:text-gray-500">
+          &copy; {{ year }} Hell's Kitchen UI · MIT licensed · Built with Angular
+        </p>
+
+        <!-- Absent, not zero, while the count is unknown. -->
+        @if (visitorCount(); as total) {
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-white/10
+                       px-2.5 py-1 text-[0.7rem] text-slate-500 dark:text-gray-500"
+            [title]="format(total) + ' visits since launch'">
+            <i class="pi pi-eye text-[0.65rem] text-red-600 dark:text-red-400" aria-hidden="true"></i>
+            <span class="font-mono">{{ format(total) }}</span>
+            <span>visits</span>
+          </span>
+        }
+      </div>
+
+      <div class="flex items-center gap-2">
+        @for (social of socials; track social.label) {
+          <a [href]="social.href" [attr.aria-label]="social.label"
+            class="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 dark:border-white/10 text-slate-600 dark:text-gray-400
+                   transition duration-200 hover:-translate-y-0.5 hover:border-red-400 dark:hover:border-red-600/50 hover:text-red-700 dark:hover:text-red-400">
+            <i [class]="social.icon"></i>
+          </a>
+        }
+      </div>
+
+      <ul class="flex items-center gap-5 text-xs text-slate-500 dark:text-gray-500">
+        <li><a href="#top" class="transition hover:text-red-700 dark:hover:text-red-400">Licence</a></li>
+        <li><a href="#top" class="transition hover:text-red-700 dark:hover:text-red-400">Privacy</a></li>
+        <li><a href="#top" class="transition hover:text-red-700 dark:hover:text-red-400">Status</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>

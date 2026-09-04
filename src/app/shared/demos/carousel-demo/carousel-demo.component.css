@@ -1,0 +1,68 @@
+/* The track is the only animated thing — sliding one transform beats
+   animating five slides, and it stays on the compositor. */
+.hk-carousel-track {
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* A drag is a drag, not a text selection. */
+.hk-carousel {
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.hk-carousel:focus-visible {
+  outline: 2px solid var(--hk-accent, #dc2626);
+  outline-offset: 2px;
+}
+
+.hk-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  color: rgb(51 65 85);
+  background: rgb(255 255 255 / 0.9);
+  border: 1px solid rgb(226 232 240);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+  transition: background 160ms, color 160ms, opacity 160ms;
+}
+
+.hk-carousel-arrow:hover:not(:disabled) {
+  background: #fff;
+  color: rgb(15 23 42);
+}
+
+.hk-carousel-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.hk-carousel-arrow:focus-visible {
+  outline: 2px solid var(--hk-accent, #dc2626);
+  outline-offset: 2px;
+}
+
+:host-context(.dark) .hk-carousel-arrow {
+  color: rgb(209 213 219);
+  background: rgb(15 15 16 / 0.85);
+  border-color: rgb(255 255 255 / 0.12);
+}
+
+:host-context(.dark) .hk-carousel-arrow:hover:not(:disabled) {
+  background: rgb(24 24 27);
+  color: #fff;
+}
+
+/* The component already stops autoplaying under reduced motion; this also
+   removes the slide itself, so a manual advance is an instant cut. */
+@media (prefers-reduced-motion: reduce) {
+  .hk-carousel-track {
+    transition: none;
+  }
+}

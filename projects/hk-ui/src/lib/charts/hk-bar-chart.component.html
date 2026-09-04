@@ -1,0 +1,130 @@
+<figure class="hk-chart">
+  @if (title() || subtitle() || tableView()) {
+    <figcaption class="hk-chart-head">
+      <div>
+        @if (title()) { <p class="hk-chart-title">{{ title() }}</p> }
+        @if (subtitle()) { <p class="hk-chart-sub">{{ subtitle() }}</p> }
+      </div>
+      @if (tableView()) {
+        <button type="button" class="hk-chart-toggle" (click)="toggleTable()"
+          [attr.aria-pressed]="showTable()">
+          {{ showTable() ? 'Chart' : 'Table' }}
+        </button>
+      }
+    </figcaption>
+  }
+
+  @if (!hasData()) {
+    <p class="hk-chart-empty">{{ emptyMessage() }}</p>
+  } @else if (showTable()) {
+    <div class="hk-chart-table-wrap">
+      <table class="hk-chart-table">
+        <caption class="hk-sr">{{ title() || 'Chart data' }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ xAxis().label || 'Category' }}</th>
+            @for (s of resolved(); track s.id) { <th scope="col">{{ s.label }}</th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (label of labels(); track $index) {
+            <tr>
+              <th scope="row">{{ label }}</th>
+              @for (s of resolved(); track s.id) {
+                <td>{{ formatCell(cellValue(s, $index)) }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="hk-chart-plot" [style.height.px]="height()">
+      <svg [attr.viewBox]="'0 0 ' + width() + ' ' + height()"
+        [attr.width]="width()" [attr.height]="height()"
+        role="img"
+        [attr.aria-label]="(title() || 'Bar chart') + ' — ' + resolved().length + ' series across ' + labels().length + ' categories.'"
+        (pointerleave)="onLeave()">
+
+        <g class="hk-grid" aria-hidden="true">
+          @for (tick of valueTicks(); track tick.value) {
+            @if (orientation() === 'vertical') {
+              <line [attr.x1]="plot().left" [attr.x2]="plot().left + plot().width"
+                [attr.y1]="tick.position" [attr.y2]="tick.position" />
+            } @else {
+              <line [attr.y1]="plot().top" [attr.y2]="plot().top + plot().height"
+                [attr.x1]="tick.position" [attr.x2]="tick.position" />
+            }
+          }
+        </g>
+
+        <g class="hk-axis" aria-hidden="true">
+          @for (tick of valueTicks(); track tick.value) {
+            @if (orientation() === 'vertical') {
+              <text [attr.x]="plot().left - 8" [attr.y]="tick.position" text-anchor="end"
+                dominant-baseline="middle">{{ tick.label }}</text>
+            } @else {
+              <text [attr.x]="tick.position" [attr.y]="height() - 8" text-anchor="middle">
+                {{ tick.label }}
+              </text>
+            }
+          }
+          @for (tick of categoryTicks(); track tick.index) {
+            @if (orientation() === 'vertical') {
+              <text [attr.x]="tick.position" [attr.y]="height() - 10" text-anchor="middle">
+                {{ tick.label }}
+              </text>
+            } @else {
+              <text [attr.x]="plot().left - 8" [attr.y]="tick.position" text-anchor="end"
+                dominant-baseline="middle">{{ tick.label }}</text>
+            }
+          }
+        </g>
+
+        <!-- One hit band per category: a bigger target than the bars. -->
+        @for (band of hoverBandRects(); track band.index) {
+          <rect class="hk-hit" [attr.x]="band.x" [attr.y]="band.y"
+            [attr.width]="band.width" [attr.height]="band.height"
+            [class.is-hovered]="hoverIndex() === band.index"
+            (pointerenter)="onEnter(band.index)" />
+        }
+
+        @for (bar of bars(); track bar.seriesId + '-' + bar.index) {
+          <path class="hk-bar" [attr.d]="bar.path" [attr.fill]="bar.color"
+            [class.is-dim]="hoverIndex() !== null && hoverIndex() !== bar.index"
+            (click)="activate(bar)" />
+          @if (showValueLabel(bar)) {
+            <text class="hk-bar-label" [attr.x]="bar.labelX" [attr.y]="bar.labelY"
+              [attr.text-anchor]="orientation() === 'vertical' ? 'middle' : 'start'"
+              dominant-baseline="middle" aria-hidden="true">{{ formatCell(bar.value) }}</text>
+          }
+        }
+      </svg>
+
+      @if (hoverIndex() !== null) {
+        <div class="hk-tooltip" [style.left.px]="tooltipLeft()" [style.top.px]="plot().top"
+          role="status" aria-live="polite">
+          <p class="hk-tooltip-title">{{ tooltipTitle() }}</p>
+          @for (row of tooltipRows(); track row.id) {
+            <p class="hk-tooltip-row">
+              <span class="hk-swatch" [style.background]="row.color"></span>
+              <span class="hk-tooltip-label">{{ row.label }}</span>
+              <b>{{ row.formatted }}</b>
+            </p>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (showLegend() && !showTable()) {
+    <ul class="hk-legend">
+      @for (s of resolved(); track s.id) {
+        <li>
+          <span class="hk-swatch" [style.background]="s.color"></span>
+          <span>{{ s.label }}</span>
+        </li>
+      }
+    </ul>
+  }
+</figure>

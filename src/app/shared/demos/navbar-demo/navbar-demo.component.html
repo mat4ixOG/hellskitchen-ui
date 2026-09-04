@@ -1,0 +1,147 @@
+<div class="w-full max-w-3xl">
+
+  <!-- Controls -->
+  <div class="mb-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.03] sm:grid-cols-2">
+    <div role="group" aria-label="Navbar variant">
+      <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Variant</span>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        @for (item of variants; track item.id) {
+          <button type="button" (click)="variant.set(item.id)" [attr.aria-pressed]="variant() === item.id"
+            [class]="chip(variant() === item.id)">{{ item.label }}</button>
+        }
+      </div>
+    </div>
+
+    <div role="group" aria-label="Indicator motion">
+      <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Indicator</span>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        @for (item of motions; track item.id) {
+          <button type="button" (click)="motion.set(item.id)" [attr.aria-pressed]="motion() === item.id"
+            [class]="chip(motion() === item.id)" [disabled]="variant() === 'dock'">{{ item.label }}</button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <div class="nav-stage" [attr.data-variant]="variant()">
+    <div class="bg-dots absolute inset-0 opacity-50"></div>
+
+    @switch (variant()) {
+
+      <!-- ── Floating pill ─────────────────────────────────────── -->
+      @case ('pill') {
+        <nav class="nav-pill" aria-label="Primary">
+          <span class="nav-brand" aria-hidden="true"><i class="pi pi-bolt"></i></span>
+
+          <div class="nav-strip" [attr.data-motion]="motion()">
+            <span class="nav-indicator" aria-hidden="true"
+              [style.width.%]="width()"
+              [style.transform]="'translateX(' + offset() + '%)'"></span>
+
+            @for (item of items; track item.id) {
+              <button type="button" class="nav-item" (click)="select(item.id)"
+                [class.is-active]="active() === item.id"
+                [attr.aria-current]="active() === item.id ? 'page' : null">
+                <i class="pi" [class]="item.icon" aria-hidden="true"></i>
+                <span class="nav-label">{{ item.label }}</span>
+                @if (item.badge) {
+                  <span class="nav-badge" [attr.aria-label]="item.badge + ' new'">{{ item.badge }}</span>
+                }
+              </button>
+            }
+          </div>
+
+          <button type="button" class="nav-avatar" aria-label="Account">DD</button>
+        </nav>
+      }
+
+      <!-- ── App bar: logo, centred links, actions, mobile burger ── -->
+      @case ('bar') {
+        <nav class="nav-bar" aria-label="Primary">
+          <div class="nav-bar-row">
+            <span class="nav-logo">
+              <i class="pi pi-bolt" aria-hidden="true"></i>
+              <b>Hell's Kitchen</b>
+            </span>
+
+            <div class="nav-strip nav-strip-wide" [attr.data-motion]="motion()">
+              <span class="nav-indicator" aria-hidden="true"
+                [style.width.%]="width()"
+                [style.transform]="'translateX(' + offset() + '%)'"></span>
+
+              @for (item of items; track item.id) {
+                <button type="button" class="nav-item" (click)="select(item.id)"
+                  [class.is-active]="active() === item.id"
+                  [attr.aria-current]="active() === item.id ? 'page' : null">
+                  <i class="pi" [class]="item.icon" aria-hidden="true"></i>
+                  <span class="nav-label">{{ item.label }}</span>
+                  @if (item.badge) {
+                    <span class="nav-badge" [attr.aria-label]="item.badge + ' new'">{{ item.badge }}</span>
+                  }
+                </button>
+              }
+            </div>
+
+            <div class="nav-actions">
+              <button type="button" class="nav-ghost" aria-label="Search"><i class="pi pi-search"></i></button>
+              <button type="button" class="nav-cta">Deploy</button>
+
+              <!-- Burger: three bars that fold into an X, so the control says
+                   what it will do next rather than only what it opens. -->
+              <button type="button" class="nav-burger" (click)="mobileOpen.set(!mobileOpen())"
+                [attr.aria-expanded]="mobileOpen()" aria-label="Menu">
+                <span class="nav-burger-bars" [class.is-open]="mobileOpen()" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- The sheet is always in the DOM so it can animate its own height. -->
+          <div class="nav-sheet" [class.is-open]="mobileOpen()">
+            <div class="nav-sheet-inner">
+              @for (item of items; track item.id) {
+                <button type="button" class="nav-sheet-item" (click)="select(item.id)"
+                  [class.is-active]="active() === item.id">
+                  <i class="pi" [class]="item.icon" aria-hidden="true"></i>
+                  {{ item.label }}
+                  @if (item.badge) { <span class="nav-badge ml-auto">{{ item.badge }}</span> }
+                </button>
+              }
+            </div>
+          </div>
+        </nav>
+      }
+
+      <!-- ── Dock: icons that magnify under the pointer ─────────── -->
+      @case ('dock') {
+        <nav class="nav-dock" aria-label="Primary" (pointerleave)="hovered.set(null)">
+          @for (item of items; track item.id) {
+            <button type="button" class="nav-dock-item" (click)="select(item.id)"
+              (pointerenter)="hovered.set(item.id)"
+              [class.is-active]="active() === item.id"
+              [style.--lift]="magnify(item.id)"
+              [attr.aria-current]="active() === item.id ? 'page' : null"
+              [attr.aria-label]="item.label">
+              <span class="nav-dock-tip" aria-hidden="true">{{ item.label }}</span>
+              <span class="nav-dock-tile">
+                <i class="pi" [class]="item.icon" aria-hidden="true"></i>
+                @if (item.badge) { <span class="nav-badge is-corner">{{ item.badge }}</span> }
+              </span>
+              <span class="nav-dock-dot" aria-hidden="true"></span>
+            </button>
+          }
+        </nav>
+      }
+    }
+  </div>
+
+  <p class="mt-3 text-xs leading-relaxed text-slate-500 dark:text-gray-500">
+    Showing <b class="text-slate-700 dark:text-gray-300">{{ current().label }}</b>. The indicator is one element
+    that travels, not a border that reappears — pick
+    <b class="text-slate-700 dark:text-gray-300">Glow</b> or <b class="text-slate-700 dark:text-gray-300">Underline</b>
+    to change what it animates. On <b class="text-slate-700 dark:text-gray-300">App bar</b>, narrow the window to
+    reach the burger; on <b class="text-slate-700 dark:text-gray-300">Dock</b>, run the pointer along the row.
+  </p>
+</div>

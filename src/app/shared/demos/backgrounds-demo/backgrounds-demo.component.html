@@ -1,0 +1,106 @@
+<div class="w-full max-w-2xl">
+
+  <!-- Picker -->
+  <div class="mb-3 flex flex-wrap gap-1.5">
+    @for (item of items; track item.id) {
+      <button type="button" (click)="active.set(item.id)"
+        class="rounded-lg border px-2.5 py-1 text-xs transition-colors"
+        [class]="active() === item.id
+          ? 'border-red-300 dark:border-red-700/60 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300'
+          : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'">
+        {{ item.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Stage -->
+  <div class="relative h-72 overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10
+              bg-slate-950">
+    @switch (active()) {
+      @case ('aurora') {
+        <hk-aurora class="absolute inset-0" [color]="color()" [speed]="speed()" [opacity]="opacity()"
+          [palette]="[color(), '#7c3aed', '#0ea5e9']" />
+      }
+      @case ('particles') {
+        <hk-particle-field class="absolute inset-0" [color]="color()" [speed]="speed()"
+          [opacity]="opacity()" [density]="density()" />
+      }
+      @case ('grid') {
+        <hk-grid-motion class="absolute inset-0" [color]="color()" [speed]="speed()" [opacity]="opacity()" />
+      }
+      @case ('beams') {
+        <hk-beams class="absolute inset-0" [color]="color()" [speed]="speed()" [opacity]="opacity()" />
+      }
+      @case ('dots') {
+        <hk-dot-matrix class="absolute inset-0" [color]="color()" [speed]="speed()"
+          [opacity]="opacity()" [gap]="26 / density()" />
+      }
+      @case ('dither') {
+        <hk-dither class="absolute inset-0" [color]="color()" [speed]="speed()"
+          [opacity]="opacity()" [pixelSize]="6 / density()" />
+      }
+      @case ('waves') {
+        <hk-waves class="absolute inset-0" [color]="color()" [speed]="speed()" [opacity]="opacity()" />
+      }
+      @case ('spotlight') {
+        <hk-spotlight class="absolute inset-0" [color]="color()" [opacity]="opacity()" />
+      }
+    }
+
+    <!-- Content sits above, to prove these are backgrounds, not pictures. -->
+    <div class="pointer-events-none relative z-10 flex h-full flex-col items-center justify-center text-center">
+      <p class="text-lg font-bold text-white">{{ current().label }}</p>
+      <p class="mt-1 text-xs text-gray-300">{{ current().hint }}</p>
+      @if (interactive()) {
+        <p class="mt-3 rounded-full border border-white/20 px-2.5 py-0.5 text-[0.7rem] text-white/80">
+          move your pointer over it
+        </p>
+      }
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="mt-4 grid gap-3 sm:grid-cols-2">
+    <div>
+      <span class="mb-1.5 block text-xs text-slate-600 dark:text-gray-400">Colour</span>
+      <div class="flex gap-1.5">
+        @for (option of palettes; track option) {
+          <button type="button" (click)="color.set(option)"
+            class="h-6 w-6 rounded-full ring-2 transition"
+            [style.background]="option"
+            [style.--tw-ring-color]="color() === option ? option : 'transparent'"
+            [attr.aria-label]="'Colour ' + option"></button>
+        }
+      </div>
+    </div>
+
+    <label class="block text-xs text-slate-600 dark:text-gray-400">
+      Speed — {{ speed() }}×
+      <input type="range" min="0" max="3" step="0.1" [value]="speed()"
+        (input)="speed.set(+$any($event.target).value)"
+        class="mt-1.5 w-full accent-red-600" />
+    </label>
+
+    <label class="block text-xs text-slate-600 dark:text-gray-400">
+      Opacity — {{ opacity() }}
+      <input type="range" min="0.1" max="1" step="0.05" [value]="opacity()"
+        (input)="opacity.set(+$any($event.target).value)"
+        class="mt-1.5 w-full accent-red-600" />
+    </label>
+
+    @if (showsDensity()) {
+      <label class="block text-xs text-slate-600 dark:text-gray-400">
+        Density — {{ density() }}
+        <input type="range" min="0.3" max="2" step="0.1" [value]="density()"
+          (input)="density.set(+$any($event.target).value)"
+          class="mt-1.5 w-full accent-red-600" />
+      </label>
+    }
+  </div>
+
+  <p class="mt-3 text-xs text-slate-500 dark:text-gray-500">
+    Speed <b class="text-slate-700 dark:text-gray-300">0</b> freezes on one frame — the same path
+    <code class="text-red-600 dark:text-red-400">prefers-reduced-motion</code> takes. Every canvas
+    stops when it scrolls out of view or the tab is hidden.
+  </p>
+</div>

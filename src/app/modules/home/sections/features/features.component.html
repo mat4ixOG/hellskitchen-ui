@@ -1,0 +1,61 @@
+<section id="features" class="relative overflow-hidden bg-white dark:bg-neutral-950 py-28">
+  <div aria-hidden="true" class="bg-dots mask-fade absolute inset-0 opacity-40"></div>
+  <div aria-hidden="true"
+    class="absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-red-700/60 to-transparent">
+  </div>
+
+  <div class="relative mx-auto max-w-7xl px-6">
+
+    <!-- Heading -->
+    <div class="max-w-2xl">
+      <p appReveal class="text-sm font-semibold uppercase tracking-[0.2em] text-red-600 dark:text-red-400">
+        Why another library
+      </p>
+      <h2 appReveal [revealDelay]="80"
+        class="mt-4 text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl">
+        Everything you'd pay for.
+        <span class="bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
+          None of the invoice.
+        </span>
+      </h2>
+      <p appReveal [revealDelay]="160" class="mt-5 text-lg leading-relaxed text-slate-600 dark:text-gray-400">
+        The good libraries are either locked behind a pro tier or so opinionated you fight
+        them by week two. This one is small parts, fully open, and shaped to be edited.
+      </p>
+    </div>
+
+    <!-- Bento grid -->
+    <div class="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      @for (feature of features; track feature.title) {
+        <article
+          appReveal
+          [revealDelay]="$index * 70"
+          appTilt
+          [tiltMax]="4"
+          class="group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950/70 p-7
+                 transition-[border-color,box-shadow,transform] duration-300
+                 hover:border-red-400 dark:hover:border-red-600/50 hover:shadow-[0_20px_60px_-20px_rgba(185,28,28,0.22)] dark:hover:shadow-[0_20px_60px_-20px_rgba(185,28,28,0.45)]"
+          [class]="feature.span">
+
+          <!-- Cursor spotlight, positioned by appTilt's --mx/--my -->
+          <div aria-hidden="true"
+            class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300
+                   group-hover:opacity-100
+                   bg-[radial-gradient(320px_circle_at_var(--mx,50%)_var(--my,50%),rgba(239,68,68,0.14),transparent_70%)]">
+          </div>
+
+          <div class="relative">
+            <span
+              class="grid h-12 w-12 place-items-center rounded-xl border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-950/40
+                     text-red-600 dark:text-red-400 transition-transform duration-300 group-hover:scale-110">
+              <i [class]="feature.icon + ' text-xl'"></i>
+            </span>
+
+            <h3 class="mt-5 text-lg font-bold text-slate-900 dark:text-white">{{ feature.title }}</h3>
+            <p class="mt-2.5 text-sm leading-relaxed text-slate-600 dark:text-gray-400">{{ feature.copy }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>

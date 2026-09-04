@@ -1,0 +1,41 @@
+{
+  "name": "hellskitchen-ui",
+  "version": "1.0.0",
+  "description": "Angular UI component library for Angular 19-22: a data table with sorting, filtering, virtual scroll and CSV export, line and bar charts, a themeable button, and eight animated WebGL backgrounds. Standalone, signal-based, SSR-safe.",
+  "keywords": [
+    "angular",
+    "angular-components",
+    "angular-library",
+    "component-library",
+    "ui-components",
+    "angular-table",
+    "data-table",
+    "virtual-scroll",
+    "csv-export",
+    "angular-charts",
+    "animated-background",
+    "webgl",
+    "signals",
+    "standalone",
+    "ssr"
+  ],
+  "license": "MIT",
+  "author": "mat4ixOG",
+  "homepage": "https://hellskitchen-ui.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mat4ixOG/hellskitchen-ui.git",
+    "directory": "projects/hk-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/mat4ixOG/hellskitchen-ui/issues"
+  },
+  "peerDependencies": {
+    "@angular/common": "^19.0.0 || ^20.0.0 || ^21.0.0 || ^22.0.0",
+    "@angular/core": "^19.0.0 || ^20.0.0 || ^21.0.0 || ^22.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

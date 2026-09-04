@@ -1,0 +1,45 @@
+<!-- Docked card -->
+@if (enabled() && everOpened()) {
+  <div #panelEl
+    class="hk-launcher-panel"
+    [class.is-open]="open()"
+    role="dialog"
+    aria-label="Assistant"
+    [attr.aria-hidden]="open() ? null : 'true'"
+    [attr.inert]="open() ? null : ''"
+    (keydown)="onPanelKeydown($event)">
+
+    <header class="hk-launcher-head">
+      <span class="grid h-7 w-7 place-items-center rounded-lg bg-red-600 text-white">
+        <i class="pi pi-sparkles text-xs" aria-hidden="true"></i>
+      </span>
+      <div class="min-w-0">
+        <p class="m-0 text-sm font-semibold text-slate-900 dark:text-white">Assistant</p>
+        <p class="m-0 text-[0.65rem] text-slate-500 dark:text-gray-500">Runs locally — no key needed</p>
+      </div>
+      <button type="button" class="hk-launcher-close" (click)="close()" aria-label="Close assistant">
+        <i class="pi pi-times text-xs" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <app-chat-panel
+      class="flex min-h-0 flex-1 flex-col p-3"
+      logHeight="100%"
+      [showToolbar]="false"
+      [suggestions]="suggestions"
+      emptyMessage="Ask about the library, or try one of these." />
+  </div>
+}
+
+<!-- The round button. Only exists once something has asked for it — see
+     ChatLauncherService.enabled. -->
+@if (enabled()) {
+  <button #buttonEl type="button"
+    class="hk-launcher-fab"
+    [class.is-open]="open()"
+    (click)="toggle()"
+    [attr.aria-expanded]="open()"
+    [attr.aria-label]="open() ? 'Close assistant' : 'Open assistant'">
+    <i class="pi" [class]="open() ? 'pi-chevron-down' : 'pi-comments'" aria-hidden="true"></i>
+  </button>
+}

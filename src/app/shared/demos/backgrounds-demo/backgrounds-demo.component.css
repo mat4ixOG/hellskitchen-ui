@@ -1,0 +1,6 @@
+/* The stage is deliberately dark in both themes: these are decorative layers
+   meant to sit behind a hero, and judging them against white would misrepresent
+   how they will actually be used. */
+:host { display: block; width: 100%; }
+
+input[type='range'] { accent-color: #dc2626; }

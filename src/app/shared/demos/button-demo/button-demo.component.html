@@ -1,0 +1,96 @@
+<div class="w-full max-w-2xl">
+
+  <!-- Controls -->
+  <div class="mb-4 grid gap-3 rounded-xl border border-slate-200 dark:border-white/10
+              bg-slate-50 dark:bg-white/[0.03] p-3 sm:grid-cols-2">
+    <div role="group" aria-label="Variant">
+      <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Variant</span>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        @for (item of variants; track item) {
+          <button type="button" (click)="variant.set(item)" [attr.aria-pressed]="variant() === item"
+            [class]="chip(variant() === item)">{{ item }}</button>
+        }
+      </div>
+    </div>
+
+    <div role="group" aria-label="Tone">
+      <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Tone</span>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        @for (item of tones; track item) {
+          <button type="button" (click)="tone.set(item)" [attr.aria-pressed]="tone() === item"
+            [class]="chip(tone() === item)">{{ item }}</button>
+        }
+      </div>
+    </div>
+
+    <div role="group" aria-label="Size">
+      <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Size</span>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        @for (item of sizes; track item) {
+          <button type="button" (click)="size.set(item)" [attr.aria-pressed]="size() === item"
+            [class]="chip(size() === item) + ' uppercase'">{{ item }}</button>
+        }
+      </div>
+    </div>
+
+    <div role="group" aria-label="Shape">
+      <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Shape</span>
+      <div class="mt-1.5 flex flex-wrap gap-1">
+        @for (item of shapes; track item) {
+          <button type="button" (click)="shape.set(item)" [attr.aria-pressed]="shape() === item"
+            [class]="chip(shape() === item)">{{ item }}</button>
+        }
+      </div>
+    </div>
+
+    <div role="group" aria-label="Badge">
+      <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Badge</span>
+      <div class="mt-1.5 flex flex-wrap items-center gap-1">
+        @for (item of badgeSpots; track item) {
+          <button type="button" (click)="badgeSpot.set(item)" [attr.aria-pressed]="badgeSpot() === item"
+            [class]="chip(badgeSpot() === item)">{{ item }}</button>
+        }
+        <button type="button" (click)="bump()" [class]="chip(false) + ' ml-1'"
+          [disabled]="badgeSpot() === 'off'">+7 unread</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage. Plain surface for the opaque variants; glass gets a scene put
+       behind it, because with nothing to refract it is just a grey box. -->
+  <div class="stage" [class.stage-scene]="variant() === 'glass'">
+    <div class="bg-dots absolute inset-0 opacity-60"></div>
+
+    <div class="relative flex flex-wrap items-center justify-center gap-3 px-6 py-9">
+      <button hkButton [variant]="variant()" [tone]="tone()" [size]="size()" [shape]="shape()"
+        [badge]="badgeFor(unread())" [badgePosition]="badgeAt"
+        (pressed)="clicks.set(clicks() + 1)">
+        Inbox
+      </button>
+
+      <button hkButton [variant]="variant()" [tone]="tone()" [size]="size()" [shape]="shape()"
+        [loading]="busy()" (pressed)="submit()">
+        Save changes
+      </button>
+
+      <button hkButton [variant]="variant()" [tone]="tone()" [size]="size()" [shape]="shape()"
+        [iconOnly]="true" [badge]="badgeFor(3)" badgePosition="corner" badgeTone="danger"
+        aria-label="Notifications">
+        <i class="pi pi-bell"></i>
+      </button>
+
+      <button hkButton [variant]="variant()" [tone]="tone()" [size]="size()" [shape]="shape()" [disabled]="true">
+        Disabled
+      </button>
+    </div>
+  </div>
+
+  <p class="mt-3 text-xs leading-relaxed text-slate-500 dark:text-gray-500">
+    Press <b class="text-slate-700 dark:text-gray-300">Save changes</b> — the button keeps its width while
+    loading, so nothing beside it moves. Pick <b class="text-slate-700 dark:text-gray-300">glass</b> and move
+    the pointer across it; the backdrop behind the row appears with it. Press
+    <b class="text-slate-700 dark:text-gray-300">+7 unread</b> — past 99 the count collapses to
+    <code>99+</code> so the button never widens, while the true number is still what gets announced.
+    @if (clicks()) { <span class="ml-1">· {{ clicks() }} presses</span> }
+  </p>
+</div>

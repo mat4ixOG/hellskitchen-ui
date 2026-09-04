@@ -1,0 +1,63 @@
+<div class="w-full max-w-md">
+
+  <!-- Variant picker -->
+  <div class="mb-3 flex flex-wrap gap-1.5">
+    @for (item of variants; track item) {
+      <button type="button" (click)="variant.set(item)"
+        class="rounded-lg border px-2.5 py-1 text-xs capitalize transition-colors"
+        [class]="variant() === item
+          ? 'border-red-300 dark:border-red-700/60 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300'
+          : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'">
+        {{ item }}
+      </button>
+    }
+  </div>
+
+  <!-- Stage -->
+  <div class="grid min-h-32 place-items-center rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 p-6"
+    [style.font-size.rem]="scale()" role="status" aria-live="polite">
+
+    @switch (variant()) {
+      @case ('ring')  { <span class="sp-ring"></span> }
+      @case ('pulse') { <span class="sp-pulse"></span> }
+      @case ('orbit') { <span class="sp-orbit"></span> }
+      @case ('comet') { <span class="sp-comet"></span> }
+      @case ('morph') { <span class="sp-morph"></span> }
+      @case ('dots') {
+        <span class="sp-dots">
+          @for (i of dots; track i) {
+            <span [style.animation-delay.ms]="i * 140"></span>
+          }
+        </span>
+      }
+      @case ('bars') {
+        <span class="sp-bars">
+          @for (i of bars; track i) {
+            <span [style.animation-delay.ms]="i * 110"></span>
+          }
+        </span>
+      }
+    }
+    <span class="sr-only">Loading</span>
+  </div>
+
+  <!-- Size: the whole point is that it scales off font-size. -->
+  <label class="mt-4 block text-xs text-slate-600 dark:text-gray-400">
+    Font size — {{ scale() }}rem <span class="text-slate-500 dark:text-gray-500">(the spinner follows it)</span>
+    <input type="range" min="0.7" max="2.4" step="0.1" [value]="scale()"
+      (input)="scale.set(+$any($event.target).value)"
+      class="mt-1.5 w-full accent-red-600" aria-label="Font size" />
+  </label>
+
+  <!-- In context -->
+  <div class="mt-4 flex items-center gap-3 border-t border-slate-200 dark:border-white/10 pt-4">
+    <button type="button" (click)="run()" [disabled]="busy()"
+      class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-800 px-4 py-2 text-xs font-semibold text-white transition disabled:opacity-70">
+      @if (busy()) {
+        <span class="sp-ring sp-inherit"></span>
+      }
+      {{ busy() ? 'Deploying…' : 'Deploy' }}
+    </button>
+    <p class="text-xs text-slate-500 dark:text-gray-500">Inherits the button's size and colour.</p>
+  </div>
+</div>

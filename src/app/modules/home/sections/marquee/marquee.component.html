@@ -1,0 +1,28 @@
+<section class="relative border-y border-slate-200/60 dark:border-white/5 bg-white dark:bg-neutral-950 py-10">
+  <div class="marquee-host relative overflow-hidden
+              [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]">
+
+    <!-- Row 1 — platform features -->
+    <div class="flex w-max animate-marquee items-center gap-4">
+      @for (item of topRow.concat(topRow); track $index) {
+        <span
+          class="flex shrink-0 items-center gap-2 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03]
+                 px-5 py-2 text-sm font-medium text-slate-600 dark:text-gray-400">
+          <i class="pi pi-bolt text-[0.7rem] text-red-600 dark:text-red-400"></i>
+          {{ item }}
+        </span>
+      }
+    </div>
+
+    <!-- Row 2 — component names, drifting the other way -->
+    <div class="mt-4 flex w-max animate-marquee-slow items-center gap-4 [animation-direction:reverse]">
+      @for (item of bottomRow.concat(bottomRow); track $index) {
+        <span
+          class="shrink-0 rounded-full border border-red-900/30 bg-red-50 dark:bg-red-950/40 px-5 py-2 text-sm
+                 font-medium text-red-300/80">
+          {{ item }}
+        </span>
+      }
+    </div>
+  </div>
+</section>

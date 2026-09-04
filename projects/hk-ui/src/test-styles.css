@@ -1,0 +1,8 @@
+/* Mirrors the one line a consumer has to write.
+   Components wrap their :host rules in `@layer components` so that a
+   consumer's own CSS wins without a specificity fight. Which layer wins is
+   decided by declaration order, and with no explicit order the layers rank by
+   whichever is *encountered* first — which in a test is whichever component
+   Angular happens to inject first. Declaring the order up front is what makes
+   the outcome deterministic rather than load-order dependent. */
+@layer components, utilities;

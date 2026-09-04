@@ -1,0 +1,502 @@
+:host {
+  display: block;
+  /* ── Palette — light is the base ───────────────────────── */
+  --hk-table-bg: #ffffff;
+  --hk-table-text: #0f172a;
+  --hk-table-muted: #64748b;
+  --hk-table-border: #e2e8f0;
+  --hk-table-header-bg: #f8fafc;
+  --hk-table-header-text: #0f172a;
+  --hk-table-group-bg: #f1f5f9;
+  --hk-table-row-hover: rgb(15 23 42 / 0.035);
+  --hk-table-stripe: rgb(15 23 42 / 0.02);
+  --hk-table-selected: rgb(220 38 38 / 0.08);
+  --hk-table-accent: var(--brand-600, #dc2626);
+  --hk-table-accent-contrast: #ffffff;
+  --hk-table-panel-bg: #ffffff;
+  --hk-table-input-bg: #ffffff;
+  /* Opaque on purpose — native <select> popups cannot use a translucent fill. */
+  --hk-table-control-bg: #ffffff;
+  --hk-table-scheme: light;
+  --hk-table-footer-bg: #f8fafc;
+  --hk-table-scrim: rgb(255 255 255 / 0.62);
+  --hk-table-panel-shadow: 0 18px 40px rgb(15 23 42 / 0.14);
+  --hk-table-frozen-shadow: 8px 0 12px -10px rgb(15 23 42 / 0.28);
+  --hk-table-stripe-frozen: #f7f8fa;
+  /* ── Metrics ───────────────────────────────────────────── */
+  --hk-table-radius: var(--hk-radius, 12px);
+  --hk-table-density: var(--hk-density, 1);
+  --hk-table-font: 0.82rem;
+  --hk-table-font-sm: 0.78rem;
+  --hk-table-motion: var(--hk-motion, 160ms);
+  --hk-table-cell-x: 0.7rem;
+  --hk-table-cell-y: calc(0.5rem * var(--hk-table-density));
+  color-scheme: var(--hk-table-scheme);
+}
+
+/* Native controls get the opaque fill; their popups are drawn outside the
+   page, where a translucent background has nothing to composite against. */
+.hk-table-root select,
+.hk-table-root option {
+  background-color: var(--hk-table-control-bg);
+  color: var(--hk-table-text);
+}
+
+/* Only the colours move in dark mode; every metric above is shared. */
+:host-context(.dark) {
+  --hk-table-bg: #0b0b0c;
+  --hk-table-text: #f5f5f5;
+  --hk-table-muted: #a1a1aa;
+  --hk-table-border: rgb(255 255 255 / 0.10);
+  --hk-table-header-bg: #121214;
+  --hk-table-header-text: #e5e7eb;
+  --hk-table-group-bg: #16161a;
+  --hk-table-row-hover: rgb(255 255 255 / 0.04);
+  --hk-table-stripe: rgb(255 255 255 / 0.02);
+  --hk-table-selected: rgb(220 38 38 / 0.16);
+  --hk-table-panel-bg: #141416;
+  --hk-table-input-bg: rgb(255 255 255 / 0.04);
+  --hk-table-control-bg: #1c1c20;
+  --hk-table-scheme: dark;
+  --hk-table-footer-bg: #101013;
+  --hk-table-scrim: rgb(0 0 0 / 0.45);
+  --hk-table-panel-shadow: 0 18px 40px rgb(0 0 0 / 0.55);
+  --hk-table-frozen-shadow: 8px 0 12px -10px rgb(0 0 0 / 0.85);
+  --hk-table-stripe-frozen: #101012;
+}
+
+.hk-table-root {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  background: var(--hk-table-bg);
+  color: var(--hk-table-text);
+  border: 1px solid var(--hk-table-border);
+  border-radius: var(--hk-table-radius);
+  font-size: var(--hk-table-font);
+}
+.hk-size-sm { --hk-table-density: 0.62; --hk-table-font: 0.75rem; }
+.hk-size-lg { --hk-table-density: 1.5; --hk-table-font: 0.9rem; }
+
+/* ── Toolbar ─────────────────────────────────────────────── */
+.hk-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid var(--hk-table-border);
+}
+.hk-toolbar-slot { display: flex; align-items: center; gap: 0.4rem; }
+.hk-toolbar-actions { display: flex; align-items: center; gap: 0.4rem; margin-left: auto; }
+.hk-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.55rem;
+  color: var(--hk-table-muted);
+  background: var(--hk-table-input-bg);
+  border: 1px solid var(--hk-table-border);
+  border-radius: 999px;
+}
+.hk-search input {
+  width: 11rem;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--hk-table-text);
+  font: inherit;
+}
+.hk-search:focus-within { border-color: var(--hk-table-accent); }
+.hk-btn, .hk-chip {
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font: inherit;
+  color: var(--hk-table-text);
+  background: var(--hk-table-input-bg);
+  border: 1px solid var(--hk-table-border);
+  border-radius: calc(var(--hk-table-radius) / 2);
+  transition: background var(--hk-table-motion), border-color var(--hk-table-motion);
+}
+.hk-btn:hover, .hk-chip:hover { border-color: var(--hk-table-accent); }
+.hk-chip { color: var(--hk-table-accent); font-size: var(--hk-table-font-sm); }
+.hk-btn-xs { padding: 0.15rem 0.4rem; font-size: var(--hk-table-font-sm); }
+.hk-toggle-wrap { position: relative; }
+.hk-scrim { position: fixed; inset: 0; z-index: 40; }
+.hk-toggle-panel {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 41;
+  width: 14rem;
+  max-height: 16rem;
+  overflow: auto;
+  padding: 0.4rem;
+  background: var(--hk-table-panel-bg);
+  border: 1px solid var(--hk-table-border);
+  border-radius: var(--hk-table-radius);
+  box-shadow: var(--hk-table-panel-shadow);
+}
+.hk-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: var(--hk-table-font-sm);
+}
+.hk-toggle-row:hover { background: var(--hk-table-row-hover); }
+.hk-toggle-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hk-toggle-all {
+  width: 100%;
+  margin-top: 0.3rem;
+  padding: 0.25rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--hk-table-font-sm);
+  color: var(--hk-table-accent);
+  background: transparent;
+  border: 1px solid var(--hk-table-border);
+  border-radius: 6px;
+}
+.hk-caption {
+  padding: 0.5rem 0.7rem;
+  color: var(--hk-table-muted);
+  border-bottom: 1px solid var(--hk-table-border);
+  font-size: var(--hk-table-font-sm);
+}
+
+/* ── Table shell ─────────────────────────────────────────── */
+.hk-scroll { position: relative; overflow: auto; }
+.is-scrollable .hk-scroll { max-height: 32rem; }
+.hk-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+
+th, td {
+  padding: var(--hk-table-cell-y) var(--hk-table-cell-x);
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.hk-align-center { text-align: center; }
+.hk-align-right { text-align: right; }
+.is-gridlines th, .is-gridlines td { border-right: 1px solid var(--hk-table-border); }
+.is-gridlines th:last-child, .is-gridlines td:last-child { border-right: none; }
+
+/* ── Header ──────────────────────────────────────────────── */
+.hk-head {
+  position: relative;
+  color: var(--hk-table-header-text);
+  background: var(--hk-table-header-bg);
+  border-bottom: 1px solid var(--hk-table-border);
+  font-weight: 600;
+  font-size: var(--hk-table-font-sm);
+  letter-spacing: 0.01em;
+}
+.is-sticky .hk-head-row > th { position: sticky; z-index: 3; }
+.hk-head-group { text-align: center; }
+.hk-head-control { width: 2.75rem; text-align: center; }
+.hk-head-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  justify-content: inherit;
+}
+.hk-align-right .hk-head-inner { justify-content: flex-end; }
+.hk-align-center .hk-head-inner { justify-content: center; }
+.hk-head-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  border-radius: 4px;
+}
+.hk-head-label.is-clickable { cursor: pointer; user-select: none; }
+.hk-head-label:focus-visible { outline: 2px solid var(--hk-table-accent); outline-offset: 2px; }
+.hk-sort { display: inline-flex; opacity: 0.35; transition: opacity var(--hk-table-motion); }
+.is-sortable:hover .hk-sort { opacity: 0.7; }
+.hk-sort.is-asc, .hk-sort.is-desc { opacity: 1; color: var(--hk-table-accent); }
+.hk-sort.is-asc .hk-sort-down, .hk-sort.is-desc .hk-sort-up { opacity: 0.25; }
+.hk-sort-order {
+  min-width: 0.9rem;
+  padding: 0 0.15rem;
+  color: var(--hk-table-accent-contrast);
+  background: var(--hk-table-accent);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  line-height: 1.2;
+  text-align: center;
+}
+.is-sorted { color: var(--hk-table-text); }
+.hk-resizer {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  z-index: 4;
+  width: 7px;
+  height: 100%;
+  cursor: col-resize;
+  touch-action: none;
+}
+.hk-resizer:hover { background: var(--hk-table-accent); opacity: 0.5; }
+:host(.is-resizing) { cursor: col-resize; user-select: none; }
+
+/* ── Body ────────────────────────────────────────────────── */
+.hk-row > td {
+  background: var(--hk-table-bg);
+  border-bottom: 1px solid var(--hk-table-border);
+  transition: background var(--hk-table-motion);
+}
+.is-striped .hk-row:nth-child(even) > td { background: var(--hk-table-stripe); }
+.is-hover .hk-row:hover > td { background: var(--hk-table-row-hover); }
+.hk-row.is-selected > td { background: var(--hk-table-selected); }
+.hk-cell-control { width: 2.75rem; text-align: center; }
+.hk-cell-actions { display: table-cell; white-space: nowrap; }
+.hk-cell-actions .hk-btn + .hk-btn { margin-left: 0.25rem; }
+td.is-editable { cursor: text; }
+td[tabindex]:focus-visible {
+  outline: 2px solid var(--hk-table-accent);
+  outline-offset: -2px;
+}
+.hk-editor {
+  width: 100%;
+  padding: 0.15rem 0.3rem;
+  color: var(--hk-table-text);
+  background: var(--hk-table-control-bg, var(--hk-table-input-bg));
+  border: 1px solid var(--hk-table-accent);
+  border-radius: 4px;
+  font: inherit;
+}
+.hk-check { accent-color: var(--hk-table-accent); cursor: pointer; }
+.hk-expander {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  cursor: pointer;
+  color: var(--hk-table-muted);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+}
+.hk-expander:hover { background: var(--hk-table-row-hover); color: var(--hk-table-text); }
+.hk-chevron {
+  display: inline-block;
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform var(--hk-table-motion);
+}
+.hk-chevron.is-open { transform: rotate(90deg); }
+.hk-expansion-cell {
+  padding: 0;
+  background: var(--hk-table-group-bg);
+  border-bottom: 1px solid var(--hk-table-border);
+  white-space: normal;
+}
+
+/* ── Groups, footer, empty, loading ──────────────────────── */
+.hk-group-row > td {
+  padding: 0;
+  background: var(--hk-table-group-bg);
+  border-bottom: 1px solid var(--hk-table-border);
+}
+.hk-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: var(--hk-table-cell-y) var(--hk-table-cell-x);
+  cursor: pointer;
+  color: var(--hk-table-text);
+  background: transparent;
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+}
+.hk-group-toggle:disabled { cursor: default; }
+.hk-group-count {
+  padding: 0 0.4rem;
+  color: var(--hk-table-muted);
+  background: var(--hk-table-input-bg);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+.hk-group-footer > td, .hk-foot-row > td {
+  background: var(--hk-table-footer-bg);
+  border-top: 1px solid var(--hk-table-border);
+  font-weight: 600;
+}
+.is-sticky tfoot .hk-foot-row > td { position: sticky; bottom: 0; z-index: 2; }
+.hk-empty-row > td { padding: 0; }
+.hk-empty {
+  padding: 2.5rem 1rem;
+  color: var(--hk-table-muted);
+  text-align: center;
+  white-space: normal;
+}
+.hk-spacer > td { padding: 0; border: none; }
+/* Virtual scrolling needs uniform rows or the spacers drift out of sync. */
+.is-virtual .hk-row > td {
+  height: var(--hk-table-row-h, 36px);
+  max-height: var(--hk-table-row-h, 36px);
+  overflow: hidden;
+}
+.is-virtual .hk-scroll { contain: paint; }
+.hk-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  background: var(--hk-table-scrim);
+  backdrop-filter: blur(1px);
+}
+.hk-spinner {
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid var(--hk-table-border);
+  border-top-color: var(--hk-table-accent);
+  border-radius: 50%;
+  animation: hk-spin 0.7s linear infinite;
+}
+@keyframes hk-spin { to { transform: rotate(360deg); } }
+.hk-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.hk-pager-shell { display: flex; flex-direction: column; }
+.hk-footer-slot { padding: 0.5rem 0.7rem; border-top: 1px solid var(--hk-table-border); }
+
+/* ── Frozen columns ──────────────────────────────────────── */
+.is-frozen-left, .is-frozen-right { position: sticky; z-index: 2; }
+tbody .is-frozen-left, tbody .is-frozen-right { z-index: 1; }
+.is-sticky .hk-head-row > th.is-frozen-left,
+.is-sticky .hk-head-row > th.is-frozen-right { z-index: 4; }
+.is-frozen-left { box-shadow: var(--hk-table-frozen-shadow); }
+.is-frozen-right { box-shadow: -8px 0 12px -10px rgb(15 23 42 / 0.28); }
+:host-context(.dark) .is-frozen-right { box-shadow: -8px 0 12px -10px rgb(0 0 0 / 0.85); }
+tbody .hk-row > td.is-frozen-left, tbody .hk-row > td.is-frozen-right {
+  background: var(--hk-table-bg);
+}
+.is-striped .hk-row:nth-child(even) > td.is-frozen-left { background: var(--hk-table-stripe-frozen); }
+.hk-row.is-selected > td.is-frozen-left { background: var(--hk-table-selected); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hk-chevron, .hk-sort, .hk-row > td { transition: none; }
+  .hk-spinner { animation-duration: 2s; }
+}
+
+/* ── Frozen rows ────────────────────────────────────────────────
+   Pinned above the scrolling body. `top` is set inline from the measured
+   header height, because the header can be one row or three depending on
+   how deep the column tree is. */
+.hk-frozen-body .hk-row-frozen > td {
+  position: sticky;
+  /* Above ordinary body cells and above a frozen *column* in the body, but
+     below the header — the header must still cover these when both stick. */
+  z-index: 3;
+  background: var(--hk-table-frozen-row-bg, var(--hk-table-header-bg, var(--hk-table-bg)));
+  font-weight: 500;
+  border-bottom: 1px solid var(--hk-table-border);
+}
+
+/* A frozen row that is also a frozen column has to beat both. */
+.hk-frozen-body .hk-row-frozen > td.is-frozen-left,
+.hk-frozen-body .hk-row-frozen > td.is-frozen-right {
+  z-index: 4;
+}
+
+/* The seam between the pinned block and the scrolling rows, so it reads as
+   pinned rather than as the first row of the data. */
+.hk-frozen-body .hk-row-frozen:last-child > td {
+  box-shadow: 0 1px 0 var(--hk-table-border), var(--hk-table-frozen-row-shadow, 0 4px 8px -6px rgb(0 0 0 / 0.35));
+}
+
+/* ── Stacked layout ─────────────────────────────────────────────
+   Below the breakpoint each row becomes a card and each cell carries its
+   own column name. A grid narrower than about forty characters is not a
+   grid any more, however well it scrolls sideways. */
+.is-stacked table {
+  display: block;
+  width: 100%;
+}
+
+.is-stacked thead {
+  /* Not `display: none` — the header text still labels each cell, it just
+     moves into the rows. Clipped rather than removed so it stays available
+     to a screen reader walking the table. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.is-stacked tbody,
+.is-stacked tfoot {
+  display: block;
+  width: 100%;
+}
+
+.is-stacked tbody .hk-row {
+  display: block;
+  margin-bottom: 0.6rem;
+  border: 1px solid var(--hk-table-border);
+  border-radius: var(--hk-table-radius);
+  overflow: hidden;
+  background: var(--hk-table-bg);
+}
+
+.is-stacked tbody .hk-row > td {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: auto;
+  /* Frozen columns mean nothing in a stack; releasing them stops the inline
+     left/right offsets from shunting cells off the card. */
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  max-width: none !important;
+  text-align: left !important;
+  border-bottom: 1px solid var(--hk-table-border);
+}
+
+.is-stacked tbody .hk-row > td:last-child {
+  border-bottom: 0;
+}
+
+/* The column name, carried on the cell so grid mode pays nothing for it. */
+.is-stacked tbody .hk-row > td[data-label]::before {
+  content: attr(data-label);
+  flex: 0 0 auto;
+  font-size: var(--hk-table-font-sm, 0.8rem);
+  font-weight: 600;
+  color: var(--hk-table-muted);
+}
+
+/* An empty control cell with no label is just a blank strip. */
+.is-stacked tbody .hk-row > td.hk-cell-control:empty {
+  display: none;
+}
+
+.is-stacked .hk-spacer,
+.is-stacked .hk-frozen-body {
+  display: none;
+}
+
+.is-stacked tbody .hk-group-row > td,
+.is-stacked tbody .hk-group-footer > td {
+  display: block;
+  text-align: left;
+}

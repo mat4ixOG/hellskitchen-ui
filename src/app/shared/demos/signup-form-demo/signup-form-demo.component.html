@@ -1,0 +1,181 @@
+<div class="w-full max-w-md">
+
+  @if (done()) {
+    <!-- Success is a state of the same card, not a redirect: nothing is lost
+         if the user wants to go back. -->
+    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-800/50 dark:bg-emerald-950/30">
+      <div class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-600 text-white">
+        <i class="pi pi-check text-lg"></i>
+      </div>
+      <h3 class="mt-4 text-base font-bold text-slate-900 dark:text-white">You're in</h3>
+      <p class="mt-1 text-xs leading-relaxed text-slate-600 dark:text-gray-400">
+        @if (sso()) {
+          Signed up with <b class="text-slate-900 dark:text-white">{{ sso() }}</b>. No password to remember.
+        } @else {
+          We sent a confirmation to <b class="text-slate-900 dark:text-white">{{ control('email').value }}</b>.
+        }
+      </p>
+      <button type="button" (click)="reset()"
+        class="mt-5 rounded-lg border border-emerald-300 px-4 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-700/60 dark:text-emerald-300 dark:hover:bg-emerald-950/60">
+        Start over
+      </button>
+    </div>
+  } @else {
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-neutral-950">
+      <h3 class="text-base font-bold text-slate-900 dark:text-white">Create your account</h3>
+      <p class="mt-1 text-xs text-slate-600 dark:text-gray-400">Free for the first three services.</p>
+
+      <!-- SSO first: a returning user should not read a form they will skip. -->
+      <div class="mt-5 grid grid-cols-2 gap-2">
+        @for (provider of providers; track provider.id) {
+          <button type="button" (click)="useSso(provider)" [disabled]="busy()"
+            class="flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-xs font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/25 dark:hover:bg-white/5">
+            <i class="pi text-sm" [class]="provider.icon + ' ' + provider.ink"></i>
+            {{ provider.label }}
+          </button>
+        }
+      </div>
+
+      <div class="my-5 flex items-center gap-3">
+        <span class="h-px flex-1 bg-slate-200 dark:bg-white/10"></span>
+        <span class="text-[0.7rem] uppercase tracking-wide text-slate-400 dark:text-gray-500">or with email</span>
+        <span class="h-px flex-1 bg-slate-200 dark:bg-white/10"></span>
+      </div>
+
+      <!-- novalidate: the browser's own bubbles would pre-empt the messages
+           below, and they cannot be styled or translated. -->
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-4">
+
+        <label class="block">
+          <span class="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-gray-400">Full name</span>
+          <span [class]="fieldClass('name')">
+            <span class="pl-3 text-slate-400 dark:text-gray-500"><i class="pi pi-user text-xs"></i></span>
+            <input formControlName="name" autocomplete="name" placeholder="Dee Dash"
+              [attr.aria-invalid]="showError('name')"
+              class="min-w-0 flex-1 bg-transparent px-2.5 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-gray-500" />
+          </span>
+          @if (showError('name')) {
+            <span class="mt-1 block text-xs text-red-600 dark:text-red-400">{{ errorFor('name') }}</span>
+          }
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-gray-400">Work email</span>
+          <span [class]="fieldClass('email')">
+            <span class="pl-3 text-slate-400 dark:text-gray-500"><i class="pi pi-envelope text-xs"></i></span>
+            <input formControlName="email" type="email" autocomplete="email" placeholder="you@team.com"
+              [attr.aria-invalid]="showError('email')"
+              class="min-w-0 flex-1 bg-transparent px-2.5 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-gray-500" />
+          </span>
+          @if (showError('email')) {
+            <span class="mt-1 block text-xs text-red-600 dark:text-red-400">{{ errorFor('email') }}</span>
+          }
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-gray-400">Password</span>
+          <span [class]="fieldClass('password')">
+            <span class="pl-3 text-slate-400 dark:text-gray-500"><i class="pi pi-lock text-xs"></i></span>
+            <input formControlName="password" [type]="revealed() ? 'text' : 'password'"
+              autocomplete="new-password" placeholder="At least 12 characters"
+              [attr.aria-invalid]="showError('password')"
+              class="min-w-0 flex-1 bg-transparent px-2.5 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-gray-500" />
+            <button type="button" (click)="revealed.set(!revealed())" [attr.aria-pressed]="revealed()"
+              [attr.aria-label]="revealed() ? 'Hide password' : 'Show password'"
+              class="px-3 text-slate-500 transition-colors hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">
+              <i class="pi text-xs" [class]="revealed() ? 'pi-eye-slash' : 'pi-eye'"></i>
+            </button>
+          </span>
+
+          @if (control('password').value) {
+            <span class="mt-2 flex gap-1">
+              @for (band of [1, 2, 3, 4, 5]; track band) {
+                <span class="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
+                  <span class="block h-full origin-left rounded-full transition-transform duration-300"
+                    [class]="strengthBar()"
+                    [style.transform]="'scaleX(' + (band <= score() ? 1 : 0) + ')'"></span>
+                </span>
+              }
+            </span>
+            <span class="mt-1 block text-xs text-slate-500 dark:text-gray-500">{{ strengthLabel() }}</span>
+          }
+
+          @if (showError('password')) {
+            <span class="mt-1 block text-xs text-red-600 dark:text-red-400">{{ errorFor('password') }}</span>
+          }
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-gray-400">Confirm password</span>
+          <span [class]="fieldClass('confirm', mismatch)">
+            <span class="pl-3 text-slate-400 dark:text-gray-500"><i class="pi pi-check-circle text-xs"></i></span>
+            <input formControlName="confirm" [type]="revealed() ? 'text' : 'password'"
+              autocomplete="new-password" placeholder="Type it again"
+              [attr.aria-invalid]="mismatch || showError('confirm')"
+              class="min-w-0 flex-1 bg-transparent px-2.5 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-gray-500" />
+          </span>
+          @if (mismatch) {
+            <span class="mt-1 block text-xs text-red-600 dark:text-red-400">The two passwords do not match.</span>
+          } @else if (showError('confirm')) {
+            <span class="mt-1 block text-xs text-red-600 dark:text-red-400">{{ errorFor('confirm') }}</span>
+          }
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-gray-400">What do you do?</span>
+          <select formControlName="role" [attr.aria-invalid]="showError('role')"
+            class="w-full rounded-xl border bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-red-500 dark:bg-neutral-950 dark:text-white dark:focus:border-red-600/70"
+            [class]="showError('role') ? 'border-red-500 dark:border-red-700/70' : 'border-slate-200 dark:border-white/10'">
+            <option value="" disabled>Pick one</option>
+            @for (role of roles; track role) { <option [value]="role">{{ role }}</option> }
+          </select>
+          @if (showError('role')) {
+            <span class="mt-1 block text-xs text-red-600 dark:text-red-400">{{ errorFor('role') }}</span>
+          }
+        </label>
+
+        <div class="space-y-2 border-t border-slate-200/60 pt-4 dark:border-white/5">
+          <label class="flex cursor-pointer items-start gap-2.5 text-xs text-slate-600 dark:text-gray-400">
+            <input type="checkbox" formControlName="terms" class="mt-0.5 h-3.5 w-3.5 shrink-0 accent-red-600"
+              [attr.aria-invalid]="showError('terms')" />
+            <span>
+              I agree to the <a href="#" class="text-red-600 underline underline-offset-2 dark:text-red-400">terms</a>
+              and <a href="#" class="text-red-600 underline underline-offset-2 dark:text-red-400">privacy policy</a>.
+            </span>
+          </label>
+          @if (showError('terms')) {
+            <p class="text-xs text-red-600 dark:text-red-400">{{ errorFor('terms') }}</p>
+          }
+
+          <label class="flex cursor-pointer items-start gap-2.5 text-xs text-slate-600 dark:text-gray-400">
+            <input type="checkbox" formControlName="updates" class="mt-0.5 h-3.5 w-3.5 shrink-0 accent-red-600" />
+            <span>Send me release notes. No more than once a month.</span>
+          </label>
+        </div>
+
+        <!-- Never disabled on invalid: a button that goes dead gives no reason
+             why. Submitting an invalid form is what surfaces every message. -->
+        <button type="submit" [disabled]="busy()"
+          class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60">
+          @if (busy()) {
+            <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+            Creating…
+          } @else {
+            Create account
+          }
+        </button>
+
+        @if (submitted() && form.invalid && !busy()) {
+          <p class="text-center text-xs text-red-600 dark:text-red-400" role="alert">
+            {{ invalidCount() }} field{{ invalidCount() === 1 ? '' : 's' }} still need attention.
+          </p>
+        }
+
+        <p class="text-center text-xs text-slate-500 dark:text-gray-500">
+          Form status: <code class="text-slate-600 dark:text-gray-400">{{ form.status }}</code>
+        </p>
+      </form>
+    </div>
+  }
+</div>

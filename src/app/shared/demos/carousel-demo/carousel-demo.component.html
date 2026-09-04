@@ -1,0 +1,85 @@
+<div class="flex w-full max-w-2xl flex-col gap-4">
+  <!-- Controls -->
+  <div class="flex flex-wrap items-center gap-2">
+    <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Autoplay</span>
+    <button type="button" (click)="autoplay.set(true)" [attr.aria-pressed]="autoplay()" [class]="chip(autoplay())">On</button>
+    <button type="button" (click)="autoplay.set(false)" [attr.aria-pressed]="!autoplay()" [class]="chip(!autoplay())">Off</button>
+
+    <span class="ml-3 text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Loop</span>
+    <button type="button" (click)="loop.set(true)" [attr.aria-pressed]="loop()" [class]="chip(loop())">On</button>
+    <button type="button" (click)="loop.set(false)" [attr.aria-pressed]="!loop()" [class]="chip(!loop())">Off</button>
+
+    <label class="ml-auto flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">
+      Every {{ (interval() / 1000).toFixed(1) }}s
+      <input type="range" min="1000" max="6000" step="200" class="w-24 accent-red-600"
+        [value]="interval()" (input)="interval.set(+$any($event.target).value)" aria-label="Autoplay interval" />
+    </label>
+  </div>
+
+  <!-- Carousel -->
+  <section class="hk-carousel relative overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03]"
+    role="region" aria-roledescription="carousel" aria-label="Library highlights"
+    tabindex="0"
+    (mouseenter)="onEnter()" (mouseleave)="onLeave()"
+    (focusin)="onFocusIn()" (focusout)="onFocusOut($event)"
+    (keydown)="onKey($event)"
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp($event)"
+    (pointercancel)="onPointerUp($event)">
+
+    <!-- One transform moves the whole track -->
+    <div class="hk-carousel-track flex" [style.transform]="'translate3d(' + offset() + '%, 0, 0)'">
+      @for (slide of slides; track slide.id) {
+        <div class="hk-carousel-slide w-full shrink-0 p-8 sm:p-10"
+          role="group" aria-roledescription="slide"
+          [attr.aria-label]="$index + 1 + ' of ' + count()"
+          [attr.aria-hidden]="index() !== $index ? 'true' : null"
+          [attr.inert]="index() !== $index ? '' : null">
+          <div class="flex items-start gap-5">
+            <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-white shadow-lg"
+              [style.background]="slideStyle(slide)">
+              <i class="pi {{ slide.icon }} text-lg" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0">
+              <h3 class="m-0 text-lg font-semibold text-slate-900 dark:text-white">{{ slide.title }}</h3>
+              <p class="mt-1.5 mb-0 text-sm leading-relaxed text-slate-600 dark:text-gray-400">{{ slide.body }}</p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Arrows -->
+    <button type="button" class="hk-carousel-arrow left-3" (click)="prev()"
+      [disabled]="prevDisabled()" aria-label="Previous slide">
+      <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="hk-carousel-arrow right-3" (click)="next()"
+      [disabled]="nextDisabled()" aria-label="Next slide">
+      <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
+    </button>
+  </section>
+
+  <!-- Dots + live region -->
+  <div class="flex items-center gap-3">
+    <div class="flex gap-1.5" role="tablist" aria-label="Choose slide">
+      @for (slide of slides; track slide.id) {
+        <button type="button" role="tab"
+          [attr.aria-selected]="index() === $index"
+          [attr.aria-label]="slide.title"
+          (click)="go($index)"
+          class="h-2 rounded-full transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-red-600 focus-visible:outline-offset-2"
+          [class]="index() === $index
+            ? 'w-6 bg-red-600'
+            : 'w-2 bg-slate-300 hover:bg-slate-400 dark:bg-white/15 dark:hover:bg-white/25'"></button>
+      }
+    </div>
+
+    <!-- Polite, not assertive: the slide changing is not an alert. -->
+    <p class="m-0 ml-auto text-[0.7rem] text-slate-500 dark:text-gray-500" aria-live="polite">
+      {{ slides[index()].title }} — {{ index() + 1 }} of {{ count() }}
+      @if (!playing() && autoplay()) { <span class="text-red-600 dark:text-red-400">· paused</span> }
+    </p>
+  </div>
+</div>

@@ -1,0 +1,75 @@
+<div class="demo">
+  <div class="demo-chips">
+    <button type="button" [class.on]="grouped()" (click)="grouped.set(!grouped())">Group by region</button>
+    <button type="button" [class.on]="compact()" (click)="compact.set(!compact())">Compact</button>
+    <button type="button" [class.on]="heavy()" (click)="heavy.set(!heavy())">
+      {{ heavy() ? '10,000 rows — virtual' : '180 rows — paged' }}
+    </button>
+    @if (selection().length) {
+      <span class="demo-note">{{ selection().length }} selected</span>
+    }
+    @if (lastEdit()) {
+      <span class="demo-note">Edited {{ lastEdit() }}</span>
+    }
+  </div>
+
+  <hk-table
+    [value]="rows()"
+    [columns]="columns"
+    dataKey="id"
+    [size]="compact() ? 'sm' : 'md'"
+    [paginator]="!heavy()"
+    [rows]="12"
+    [rowsPerPageOptions]="[12, 25, 50]"
+    [virtualScroll]="heavy()"
+    [virtualRowHeight]="compact() ? 30 : 37"
+    scrollHeight="28rem"
+    sortMode="multiple"
+    selectionMode="checkbox"
+    [(selection)]="selection"
+    [groupRowsBy]="grouped() ? 'region' : ''"
+    [showGroupFooter]="grouped()"
+    [rowExpansion]="!heavy()"
+    editMode="cell"
+    [showIndex]="!grouped()"
+    [showSearch]="true"
+    [showExport]="true"
+    [columnToggle]="true"
+    [resizableColumns]="true"
+    [reorderableColumns]="true"
+    [striped]="true"
+    stateKey="hk-demo-deploys"
+    emptyMessage="Nothing matches those filters."
+    (editComplete)="onEdit($event)">
+
+    <!-- A named cell template is picked up by matching column key. -->
+    <ng-template hkTemplate="cell:status" let-value>
+      <span class="tag" [class]="toneOf(value)">{{ value }}</span>
+    </ng-template>
+
+    <ng-template hkTemplate="cell:service" let-value let-row="row">
+      <span class="svc">
+        <span class="dot" [class]="toneOf(row.status)"></span>{{ value }}
+      </span>
+    </ng-template>
+
+    <ng-template hkTemplate="groupHeader" let-value let-rows="rows">
+      <span class="grp">{{ value }}</span>
+      <span class="grp-sub">{{ rows.length }} services</span>
+    </ng-template>
+
+    <ng-template hkTemplate="expansion" let-row>
+      <div class="exp">
+        <div><b>Owner</b><span>{{ row.owner }}</span></div>
+        <div><b>Updated</b><span>{{ row.updated }}</span></div>
+        <div><b>Margin</b><span>{{ row.margin }}%</span></div>
+        <p>{{ row.notes }}</p>
+      </div>
+    </ng-template>
+  </hk-table>
+
+  <p class="demo-hint">
+    Double-click a <b>Units</b> cell to edit · shift-click headers to stack sorts ·
+    drag a header edge to resize
+  </p>
+</div>

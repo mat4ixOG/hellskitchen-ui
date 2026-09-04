@@ -1,0 +1,80 @@
+@for (block of blocks(); track $index) {
+  @switch (block.kind) {
+
+    @case ('h') {
+      <h2 [id]="block.id" class="mt-12 scroll-mt-28 text-xl font-bold text-slate-900 dark:text-white first:mt-0">
+        <a [href]="'#' + block.id" class="group inline-flex items-center gap-2 hover:text-red-700 dark:hover:text-red-400">
+          {{ block.text }}
+          <i class="pi pi-link text-[0.65rem] opacity-0 transition group-hover:opacity-60"></i>
+        </a>
+      </h2>
+    }
+
+    @case ('p') {
+      <p class="mt-4 leading-relaxed text-slate-600 dark:text-gray-400">{{ block.text }}</p>
+    }
+
+    @case ('code') {
+      <div class="mt-5">
+        <app-code-block [code]="block.code" [file]="block.file ?? ''" />
+      </div>
+    }
+
+    @case ('list') {
+      @if (block.ordered) {
+        <ol class="mt-4 space-y-2.5 pl-1">
+          @for (item of block.items; track $index) {
+            <li class="flex gap-3 text-sm leading-relaxed text-slate-600 dark:text-gray-400">
+              <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-red-100 dark:bg-red-950/60
+                           text-[0.65rem] font-bold text-red-600 dark:text-red-400">{{ $index + 1 }}</span>
+              {{ item }}
+            </li>
+          }
+        </ol>
+      } @else {
+        <ul class="mt-4 space-y-2.5">
+          @for (item of block.items; track $index) {
+            <li class="flex gap-3 text-sm leading-relaxed text-slate-600 dark:text-gray-400">
+              <i class="pi pi-angle-right mt-1 shrink-0 text-xs text-red-600 dark:text-red-400"></i>
+              {{ item }}
+            </li>
+          }
+        </ul>
+      }
+    }
+
+    @case ('note') {
+      <div class="mt-6 flex gap-3 rounded-xl border px-5 py-4 text-sm leading-relaxed"
+        [class]="noteClass(block.tone)">
+        <i [class]="noteIcon(block.tone) + ' mt-0.5 shrink-0'"></i>
+        <p>{{ block.text }}</p>
+      </div>
+    }
+
+    @case ('table') {
+      <div class="mt-6 overflow-x-auto rounded-xl border border-slate-200 dark:border-white/10">
+        <table class="w-full min-w-[34rem] text-left text-sm">
+          <thead class="bg-slate-50 dark:bg-white/[0.03] text-xs uppercase tracking-wider text-slate-600 dark:text-gray-400">
+            <tr>
+              @for (heading of block.head; track heading) {
+                <th class="px-5 py-3 font-semibold">{{ heading }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-white/5">
+            @for (row of block.rows; track $index) {
+              <tr class="transition hover:bg-slate-50 dark:hover:bg-white/[0.03]">
+                @for (cell of row; track $index) {
+                  <td class="px-5 py-3 align-top"
+                    [class]="$index === 0 ? 'font-mono text-xs text-red-700 dark:text-red-300' : 'text-slate-600 dark:text-gray-400'">
+                    {{ cell }}
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+}

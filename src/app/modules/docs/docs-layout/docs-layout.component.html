@@ -1,0 +1,94 @@
+<div class="min-h-screen bg-white dark:bg-neutral-950">
+  <div class="mx-auto flex max-w-[100rem] gap-10 px-6">
+
+    <!-- Sidebar -->
+    <aside
+      class="fixed inset-y-0 left-0 z-40 w-72 overflow-y-auto border-r border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950
+             px-5 py-6 transition-transform duration-300 lg:sticky lg:top-[4.75rem] lg:z-0 lg:h-[calc(100vh-6rem)]
+             lg:translate-x-0 lg:border-r-0 lg:bg-transparent lg:px-0"
+      [class]="navOpen() ? 'translate-x-0' : '-translate-x-full'">
+
+      <div class="relative mb-5">
+        <i class="pi pi-search pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-500 dark:text-gray-500"></i>
+        <input
+          type="search"
+          [value]="filter()"
+          (input)="setFilter($event)"
+          placeholder="Filter components…"
+          aria-label="Filter components"
+          class="w-full rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 py-2.5 pl-9 pr-3 text-xs text-slate-900 dark:text-white
+                 transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-red-500 dark:focus:border-red-600/70 focus:outline-none" />
+      </div>
+
+      <!-- Guides -->
+      <p class="px-3 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-gray-500">Guides</p>
+      <ul class="mt-2 space-y-0.5">
+        <li>
+          <a routerLink="/docs" routerLinkActive="!text-red-600 dark:text-red-400 !bg-red-50 dark:bg-red-950/40"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="navOpen.set(false)"
+            class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-gray-400 transition
+                   hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white">
+            <i class="pi pi-home text-xs text-red-700 dark:text-red-300"></i>
+            Overview
+          </a>
+        </li>
+        @for (guide of guides; track guide.id) {
+          <li>
+            <a [routerLink]="['/docs/guide', guide.id]" routerLinkActive="!text-red-600 dark:text-red-400 !bg-red-50 dark:bg-red-950/40"
+              (click)="navOpen.set(false)"
+              class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-gray-400 transition
+                     hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white">
+              <i [class]="guide.icon + ' text-xs text-red-700 dark:text-red-300'"></i>
+              {{ guide.title }}
+            </a>
+          </li>
+        }
+      </ul>
+
+      <!-- Components by category -->
+      @for (category of categories; track category) {
+        @if (itemsIn(category).length) {
+          <p class="mt-7 px-3 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-gray-500">
+            {{ category }}
+          </p>
+          <ul class="mt-2 space-y-0.5">
+            @for (entry of itemsIn(category); track entry.slug) {
+              <li>
+                <a [routerLink]="['/docs/component', entry.slug]"
+                  routerLinkActive="is-active"
+                  (click)="navOpen.set(false)"
+                  class="docs-nav-link flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm
+                         text-slate-600 dark:text-gray-400 transition
+                         hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white">
+                  <span class="truncate">{{ entry.name }}</span>
+                  @if (entry.status === 'new') {
+                    <span class="docs-nav-new" aria-label="New">New</span>
+                  }
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      }
+    </aside>
+
+    <!-- Backdrop for the mobile slide-over -->
+    @if (navOpen()) {
+      <button type="button" (click)="navOpen.set(false)" aria-label="Close navigation"
+        class="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-sm lg:hidden"></button>
+    }
+
+    <!-- Content -->
+    <main class="min-w-0 flex-1 py-10">
+      <button type="button" (click)="navOpen.set(true)"
+        class="mb-6 inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-white/10 px-4 py-2 text-xs
+               font-semibold text-slate-600 dark:text-gray-400 transition hover:text-slate-900 dark:hover:text-white cursor-pointer lg:hidden">
+        <i class="pi pi-bars text-xs"></i>
+        Docs menu
+      </button>
+
+      <router-outlet />
+    </main>
+  </div>
+</div>

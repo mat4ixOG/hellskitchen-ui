@@ -1,0 +1,110 @@
+:host {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+  /* The host is only a positioning frame; clicks belong to its children, so
+     it must not sit over the page and swallow them. */
+  pointer-events: none;
+}
+
+:host > * {
+  pointer-events: auto;
+}
+
+/* The round button ------------------------------------------------------- */
+.hk-launcher-fab {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1.15rem;
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  box-shadow: 0 8px 24px rgb(220 38 38 / 0.35);
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms;
+}
+
+.hk-launcher-fab:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgb(220 38 38 / 0.45); }
+.hk-launcher-fab:active { transform: scale(0.94); }
+.hk-launcher-fab.is-open { background: linear-gradient(135deg, #4b5563, #1f2937); box-shadow: 0 8px 24px rgb(0 0 0 / 0.3); }
+.hk-launcher-fab:focus-visible { outline: 2px solid #dc2626; outline-offset: 3px; }
+
+/* The docked card -------------------------------------------------------- */
+.hk-launcher-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(23rem, calc(100vw - 2.5rem));
+  height: min(32rem, calc(100vh - 8rem));
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid rgb(226 232 240);
+  box-shadow: 0 24px 60px rgb(15 23 42 / 0.18);
+
+  /* Closed is the default so the first paint is not a flash of open card. */
+  opacity: 0;
+  transform: translateY(12px) scale(0.97);
+  transform-origin: bottom right;
+  transition: opacity 200ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+              visibility 0s linear 220ms;
+  visibility: hidden;
+}
+
+.hk-launcher-panel.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+:host-context(.dark) .hk-launcher-panel {
+  background: #0b0b0c;
+  border-color: rgb(255 255 255 / 0.1);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.6);
+}
+
+.hk-launcher-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid rgb(226 232 240);
+}
+:host-context(.dark) .hk-launcher-head { border-color: rgb(255 255 255 / 0.08); }
+
+.hk-launcher-close {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-left: auto;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  color: rgb(100 116 139);
+  transition: background 160ms, color 160ms;
+}
+.hk-launcher-close:hover { background: rgb(241 245 249); color: rgb(15 23 42); }
+:host-context(.dark) .hk-launcher-close { color: rgb(156 163 175); }
+:host-context(.dark) .hk-launcher-close:hover { background: rgb(255 255 255 / 0.06); color: #fff; }
+.hk-launcher-close:focus-visible { outline: 2px solid #dc2626; outline-offset: 1px; }
+
+/* On a phone the card is the screen; a 23rem card floating over a 20rem
+   viewport is worse than no card. */
+@media (max-width: 30rem) {
+  .hk-launcher-panel {
+    width: calc(100vw - 1.5rem);
+    height: min(30rem, calc(100vh - 7rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hk-launcher-fab, .hk-launcher-panel { transition: none; animation: none; }
+  .hk-launcher-fab:hover { transform: none; }
+}
