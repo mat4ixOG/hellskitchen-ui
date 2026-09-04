@@ -42,6 +42,7 @@ import {
 import {
   aggregate,
   applyColumnState,
+  assignField,
   buildHeaderRows,
   compileFilter,
   defaultCompare,
@@ -111,6 +112,12 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   /** Initial sort field. Use `sort` for full control. */
   readonly sortField = input('');
   readonly sortOrder = input<HkSortOrder>(1);
+  /** Direction a column sorts on its first click. */
+  readonly defaultSortOrder = input<HkSortOrder>(1);
+  /** Whether sorting jumps back to page one. Off keeps the reader's offset. */
+  readonly resetPageOnSort = input(true);
+  /** Replaces the whole sort step — for a comparator that spans columns. */
+  readonly customSort = input<((rows: T[], sort: HkSortMeta[]) => T[]) | null>(null);
   /** Active sort stack, outermost first. Two-way bindable. */
   readonly sort = model<HkSortMeta[]>([]);
 
@@ -130,6 +137,23 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   readonly selection = model<T[]>([]);
   /** Ctrl/Cmd-click to add in `multiple` mode instead of replacing. */
   readonly metaKeySelection = input(true);
+  /**
+   * Which rows may be selected at all. A row that fails this is skipped by
+   * click, by the space key and by select-all alike — a checkbox that renders
+   * enabled and then refuses to tick is worse than one that never offered.
+   */
+  readonly rowSelectable = input<((row: T, index: number) => boolean) | null>(null);
+  /**
+   * What the header checkbox covers. `page` ticks the rows on screen;
+   * `filtered` ticks everything the current filters match, across every page —
+   * which is almost always what someone means by "select all" on page 3 of 40.
+   */
+  readonly selectAllScope = input<'page' | 'filtered'>('page');
+  /**
+   * Shift-click selects the span between the last selection and the click.
+   * The single most-missed interaction in a grid people use like a spreadsheet.
+   */
+  readonly rangeSelection = input(true);
 
   // ── Expansion ────────────────────────────────────────────────
   readonly rowExpansion = input(false);
@@ -143,6 +167,20 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   readonly showGroupFooter = input(false);
 
   // ── Layout / scrolling ───────────────────────────────────────
+  /**
+   * Rows pinned above the scrolling body — a totals line, a "new" row being
+   * entered, the record someone is comparing everything else against. They
+   * are not part of `value`, so they never sort, filter or page away.
+   */
+  readonly frozenRows = input<T[]>([]);
+  /**
+   * `stack` turns each row into a card below `stackBreakpoint`, with every
+   * cell labelled by its column. A grid narrower than about forty characters
+   * is unreadable as a grid however well it scrolls.
+   */
+  readonly responsiveLayout = input<'scroll' | 'stack'>('scroll');
+  /** Width in px below which `stack` takes over. */
+  readonly stackBreakpoint = input(640);
   readonly scrollable = input(true);
   readonly scrollHeight = input('');
   readonly stickyHeader = input(true);
@@ -172,6 +210,14 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   readonly styleClass = input('');
   readonly showExport = input(false);
   readonly exportFilename = input('table');
+  /**
+   * Field separator for the export. Locales where the decimal mark is a comma
+   * need `;` — Excel there splits on `;` and a comma-separated file opens as
+   * one column per row.
+   */
+  readonly csvSeparator = input(',');
+  /** Replaces the whole cell-to-text step. Return the raw value to opt out. */
+  readonly exportFormat = input<((value: unknown, column: HkColumn<T>, row: T) => string) | null>(null);
   /** Force the aggregate footer on or off. Auto-detected when null. */
   readonly showFooter = input<boolean | null>(null);
   readonly rowClass = input<string | ((row: T, index: number) => string)>('');
@@ -228,6 +274,9 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   readonly focusedCell = signal<{ row: number; col: number } | null>(null);
   readonly scrollTop = signal(0);
   readonly viewportHeight = signal(0);
+  readonly hostWidth = signal(0);
+  /** Height of the whole header, so frozen rows can sit directly under it. */
+  readonly headerHeight = signal(0);
   readonly frozenLeftOffsets = signal<Record<string, number>>({});
   readonly frozenRightOffsets = signal<Record<string, number>>({});
   readonly headerRowOffsets = signal<number[]>([]);
@@ -294,6 +343,32 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   /** Total rendered columns — the colspan an expansion or group row needs. */
   readonly totalColumns = computed(
     () => this.leadingCells().length + this.leaves().length + (this.hasEditColumn() ? 1 : 0)
+  );
+
+  /**
+   * Measured rather than done with a media query: the breakpoint is an input,
+   * and a media query cannot read a bound value. It also makes the grid
+   * respond to *its own* box, so one in a narrow sidebar stacks while the page
+   * around it is wide.
+   */
+  readonly stacked = computed(
+    () =>
+      this.responsiveLayout() === 'stack' &&
+      this.hostWidth() > 0 &&
+      this.hostWidth() < this.stackBreakpoint()
+  );
+
+  readonly hasFrozenRows = computed(() => (this.frozenRows() ?? []).length > 0);
+
+  /** Frozen rows wrapped in the same shape the body renders. */
+  readonly frozenRenderRows = computed<HkRenderRow<T>[]>(() =>
+    (this.frozenRows() ?? []).map((row, index) => ({
+      kind: 'data' as const,
+      row,
+      dataIndex: -1 - index,
+      serial: 0,
+      key: `frozen:${this.keyOf(row, index)}`
+    }))
   );
 
   readonly hasAggregates = computed(() => this.leaves().some((leaf) => leaf.column.aggregate));
@@ -483,12 +558,14 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   );
 
   readonly allPageSelected = computed(() => {
-    const rows = this.pageRows();
+    // A page where every selectable row is ticked reads as "all", even if
+    // some rows were never eligible — otherwise the box can never fill.
+    const rows = this.selectAllTargets();
     if (!rows.length) return false;
     return rows.every((row) => this.isSelected(row));
   });
   readonly somePageSelected = computed(
-    () => !this.allPageSelected() && this.pageRows().some((row) => this.isSelected(row))
+    () => !this.allPageSelected() && this.selectAllTargets().some((row) => this.isSelected(row))
   );
 
   readonly rootClasses = computed(() =>
@@ -501,6 +578,7 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
       this.scrollable() ? 'is-scrollable' : '',
       this.virtualScroll() ? 'is-virtual' : '',
       this.stickyHeader() ? 'is-sticky' : '',
+      this.stacked() ? 'is-stacked' : '',
       this.loading() ? 'is-loading' : '',
       this.styleClass()
     ]
@@ -509,7 +587,11 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   );
 
   constructor() {
-    this.restoreState();
+    // NB: no `restoreState()` here. Signal inputs are written by the framework
+    // *after* the constructor runs, so `stateKey()` was still '' at this point
+    // and `storage()` always returned null — persisted state was written on
+    // every change and then silently never read back. It restores in
+    // `ngOnInit`, where the inputs are bound.
 
     // A table is very often destroyed while something is still in flight: a
     // debounced search the user typed just before navigating away, or a column
@@ -571,6 +653,9 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   }
 
   ngOnInit(): void {
+    // Before the first lazy load, so a restored page and sort are what the
+    // server is asked for.
+    this.restoreState();
     if (this.lazy()) this.emitLazy('init');
     this.observeViewport();
     this.attachScroll();
@@ -733,7 +818,15 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
       this.sortMode() === 'multiple' && !!(event as MouseEvent | KeyboardEvent | undefined)?.shiftKey;
     const current = this.sort();
     const existing = current.find((meta) => meta.field === field);
-    const nextOrder: HkSortOrder = existing ? (existing.order === 1 ? -1 : 0) : 1;
+    // First click follows `defaultSortOrder`; the cycle then runs through the
+    // opposite direction and off. Descending-first is what a "newest" or
+    // "largest" column almost always wants.
+    const first = this.defaultSortOrder() === -1 ? -1 : 1;
+    const nextOrder: HkSortOrder = existing
+      ? existing.order === first
+        ? ((first * -1) as HkSortOrder)
+        : 0
+      : first;
 
     let next: HkSortMeta[];
     if (additive) {
@@ -745,27 +838,46 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
 
     this.sort.set(next);
     this.sortChange.emit(next);
-    this.first.set(0);
+    // Re-sorting usually means the reader wants the new top of the list; when
+    // it does not, holding the offset avoids losing their place.
+    if (this.resetPageOnSort()) this.first.set(0);
     if (this.lazy()) this.emitLazy('sort');
   }
 
   private sortRows(data: T[]): T[] {
     const stack = this.sort();
     if (!stack.length) return data;
-    const leaves = this.leaves();
-    const columnFor = (field: string) =>
-      leaves.find((leaf) => (leaf.column.sortField ?? leaf.field) === field)?.column;
+
+    // A whole-result comparator, for orderings no per-column compare can
+    // express — a priority that depends on two fields at once, say.
+    const custom = this.customSort();
+    if (custom) return custom(data, stack);
+
+    // Resolved once, ahead of the sort. Looking the column up inside the
+    // comparator meant a linear scan of every leaf on each of the n log n
+    // comparisons — the lookups alone outweighed the sort on a wide grid.
+    const columnByField = new Map<string, HkColumn<T>>();
+    for (const leaf of this.leaves()) {
+      const field = leaf.column.sortField ?? leaf.field;
+      if (!columnByField.has(field)) columnByField.set(field, leaf.column);
+    }
+    const levels = stack
+      .filter((meta) => !!meta.order)
+      .map((meta) => ({
+        order: meta.order,
+        field: meta.field,
+        comparator: columnByField.get(meta.field)?.comparator
+      }));
+    if (!levels.length) return data;
 
     return [...data].sort((rowA, rowB) => {
-      for (const meta of stack) {
-        if (!meta.order) continue;
-        const column = columnFor(meta.field);
-        const valueA = resolveField(rowA, meta.field);
-        const valueB = resolveField(rowB, meta.field);
-        const result = column?.comparator
-          ? column.comparator(valueA, valueB, rowA, rowB)
+      for (const level of levels) {
+        const valueA = resolveField(rowA, level.field);
+        const valueB = resolveField(rowB, level.field);
+        const result = level.comparator
+          ? level.comparator(valueA, valueB, rowA, rowB)
           : defaultCompare(valueA, valueB);
-        if (result !== 0) return result * meta.order;
+        if (result !== 0) return result * level.order;
       }
       return 0;
     });
@@ -911,6 +1023,21 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
     return set.has(key ? resolveField(row, key) : row);
   }
 
+  /** Whether this row may be selected at all. */
+  isSelectable(row: T, index: number): boolean {
+    const guard = this.rowSelectable();
+    return guard ? guard(row, index) : true;
+  }
+
+  /** Identity used for every selection set — the key, or the object itself. */
+  private identityOf(row: T): unknown {
+    const key = this.dataKey();
+    return key ? resolveField(row, key) : row;
+  }
+
+  /** Anchor for shift-click, as an index into `grouped()`. */
+  private selectionAnchor: number | null = null;
+
   /**
    * Row and cell interaction is delegated from <tbody>, not bound per cell.
    * A 5k x 12 grid would otherwise register six figures' worth of listeners;
@@ -981,11 +1108,23 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
     if (!mode || mode === 'checkbox') return;
     // Clicks inside an editor or a control must not flip the selection.
     if ((event.target as HTMLElement).closest('input,select,textarea,button,a')) return;
+
+    // Shift extends from the anchor instead of toggling one row.
+    if (event.shiftKey && this.rangeSelection() && mode !== 'single' && this.selectionAnchor !== null) {
+      // The browser text-selects across the span otherwise, which looks like
+      // a bug even though the row selection underneath is correct.
+      window.getSelection()?.removeAllRanges();
+      this.selectRange(render.dataIndex);
+      return;
+    }
+
     this.toggleRowSelection(render, mode === 'multiple' && (!this.metaKeySelection() || event.ctrlKey || event.metaKey));
   }
 
   toggleRowSelection(render: HkRenderRow<T>, additive = false): void {
     const row = render.row;
+    if (!this.isSelectable(row, render.dataIndex)) return;
+    this.selectionAnchor = render.dataIndex;
     const selected = this.isSelected(row);
     const mode = this.selectionMode();
     let next: T[];
@@ -1002,15 +1141,61 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
     (selected ? this.rowUnselect : this.rowSelect).emit({ row, index: render.dataIndex });
   }
 
+  /** The rows the header checkbox governs — this page, or every filtered row. */
+  private selectAllTargets(): T[] {
+    const scope = this.selectAllScope();
+    const rows = scope === 'filtered' && !this.lazy() ? this.grouped() : this.pageRows();
+    const offset = scope === 'filtered' && !this.lazy() ? 0 : this.pageOffset();
+    return rows.filter((row, index) => this.isSelectable(row, offset + index));
+  }
+
   toggleSelectAllOnPage(): void {
-    const rows = this.pageRows();
+    const targets = this.selectAllTargets();
+    // Hashed, like `selectedIndex` — the pairwise version was |selection| x
+    // |targets| calls to `sameRow`, which at 100k rows and `filtered` scope
+    // would be ten billion comparisons rather than two linear passes.
+    const inScope = new Set<unknown>(targets.map((row) => this.identityOf(row)));
+
     if (this.allPageSelected()) {
-      this.selection.set(this.selection().filter((item) => !rows.some((row) => this.sameRow(row, item))));
-    } else {
-      const merged = [...this.selection()];
-      for (const row of rows) if (!this.isSelected(row)) merged.push(row);
-      this.selection.set(merged);
+      this.selection.set(this.selection().filter((item) => !inScope.has(this.identityOf(item))));
+      return;
     }
+
+    const merged = [...this.selection()];
+    const seen = new Set<unknown>(merged.map((item) => this.identityOf(item)));
+    for (const row of targets) {
+      const id = this.identityOf(row);
+      if (seen.has(id)) continue;
+      seen.add(id);
+      merged.push(row);
+    }
+    this.selection.set(merged);
+  }
+
+  /**
+   * Selects everything between the last click and this one.
+   *
+   * The span is taken over `grouped()` — the full ordered result — not the
+   * page, so a range that starts on one page and ends on another is the span
+   * the user drew rather than two disjoint halves.
+   */
+  private selectRange(to: number): void {
+    const from = this.selectionAnchor;
+    if (from === null) return;
+    const data = this.grouped();
+    const [low, high] = from <= to ? [from, to] : [to, from];
+
+    const merged = [...this.selection()];
+    const seen = new Set(merged.map((item) => this.identityOf(item)));
+    for (let index = low; index <= high && index < data.length; index++) {
+      const row = data[index];
+      if (!row || !this.isSelectable(row, index)) continue;
+      const id = this.identityOf(row);
+      if (seen.has(id)) continue;
+      seen.add(id);
+      merged.push(row);
+    }
+    this.selection.set(merged);
   }
 
   private sameRow(a: T, b: T): boolean {
@@ -1093,7 +1278,14 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
 
   editorValue(render: HkRenderRow<T>, leaf: HkLeafColumn<T>): string {
     const value = resolveField(render.row, leaf.field);
-    if (value instanceof Date) return value.toISOString().slice(0, 10);
+    // Local parts, not `toISOString()`: that converts to UTC first, so anywhere
+    // west of UTC a date opened the editor on the *previous* day — and saving
+    // without touching it silently moved the value back one day.
+    if (value instanceof Date) {
+      const month = `${value.getMonth() + 1}`.padStart(2, '0');
+      const day = `${value.getDate()}`.padStart(2, '0');
+      return `${value.getFullYear()}-${month}-${day}`;
+    }
     return value == null ? '' : String(value);
   }
 
@@ -1121,7 +1313,11 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   onEditorCancel(render: HkRenderRow<T>, leaf: HkLeafColumn<T>): void {
     const draft = this.rowDrafts.get(render.key);
     if (draft && leaf.field in draft) {
-      (render.row as Record<string, any>)[leaf.field] = draft[leaf.field];
+      // `assignField`, not a bracket write: a dotted field like `address.city`
+      // assigned directly lands in a *new* literal "address.city" key and
+      // leaves the real nested value overwritten, so cancelling an edit used
+      // to corrupt the row instead of restoring it.
+      assignField(render.row, leaf.field, draft[leaf.field]);
     }
     this.editingCell.set(null);
     this.editCancel.emit({
@@ -1165,14 +1361,7 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   private writeCell(row: T, leaf: HkLeafColumn<T>, raw: unknown): void {
     const next =
       this.editorType(leaf) === 'number' && typeof raw === 'string' ? toNumber(raw) : raw;
-    const keys = leaf.field.split('.');
-    const last = keys.pop() as string;
-    let target: Record<string, any> = row;
-    for (const key of keys) {
-      if (target[key] == null || typeof target[key] !== 'object') target[key] = {};
-      target = target[key];
-    }
-    target[last] = next;
+    assignField(row, leaf.field, next);
   }
 
   startRowEdit(render: HkRenderRow<T>): void {
@@ -1210,9 +1399,7 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
   cancelRowEdit(render: HkRenderRow<T>): void {
     const draft = this.rowDrafts.get(render.key);
     if (draft) {
-      for (const [field, value] of Object.entries(draft)) {
-        (render.row as Record<string, any>)[field] = value;
-      }
+      for (const [field, value] of Object.entries(draft)) assignField(render.row, field, value);
     }
     this.rowDrafts.delete(render.key);
     const next = new Set(this.editingRows());
@@ -1356,6 +1543,15 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
     return this.headerRowOffsets()[rowIndex] ?? 0;
   }
 
+  /**
+   * The label a stacked cell shows in place of its column header. Rendered as
+   * a data attribute so it costs nothing at all in grid mode.
+   */
+  stackLabel(leaf: HkLeafColumn<T>): string | null {
+    if (!this.stacked()) return null;
+    return leaf.column.header ?? leaf.column.key;
+  }
+
   private scheduleMeasure(): void {
     if (this.measureScheduled || typeof requestAnimationFrame === 'undefined') return;
     this.measureScheduled = true;
@@ -1422,17 +1618,26 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
     this.frozenLeftOffsets.set(left);
     this.frozenRightOffsets.set(right);
     this.headerRowOffsets.set(offsets);
+    // `top` is now the full header height — where a frozen row has to stick,
+    // or it slides under the header instead of resting against it.
+    this.headerHeight.set(top);
   }
 
   private observeViewport(): void {
     const element = this.scroller()?.nativeElement;
     if (!element || typeof ResizeObserver === 'undefined') return;
+    const host = this.host.nativeElement;
     const observer = new ResizeObserver(() => {
       this.viewportHeight.set(element.clientHeight);
+      this.hostWidth.set(host.getBoundingClientRect().width);
       this.scheduleMeasure();
     });
     observer.observe(element);
+    // The host, not the scroller: the scroller is as wide as its content when
+    // the table overflows, so measuring it would never report "narrow".
+    observer.observe(host);
     this.viewportHeight.set(element.clientHeight);
+    this.hostWidth.set(host.getBoundingClientRect().width);
     this.destroyRef.onDestroy(() => observer.disconnect());
   }
 
@@ -1525,8 +1730,18 @@ export class HkTableComponent<T extends Record<string, any> = any> implements On
     const leaves = this.leaves().filter((leaf) => leaf.column.exportable !== false);
     const headers = leaves.map((leaf) => leaf.column.header ?? leaf.column.key);
     const source = this.lazy() ? this.value() : this.processed();
-    const rows = source.map((row) => leaves.map((leaf) => this.formatCell(row, leaf)));
-    const csv = toCsv(headers, rows);
+    const custom = this.exportFormat();
+    const rows = source.map((row) =>
+      leaves.map((leaf) =>
+        custom
+          ? custom(resolveField(row, leaf.field), leaf.column, row)
+          : this.formatCell(row, leaf)
+      )
+    );
+    // The separator has to reach `toCsv`: it quotes against the *active*
+    // separator, and quoting for `,` while joining on `;` shifts every column
+    // after the first cell that contains one.
+    const csv = toCsv(headers, rows, this.csvSeparator());
 
     const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);

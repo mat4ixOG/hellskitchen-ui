@@ -197,6 +197,38 @@
         }
       </thead>
 
+      <!-- ── Frozen rows ────────────────────────────────────────
+           Their own tbody so they stick as a block directly under the
+           header, and so nothing in the scrolling body can reorder them. -->
+      @if (hasFrozenRows()) {
+        <tbody class="hk-frozen-body">
+          @for (render of frozenRenderRows(); track render.key) {
+            <tr class="hk-row hk-row-frozen" [style.top.px]="headerHeight()">
+              @for (id of leadingCells(); track id) {
+                <td class="hk-cell hk-cell-control"
+                  [class.is-frozen-left]="leadingFrozen()"
+                  [style.left.px]="leadingFrozen() ? leftOffset(id) : null"></td>
+              }
+              @for (leaf of leaves(); track leaf.id) {
+                <td [class]="cellClasses(render.row, leaf)"
+                  [attr.data-label]="stackLabel(leaf)"
+                  [class.is-frozen-left]="frozenSideOf(leaf) === 'left'"
+                  [class.is-frozen-right]="frozenSideOf(leaf) === 'right'"
+                  [style.left.px]="frozenSideOf(leaf) === 'left' ? leftOffset(leaf.id) : null"
+                  [style.right.px]="frozenSideOf(leaf) === 'right' ? rightOffset(leaf.id) : null">
+                  @if (cellTemplate(leaf); as tplRef) {
+                    <ng-container *ngTemplateOutlet="tplRef; context: cellContext(render, leaf)" />
+                  } @else {
+                    {{ formatCell(render.row, leaf) }}
+                  }
+                </td>
+              }
+              @if (hasEditColumn()) { <td class="hk-cell"></td> }
+            </tr>
+          }
+        </tbody>
+      }
+
       <!-- ── Body ───────────────────────────────────────────── -->
       <tbody (click)="onBodyClick($event)" (dblclick)="onBodyDblClick($event)">
         @if (padTop() > 0) {
@@ -284,6 +316,7 @@
                       [attr.data-cell]="rowIdx + '-' + (leadingCells().length + leaf.index)"
                       [attr.tabindex]="cellTabIndex(rowIdx, leadingCells().length + leaf.index)"
                       [attr.rowspan]="groupCellSpan(render, leaf)"
+                      [attr.data-label]="stackLabel(leaf)"
                       [attr.title]="leaf.column.truncate ? cellTitle(render.row, leaf) : null"
                       [class.is-frozen-left]="frozenSideOf(leaf) === 'left'"
                       [class.is-frozen-right]="frozenSideOf(leaf) === 'right'"

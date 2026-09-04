@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { VisitorCountService } from '../../../shared/services/visitor-count.service';
 
 interface FooterColumn {
   title: string;
@@ -18,7 +19,23 @@ interface SocialLink {
   styleUrl: './footer.component.css'
 })
 export class FooterComponent {
+  private readonly visitors = inject(VisitorCountService);
+
   readonly year = new Date().getFullYear();
+
+  /** Stays null until the count is actually known — see the service. */
+  readonly visitorCount = this.visitors.total;
+
+  constructor() {
+    // The footer is on every page and is the only thing that shows the
+    // number, so it is the natural place to ask for it.
+    this.visitors.load();
+  }
+
+  /** 1,234 rather than 1234 — a bare run of digits reads as an id. */
+  format(total: number): string {
+    return total.toLocaleString('en-US');
+  }
 
   readonly columns: FooterColumn[] = [
     {

@@ -6,7 +6,7 @@
  * else. Change SITE_URL here when the custom domain lands and the whole site
  * follows, including the generated sitemap.
  */
-export const SITE_URL = 'https://hellskitchen-ui.pages.dev';
+export const SITE_URL = 'https://hellskitchen-ui.org';
 
 export const SITE_NAME = "Hell's Kitchen UI";
 

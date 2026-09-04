@@ -86,13 +86,18 @@ export abstract class HkChartBase {
         }
         return index;
       };
-      const merged = Array.from({ length }, (_, index) => ({
-        x: xAt(index),
-        y: tail.reduce((sum, s) => {
+      const merged = Array.from({ length }, (_, index) => {
+        // null, not 0, when no folded series has a point here. Summing from a
+        // 0 seed made a gap in the tail look like a measured drop to zero —
+        // the exact reading `linePath` breaks its runs to avoid.
+        let sum: number | null = null;
+        for (const s of tail) {
           const value = s.data[index]?.y;
-          return value === null || value === undefined ? sum : sum + value;
-        }, 0)
-      }));
+          if (value === null || value === undefined) continue;
+          sum = (sum ?? 0) + value;
+        }
+        return { x: xAt(index), y: sum };
+      });
       out.push({
         id: '__other',
         label: `Other (${tail.length})`,

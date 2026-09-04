@@ -208,14 +208,18 @@ export abstract class HkBackgroundBase {
     this.frame((this.elapsed / 1000) * this.speed());
   }
 
-  /** Parses #rgb / #rrggbb into 0–255 components. */
+  /** Parses #rgb / #rgba / #rrggbb / #rrggbbaa into 0–255 components. */
   protected rgb(hex: string): { r: number; g: number; b: number } {
-    let value = hex.replace('#', '').trim();
-    if (value.length === 3) value = value.split('').map((c) => c + c).join('');
+    const fallback = { r: 220, g: 38, b: 38 };
+    let value = hex.trim().replace(/^#/, '');
+    // #rgba and #rrggbbaa are ordinary CSS. Left whole, the alpha shifted every
+    // channel one byte along and `#dc2626ff` painted as a dim grey-blue.
+    if (value.length === 4) value = value.slice(0, 3);
+    else if (value.length === 8) value = value.slice(0, 6);
+    if (value.length === 3) value = value.replace(/./g, (c) => c + c);
+    if (!/^[0-9a-fA-F]{6}$/.test(value)) return fallback;
     const int = parseInt(value, 16);
-    return Number.isNaN(int)
-      ? { r: 220, g: 38, b: 38 }
-      : { r: (int >> 16) & 255, g: (int >> 8) & 255, b: int & 255 };
+    return { r: (int >> 16) & 255, g: (int >> 8) & 255, b: int & 255 };
   }
 
   /** Parses a hex colour into 0–1 components, for shader uniforms. */

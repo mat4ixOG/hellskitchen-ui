@@ -60,6 +60,42 @@ describe('component catalogue', () => {
     expect(marked.length).toBeLessThanOrEqual(8);
   });
 
+  /**
+   * The catalogue is bigger than the package, and that is fine — what is not
+   * fine is a page telling someone to `npm i` something that is not in there.
+   * This list is the library's real public API; if an export is added or the
+   * flag is set on a pattern that does not ship, this fails rather than the
+   * install failing for a reader.
+   */
+  it('flags exactly the components the package actually exports', () => {
+    const EXPORTED = [
+      'button',
+      'table',
+      'line-chart',
+      'bar-chart',
+      'aurora',
+      'particle-field',
+      'beams',
+      'waves',
+      'dot-matrix',
+      'grid-motion',
+      'dither',
+      'spotlight'
+    ].sort();
+
+    const flagged = COMPONENTS.filter((entry) => entry.packaged).map((e) => e.slug).sort();
+    expect(flagged).toEqual(EXPORTED);
+  });
+
+  it('never gives a demo-only entry an import line', () => {
+    // A `usage` block that imports from the package is a promise; only an
+    // entry that ships may make it.
+    const lying = COMPONENTS.filter(
+      (entry) => !entry.packaged && /from 'hellskitchen-ui'/.test(entry.usage ?? '')
+    ).map((e) => e.slug);
+    expect(lying).toEqual([]);
+  });
+
   it('resolves each slug back to its entry', () => {
     for (const entry of COMPONENTS) {
       expect(findComponent(entry.slug)?.name).toBe(entry.name);

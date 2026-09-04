@@ -1,6 +1,7 @@
 import {
   aggregate,
   applyColumnState,
+  assignField,
   buildHeaderRows,
   compileFilter,
   csvCell,
@@ -173,6 +174,28 @@ describe('table.utils', () => {
       expect(matches(21, meta)).toBeFalse();
     });
 
+    it('keeps a one-sided numeric range numeric', () => {
+      // Regression: the date/number branch was chosen from `toNumber(needle)`
+      // alone, so an empty lower bound sent a numeric range down the date path
+      // and compared cells as millisecond timestamps — everything inside the
+      // same 1970 day passed, and "at most 10" matched 50,000.
+      const atMost10 = { value: '', value2: 10, matchMode: 'between' as const };
+      expect(matches(5, atMost10)).toBeTrue();
+      expect(matches(10, atMost10)).toBeTrue();
+      expect(matches(20, atMost10)).toBeFalse();
+      expect(matches(50000, atMost10)).toBeFalse();
+
+      const atLeast10 = { value: 10, value2: null, matchMode: 'between' as const };
+      expect(matches(50000, atLeast10)).toBeTrue();
+      expect(matches(9, atLeast10)).toBeFalse();
+    });
+
+    it('still reads a one-sided date range as dates', () => {
+      const upto = { value: '', value2: '2026-03-05', matchMode: 'between' as const };
+      expect(matches(new Date(2026, 2, 5, 23, 30), upto)).toBeTrue();
+      expect(matches(new Date(2026, 2, 6, 0, 30), upto)).toBeFalse();
+    });
+
     it('equates values across the string/number boundary', () => {
       expect(matches('42', { value: 42, matchMode: 'equals' })).toBeTrue();
     });
@@ -231,6 +254,15 @@ describe('table.utils', () => {
       expect(aggregate(rows, { key: 'n', aggregate: 'max' }, 'n')).toBe(30);
     });
 
+    it('bounds a column far past the argument limit', () => {
+      // Regression: `Math.min(...numbers)` pushed one argument per row and
+      // threw RangeError somewhere north of ~125k — on exactly the row counts
+      // the virtual-scrolling grid exists to handle.
+      const many = Array.from({ length: 200_000 }, (_, i) => ({ n: i }));
+      expect(aggregate(many, { key: 'n', aggregate: 'min' }, 'n')).toBe(0);
+      expect(aggregate(many, { key: 'n', aggregate: 'max' }, 'n')).toBe(199_999);
+    });
+
     it('counts rows, not values', () => {
       expect(aggregate(rows, { key: 'n', aggregate: 'count' }, 'n')).toBe(4);
     });
@@ -285,6 +317,36 @@ describe('table.utils', () => {
       expect(csvCell('-1e3')).toBe('-1e3');
       // ...but a leading '-' on something non-numeric is not.
       expect(csvCell('-1+1')).toBe('\t-1+1');
+    });
+  });
+
+  describe('assignField', () => {
+    it('writes through a dotted path instead of creating a literal key', () => {
+      const row: Record<string, any> = { address: { city: 'Oslo', zip: '0150' } };
+      assignField(row, 'address.city', 'Bergen');
+      expect(row['address'].city).toBe('Bergen');
+      expect(row['address'].zip).toBe('0150');
+      expect(row['address.city']).toBeUndefined();
+    });
+
+    it('creates the intermediate objects it needs', () => {
+      const row: Record<string, any> = {};
+      assignField(row, 'a.b.c', 1);
+      expect(row['a'].b.c).toBe(1);
+    });
+  });
+
+  describe('toCsv separator', () => {
+    it('quotes against the separator actually in use', () => {
+      // A `;` export that quotes only against `,` shifts every column after
+      // the first cell containing a semicolon.
+      const csv = toCsv(['a', 'b'], [['x;y', 'z']], ';');
+      expect(csv.split('\r\n')[1]).toBe('"x;y";z');
+    });
+
+    it('leaves a comma unquoted when the separator is not a comma', () => {
+      const csv = toCsv(['a'], [['1,240']], ';');
+      expect(csv.split('\r\n')[1]).toBe('1,240');
     });
   });
 

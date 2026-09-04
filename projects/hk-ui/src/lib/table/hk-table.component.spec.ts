@@ -74,6 +74,79 @@ class HostComponent {
 
 @Component({
   imports: [HkTableComponent],
+  template: `
+    <hk-table
+      [value]="rows()"
+      [columns]="columns"
+      dataKey="id"
+      selectionMode="checkbox"
+      [(selection)]="selection"
+      [rowSelectable]="guard()"
+      [selectAllScope]="scope()"
+      [paginator]="true"
+      [rows]="pageSize()" />
+  `
+})
+class SelectionHost {
+  readonly table = viewChild.required(HkTableComponent);
+  readonly columns = COLUMNS;
+  readonly rows = signal<Row[]>(makeRows());
+  readonly selection = signal<Row[]>([]);
+  readonly pageSize = signal(2);
+  readonly scope = signal<'page' | 'filtered'>('page');
+  readonly guard = signal<((row: Row, index: number) => boolean) | null>(null);
+}
+
+@Component({
+  imports: [HkTableComponent],
+  template: `
+    <hk-table [value]="rows" [columns]="columns" dataKey="id"
+      [defaultSortOrder]="-1" [resetPageOnSort]="false" [paginator]="true" [rows]="2" [first]="2" />
+  `
+})
+class SortConfigHost {
+  readonly table = viewChild.required(HkTableComponent);
+  readonly columns = COLUMNS;
+  readonly rows = makeRows();
+}
+
+@Component({
+  imports: [HkTableComponent],
+  template: `
+    <hk-table
+      [value]="rows"
+      [columns]="columnsWithFrozen"
+      dataKey="id"
+      [frozenRows]="pinned()"
+      [responsiveLayout]="layout()"
+      [stackBreakpoint]="breakpoint()" />
+  `
+})
+class LayoutHost {
+  readonly table = viewChild.required(HkTableComponent);
+  readonly columnsWithFrozen: HkColumn<Row>[] = [
+    { key: 'service', header: 'Service', frozen: 'left' },
+    { key: 'region', header: 'Region' },
+    { key: 'units', header: 'Units', numeric: true }
+  ];
+  readonly rows = makeRows();
+  readonly pinned = signal<Row[]>([]);
+  readonly layout = signal<'scroll' | 'stack'>('scroll');
+  readonly breakpoint = signal(640);
+}
+
+@Component({
+  imports: [HkTableComponent],
+  template: `<hk-table [value]="rows" [columns]="columns" dataKey="id" stateKey="spec-state" />`
+})
+class StateHost {
+  readonly table = viewChild.required(HkTableComponent);
+  readonly columns = COLUMNS;
+  readonly rows = makeRows();
+}
+
+@Component({
+  imports: [HkTableComponent],
   template: `<hk-table [value]="rows" [columns]="columns" dataKey="id" sortMode="multiple" />`
 })
 class MultiSortHost {
@@ -95,7 +168,7 @@ describe('HkTableComponent', () => {
   const column = (index: number): string[] => bodyText().map((row) => row[index]);
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [HostComponent, MultiSortHost] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [HostComponent, MultiSortHost, StateHost, SelectionHost, SortConfigHost, LayoutHost] }).compileComponents();
     fixture = TestBed.createComponent(HostComponent);
     host = fixture.componentInstance;
     fixture.detectChanges();
@@ -434,6 +507,35 @@ describe('HkTableComponent', () => {
       fixture.detectChanges();
       expect(host.rows()[0].units).toBe(30);
     });
+
+    it('restores a nested field on escape without stamping a literal key', () => {
+      // Regression: cancelling wrote `row['revenue.q1']` — a brand new key —
+      // and left the edited nested value in place, so escape corrupted the row
+      // for any column addressed by a dotted path.
+      const table = host.table();
+      const nested = table.leaves()[3];
+      expect(nested.field).toBe('revenue.q1');
+
+      const render = table.renderRows()[0];
+      table.onEditorInput(render, nested, { target: { value: '999' } } as unknown as Event);
+      expect(host.rows()[0].revenue.q1).toBe(999);
+
+      table.onEditorCancel(render, nested);
+      fixture.detectChanges();
+
+      expect(host.rows()[0].revenue.q1).toBe(300);
+      expect((host.rows()[0] as unknown as Record<string, unknown>)['revenue.q1']).toBeUndefined();
+    });
+
+    it('opens a date editor on the local calendar day', () => {
+      // Regression: `toISOString()` converts to UTC first, so west of UTC the
+      // editor opened on the previous day and saving untouched moved it back.
+      const table = host.table();
+      const render = table.renderRows()[0];
+      const leaf = table.leaves()[2];
+      (host.rows()[0] as unknown as Record<string, unknown>)['units'] = new Date(2026, 0, 1, 2, 30);
+      expect(table.editorValue(render, leaf)).toBe('2026-01-01');
+    });
   });
 
   describe('column visibility', () => {
@@ -481,6 +583,229 @@ describe('HkTableComponent', () => {
       // Server owns the slicing; the grid must not re-page what it was given.
       expect(lazyFixture.debugElement.queryAll(By.css('tbody tr.hk-row')).length).toBe(2);
       expect(lazyHost.table().recordCount()).toBe(97);
+    });
+  });
+
+  describe('selection breadth', () => {
+    let selFixture: ComponentFixture<SelectionHost>;
+    let selHost: SelectionHost;
+
+    beforeEach(() => {
+      selFixture = TestBed.createComponent(SelectionHost);
+      selHost = selFixture.componentInstance;
+      selFixture.detectChanges();
+    });
+
+    it('skips rows the guard rejects, by click and by select-all alike', () => {
+      selHost.guard.set((row) => row.region === 'EMEA');
+      selFixture.detectChanges();
+      const table = selHost.table();
+
+      // Row 1 (auth-gateway, APAC) is not selectable.
+      expect(table.isSelectable(selHost.rows()[1], 1)).toBeFalse();
+      table.toggleRowSelection(table.renderRows()[1]);
+      expect(selHost.selection().length).toBe(0);
+
+      // Select-all only takes the eligible ones.
+      table.toggleSelectAllOnPage();
+      expect(selHost.selection().every((row) => row.region === 'EMEA')).toBeTrue();
+    });
+
+    it('fills the header checkbox when every selectable row is ticked', () => {
+      // Page one is billing-api (EMEA) + auth-gateway (APAC); with the guard
+      // only the first is eligible, so ticking it means "all".
+      selHost.guard.set((row) => row.region === 'EMEA');
+      selFixture.detectChanges();
+      const table = selHost.table();
+
+      table.toggleSelectAllOnPage();
+      selFixture.detectChanges();
+      expect(table.allPageSelected()).toBeTrue();
+    });
+
+    it('covers only the page by default', () => {
+      const table = selHost.table();
+      table.toggleSelectAllOnPage();
+      // Page size is 2 of 4 rows.
+      expect(selHost.selection().length).toBe(2);
+    });
+
+    it('covers every filtered row when the scope says so', () => {
+      selHost.scope.set('filtered');
+      selFixture.detectChanges();
+      const table = selHost.table();
+
+      table.toggleSelectAllOnPage();
+      // "Select all" on page 1 of 2 should mean all four, not the visible two.
+      expect(selHost.selection().length).toBe(4);
+    });
+
+    it('unticks the whole scope again on a second press', () => {
+      selHost.scope.set('filtered');
+      selFixture.detectChanges();
+      const table = selHost.table();
+      table.toggleSelectAllOnPage();
+      selFixture.detectChanges();
+      table.toggleSelectAllOnPage();
+      expect(selHost.selection().length).toBe(0);
+    });
+  });
+
+  describe('sort configuration', () => {
+    it('starts on the configured direction and keeps the page', () => {
+      const sortFixture = TestBed.createComponent(SortConfigHost);
+      sortFixture.detectChanges();
+      const table = sortFixture.componentInstance.table();
+
+      table.toggleSort(table.leaves()[2]);
+      sortFixture.detectChanges();
+
+      // defaultSortOrder = -1, so the first click sorts descending...
+      expect(table.sort()[0].order).toBe(-1);
+      // ...and resetPageOnSort = false leaves the reader where they were.
+      expect(table.first()).toBe(2);
+
+      // The cycle still runs through the opposite direction, then off.
+      table.toggleSort(table.leaves()[2]);
+      expect(table.sort()[0].order).toBe(1);
+      table.toggleSort(table.leaves()[2]);
+      expect(table.sort().length).toBe(0);
+    });
+  });
+
+  describe('frozen rows', () => {
+    let layoutFixture: ComponentFixture<LayoutHost>;
+    let layoutHost: LayoutHost;
+
+    beforeEach(() => {
+      layoutFixture = TestBed.createComponent(LayoutHost);
+      layoutHost = layoutFixture.componentInstance;
+      layoutFixture.detectChanges();
+    });
+
+    it('renders nothing extra when none are pinned', () => {
+      expect(layoutFixture.debugElement.query(By.css('.hk-frozen-body'))).toBeNull();
+      expect(layoutHost.table().hasFrozenRows()).toBeFalse();
+    });
+
+    it('pins rows in their own tbody above the body', () => {
+      layoutHost.pinned.set([{ ...SEED[0], service: 'TOTAL' } as Row]);
+      layoutFixture.detectChanges();
+
+      const frozen = layoutFixture.debugElement.query(By.css('.hk-frozen-body'));
+      expect(frozen).not.toBeNull();
+      expect(frozen.nativeElement.textContent).toContain('TOTAL');
+
+      // The pinned tbody comes before the scrolling one in document order.
+      const bodies = layoutFixture.debugElement.queryAll(By.css('tbody'));
+      expect(bodies[0].nativeElement.classList).toContain('hk-frozen-body');
+    });
+
+    it('keeps pinned rows out of the sortable, pageable data', () => {
+      layoutHost.pinned.set([{ ...SEED[0], service: 'TOTAL' } as Row]);
+      layoutFixture.detectChanges();
+      const table = layoutHost.table();
+
+      // frozenRows is separate from value(), so the record count is unmoved.
+      expect(table.recordCount()).toBe(4);
+      expect(table.renderRows().every((r) => r.row['service'] !== 'TOTAL')).toBeTrue();
+    });
+
+    it('carries frozen-column offsets through to the pinned row', () => {
+      layoutHost.pinned.set([SEED[0] as Row]);
+      layoutFixture.detectChanges();
+      const cell = layoutFixture.debugElement.query(
+        By.css('.hk-frozen-body td.is-frozen-left')
+      );
+      // A pinned row must freeze horizontally too, or it slides out from
+      // under the frozen column it belongs to.
+      expect(cell).not.toBeNull();
+    });
+  });
+
+  describe('responsive stack layout', () => {
+    let layoutFixture: ComponentFixture<LayoutHost>;
+    let layoutHost: LayoutHost;
+
+    beforeEach(() => {
+      layoutFixture = TestBed.createComponent(LayoutHost);
+      layoutHost = layoutFixture.componentInstance;
+      layoutFixture.detectChanges();
+    });
+
+    it('stays a grid while it has room', () => {
+      layoutHost.layout.set('stack');
+      layoutHost.breakpoint.set(1);
+      layoutFixture.detectChanges();
+      expect(layoutHost.table().stacked()).toBeFalse();
+      expect(layoutHost.table().rootClasses()).not.toContain('is-stacked');
+    });
+
+    it('stacks once it is narrower than the breakpoint', () => {
+      layoutHost.layout.set('stack');
+      // Anything the test host can actually be is narrower than this.
+      layoutHost.breakpoint.set(100_000);
+      layoutFixture.detectChanges();
+
+      const table = layoutHost.table();
+      expect(table.stacked()).toBeTrue();
+      expect(table.rootClasses()).toContain('is-stacked');
+    });
+
+    it('never stacks while the layout is scroll, however narrow', () => {
+      layoutHost.breakpoint.set(100_000);
+      layoutFixture.detectChanges();
+      expect(layoutHost.table().stacked()).toBeFalse();
+    });
+
+    it('labels each cell with its column only while stacked', () => {
+      const table = layoutHost.table();
+      const leaf = table.leaves()[1];
+      expect(table.stackLabel(leaf)).toBeNull();
+
+      layoutHost.layout.set('stack');
+      layoutHost.breakpoint.set(100_000);
+      layoutFixture.detectChanges();
+
+      // The label is what replaces the header once it is off-screen.
+      expect(table.stackLabel(leaf)).toBe('Region');
+      const cell = layoutFixture.debugElement.query(By.css('tbody td[data-label]'));
+      expect(cell).not.toBeNull();
+    });
+  });
+
+  describe('state persistence', () => {
+    const KEY = 'hk-table:spec-state';
+
+    afterEach(() => localStorage.removeItem(KEY));
+
+    it('restores a persisted sort and page on init', () => {
+      // Regression: `restoreState()` ran in the constructor, where signal
+      // inputs are not bound yet — `stateKey()` was still '' so `storage()`
+      // returned null and nothing was ever read back.
+      localStorage.setItem(
+        KEY,
+        JSON.stringify({ first: 0, rows: 25, sort: [{ field: 'units', order: -1 }], hidden: ['region'] })
+      );
+
+      const stateFixture = TestBed.createComponent(StateHost);
+      stateFixture.detectChanges();
+      const table = stateFixture.componentInstance.table();
+
+      expect(table.rows()).toBe(25);
+      expect(table.sort()).toEqual([{ field: 'units', order: -1 }]);
+      expect(table.leaves().some((leaf) => leaf.id === 'region')).toBeFalse();
+    });
+
+    it('writes the current state back out under its key', () => {
+      const stateFixture = TestBed.createComponent(StateHost);
+      stateFixture.detectChanges();
+      const table = stateFixture.componentInstance.table();
+      table.toggleSort(table.leaves()[0]);
+      stateFixture.detectChanges();
+
+      const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}');
+      expect(saved.sort).toEqual([{ field: 'service', order: 1 }]);
     });
   });
 

@@ -1,0 +1,130 @@
+<div class="flex min-h-0 flex-1 flex-col gap-3">
+
+  @if (showToolbar()) {
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="flex items-center gap-1.5 text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">
+        <span class="h-1.5 w-1.5 rounded-full" [class]="busy() ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'"></span>
+        {{ busy() ? 'Thinking' : 'Ready' }}
+      </span>
+      <span class="text-[0.7rem] text-slate-400 dark:text-gray-600">·</span>
+      <span class="text-[0.7rem] text-slate-500 dark:text-gray-500">{{ tools().length }} tools</span>
+
+      <span class="ml-auto flex items-center gap-2">
+        @if (canSpeak) {
+          <button type="button" (click)="toggleSpeech()" [attr.aria-pressed]="speakReplies()"
+            class="hk-chat-chip" [class.is-on]="speakReplies()">
+            <i class="pi" [class]="speakReplies() ? 'pi-volume-up' : 'pi-volume-off'" aria-hidden="true"></i>
+            Speak
+          </button>
+        }
+        @if (busy()) {
+          <button type="button" (click)="stop()" class="hk-chat-chip">
+            <i class="pi pi-stop-circle" aria-hidden="true"></i> Stop
+          </button>
+        }
+        <button type="button" (click)="clear()" class="hk-chat-chip">
+          <i class="pi pi-eraser" aria-hidden="true"></i> Clear
+        </button>
+      </span>
+    </div>
+  }
+
+  <!-- Transcript -->
+  <div #transcript
+    class="hk-chat-log min-h-0 flex-1 overflow-y-auto rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] p-4"
+    [style.height]="logHeight()"
+    role="log" aria-live="polite" aria-label="Conversation">
+
+    @if (empty()) {
+      <div class="flex h-full flex-col items-center justify-center gap-4 text-center">
+        <span class="grid h-11 w-11 place-items-center rounded-xl bg-red-600 text-white">
+          <i class="pi pi-comments" aria-hidden="true"></i>
+        </span>
+        <p class="m-0 max-w-sm text-sm text-slate-600 dark:text-gray-400">{{ emptyMessage() }}</p>
+        <div class="flex flex-wrap justify-center gap-1.5">
+          @for (item of suggestions(); track item) {
+            <button type="button" (click)="ask(item)" class="hk-chat-suggestion">{{ item }}</button>
+          }
+        </div>
+      </div>
+    }
+
+    @for (message of visible(); track message.id) {
+      <div class="mb-3 flex gap-2.5" [class]="message.role === 'user' ? 'flex-row-reverse' : ''">
+        <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[0.7rem] text-white"
+          [class]="message.role === 'user' ? 'bg-slate-600 dark:bg-white/15' : 'bg-red-600'">
+          <i class="pi" [class]="message.role === 'user' ? 'pi-user' : 'pi-sparkles'" aria-hidden="true"></i>
+        </span>
+
+        <div class="min-w-0 max-w-[85%]" [class]="message.role === 'user' ? 'items-end text-right' : ''">
+          @for (call of message.toolCalls ?? []; track call.id) {
+            <div class="hk-chat-tool" [class.is-error]="call.state === 'error'">
+              <i class="pi {{ iconOf(call.name) }} text-[0.65rem]" aria-hidden="true"></i>
+              <code class="font-semibold">{{ call.name }}</code>
+              <span class="opacity-60">({{ argsOf(call) }})</span>
+              @if (call.state === 'running') {
+                <span class="hk-chat-dots" aria-label="running"><i></i><i></i><i></i></span>
+              } @else {
+                <span class="opacity-45">→</span>
+                <code class="truncate opacity-80">{{ resultOf(call) }}</code>
+                @if (call.ms !== undefined) { <span class="opacity-40">{{ call.ms }}ms</span> }
+              }
+            </div>
+          }
+
+          @if (message.content || message.streaming) {
+            <div class="hk-chat-bubble" [class.is-user]="message.role === 'user'">
+              <span class="whitespace-pre-wrap">{{ message.content }}</span>
+              @if (message.streaming) { <span class="hk-chat-caret" aria-hidden="true"></span> }
+            </div>
+          }
+
+          @if (message.error) {
+            <p class="mt-1 mb-0 text-xs text-red-600 dark:text-red-400">
+              <i class="pi pi-exclamation-triangle text-[0.65rem]" aria-hidden="true"></i>
+              {{ message.error }}
+            </p>
+          }
+
+          <p class="mt-1 mb-0 text-[0.65rem] text-slate-400 dark:text-gray-600">{{ timeOf(message) }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (notice()) {
+    <p class="m-0 flex items-center gap-1.5 text-xs text-slate-600 dark:text-gray-400" role="status">
+      <i class="pi pi-info-circle text-[0.7rem] text-red-600 dark:text-red-400" aria-hidden="true"></i>
+      {{ notice() }}
+    </p>
+  }
+
+  <!-- Composer -->
+  <div class="hk-chat-composer">
+    <textarea #composer rows="1"
+      [value]="draft()"
+      (input)="draft.set($any($event.target).value)"
+      (keydown)="onKeydown($event)"
+      [placeholder]="listening() ? 'Listening…' : 'Ask something, or press the mic'"
+      aria-label="Message"
+      class="min-h-[2.5rem] max-h-32 flex-1 resize-y bg-transparent px-1 text-sm text-slate-800 dark:text-gray-200 placeholder:text-slate-400 dark:placeholder:text-gray-600 focus:outline-none"></textarea>
+
+    @if (interim()) {
+      <span class="self-center px-1 text-sm italic text-slate-400 dark:text-gray-600">{{ interim() }}</span>
+    }
+
+    @if (canDictate) {
+      <button type="button" (click)="toggleDictation()"
+        [attr.aria-pressed]="listening()"
+        [attr.aria-label]="listening() ? 'Stop dictation' : 'Start dictation'"
+        class="hk-chat-icon" [class.is-listening]="listening()">
+        <i class="pi pi-microphone" aria-hidden="true"></i>
+      </button>
+    }
+
+    <button type="button" (click)="send()" [disabled]="!draft().trim() || busy()"
+      class="hk-chat-send" aria-label="Send">
+      <i class="pi pi-send text-xs" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>

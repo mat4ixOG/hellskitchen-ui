@@ -56,15 +56,14 @@
             @for (entry of itemsIn(category); track entry.slug) {
               <li>
                 <a [routerLink]="['/docs/component', entry.slug]"
-                  routerLinkActive="!text-red-600 dark:text-red-400 !bg-red-50 dark:bg-red-950/40"
+                  routerLinkActive="is-active"
                   (click)="navOpen.set(false)"
-                  class="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-gray-400
-                         transition hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white">
-                  {{ entry.name }}
+                  class="docs-nav-link flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm
+                         text-slate-600 dark:text-gray-400 transition
+                         hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white">
+                  <span class="truncate">{{ entry.name }}</span>
                   @if (entry.status === 'new') {
-                    <span class="rounded bg-red-100 px-1.5 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider text-red-700 dark:bg-red-950/60 dark:text-red-400">
-                      {{ entry.status }}
-                    </span>
+                    <span class="docs-nav-new" aria-label="New">New</span>
                   }
                 </a>
               </li>

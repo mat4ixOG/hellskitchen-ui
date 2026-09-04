@@ -60,6 +60,10 @@ export const DEMOS: Record<string, () => Promise<Type<unknown>>> = {
   'scroll-area': () => import('./scroll-area-demo/scroll-area-demo.component').then((m) => m.ScrollAreaDemoComponent),
   stack: () => import('./stack-demo/stack-demo.component').then((m) => m.StackDemoComponent),
   'app-shell': () => import('./app-shell-demo/app-shell-demo.component').then((m) => m.AppShellDemoComponent),
+  carousel: () => import('./carousel-demo/carousel-demo.component').then((m) => m.CarouselDemoComponent),
+
+  // AI
+  chatbot: () => import('./chatbot-demo/chatbot-demo.component').then((m) => m.ChatbotDemoComponent),
 
   // Data
   table: () => import('./table-demo/table-demo.component').then((m) => m.TableDemoComponent),
@@ -101,7 +105,7 @@ export const DEMOS: Record<string, () => Promise<Type<unknown>>> = {
  * or a shell layout — these break out into the space to the right.
  */
 export const WIDE_DEMOS = new Set([
-  'table', 'tree', 'app-shell', 'sidebar-nav', 'command-palette', 'navbar',
+  'table', 'tree', 'app-shell', 'sidebar-nav', 'command-palette', 'navbar', 'chatbot',
   'aurora', 'particle-field', 'beams', 'waves', 'dot-matrix', 'grid-motion', 'dither', 'spotlight',
   'line-chart', 'bar-chart', 'button'
 ]);
@@ -112,7 +116,7 @@ export function isWideDemo(slug: string): boolean {
 
 /** The handful the homepage workbench cycles through. */
 export const FEATURED_DEMOS = [
-  'table', 'line-chart', 'button', 'navbar', 'aurora', 'switch', 'tabs', 'signup-form', 'command-palette'
+  'table', 'chatbot', 'line-chart', 'button', 'carousel', 'navbar', 'aurora', 'switch', 'tabs', 'command-palette'
 ];
 
 export function hasDemo(slug: string): boolean {

@@ -94,6 +94,7 @@ export class CatalogComponent {
       Layout: 'pi pi-th-large',
       Data: 'pi pi-database',
       Backgrounds: 'pi pi-sparkles',
+      AI: 'pi pi-comments',
       Utility: 'pi pi-wrench'
     };
     return map[category];

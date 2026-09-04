@@ -55,6 +55,7 @@
           }
         </div>
 
+
         <button type="button" (click)="dense.set(!dense())"
           [attr.aria-pressed]="dense()"
           class="grid h-11 w-11 place-items-center rounded-xl border border-slate-200 dark:border-white/10 text-slate-600 dark:text-gray-400
@@ -145,12 +146,21 @@
                   <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400">{{ entry.name }}</h3>
                   <code class="mt-1 block font-mono text-[0.7rem] text-slate-500 dark:text-gray-500">&lt;{{ entry.selector }}&gt;</code>
                 </div>
-                @if (entry.status === 'new') {
-                  <span class="shrink-0 rounded-full border px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider"
-                    [class]="statusClass(entry.status)">
-                    {{ entry.status }}
-                  </span>
-                }
+                <div class="flex shrink-0 flex-col items-end gap-1">
+                  @if (entry.status === 'new') {
+                    <span class="rounded-full border px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider"
+                      [class]="statusClass(entry.status)">
+                      {{ entry.status }}
+                    </span>
+                  }
+                  @if (entry.packaged) {
+                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-800/60
+                                 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[0.6rem] font-semibold text-emerald-700 dark:text-emerald-300"
+                      title="Exported from the npm package">
+                      <i class="pi pi-box text-[0.55rem]" aria-hidden="true"></i> npm
+                    </span>
+                  }
+                </div>
               </div>
 
               @if (!dense()) {

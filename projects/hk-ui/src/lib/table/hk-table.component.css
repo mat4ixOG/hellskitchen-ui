@@ -393,3 +393,110 @@ tbody .hk-row > td.is-frozen-left, tbody .hk-row > td.is-frozen-right {
   .hk-chevron, .hk-sort, .hk-row > td { transition: none; }
   .hk-spinner { animation-duration: 2s; }
 }
+
+/* ── Frozen rows ────────────────────────────────────────────────
+   Pinned above the scrolling body. `top` is set inline from the measured
+   header height, because the header can be one row or three depending on
+   how deep the column tree is. */
+.hk-frozen-body .hk-row-frozen > td {
+  position: sticky;
+  /* Above ordinary body cells and above a frozen *column* in the body, but
+     below the header — the header must still cover these when both stick. */
+  z-index: 3;
+  background: var(--hk-table-frozen-row-bg, var(--hk-table-header-bg, var(--hk-table-bg)));
+  font-weight: 500;
+  border-bottom: 1px solid var(--hk-table-border);
+}
+
+/* A frozen row that is also a frozen column has to beat both. */
+.hk-frozen-body .hk-row-frozen > td.is-frozen-left,
+.hk-frozen-body .hk-row-frozen > td.is-frozen-right {
+  z-index: 4;
+}
+
+/* The seam between the pinned block and the scrolling rows, so it reads as
+   pinned rather than as the first row of the data. */
+.hk-frozen-body .hk-row-frozen:last-child > td {
+  box-shadow: 0 1px 0 var(--hk-table-border), var(--hk-table-frozen-row-shadow, 0 4px 8px -6px rgb(0 0 0 / 0.35));
+}
+
+/* ── Stacked layout ─────────────────────────────────────────────
+   Below the breakpoint each row becomes a card and each cell carries its
+   own column name. A grid narrower than about forty characters is not a
+   grid any more, however well it scrolls sideways. */
+.is-stacked table {
+  display: block;
+  width: 100%;
+}
+
+.is-stacked thead {
+  /* Not `display: none` — the header text still labels each cell, it just
+     moves into the rows. Clipped rather than removed so it stays available
+     to a screen reader walking the table. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.is-stacked tbody,
+.is-stacked tfoot {
+  display: block;
+  width: 100%;
+}
+
+.is-stacked tbody .hk-row {
+  display: block;
+  margin-bottom: 0.6rem;
+  border: 1px solid var(--hk-table-border);
+  border-radius: var(--hk-table-radius);
+  overflow: hidden;
+  background: var(--hk-table-bg);
+}
+
+.is-stacked tbody .hk-row > td {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: auto;
+  /* Frozen columns mean nothing in a stack; releasing them stops the inline
+     left/right offsets from shunting cells off the card. */
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  max-width: none !important;
+  text-align: left !important;
+  border-bottom: 1px solid var(--hk-table-border);
+}
+
+.is-stacked tbody .hk-row > td:last-child {
+  border-bottom: 0;
+}
+
+/* The column name, carried on the cell so grid mode pays nothing for it. */
+.is-stacked tbody .hk-row > td[data-label]::before {
+  content: attr(data-label);
+  flex: 0 0 auto;
+  font-size: var(--hk-table-font-sm, 0.8rem);
+  font-weight: 600;
+  color: var(--hk-table-muted);
+}
+
+/* An empty control cell with no label is just a blank strip. */
+.is-stacked tbody .hk-row > td.hk-cell-control:empty {
+  display: none;
+}
+
+.is-stacked .hk-spacer,
+.is-stacked .hk-frozen-body {
+  display: none;
+}
+
+.is-stacked tbody .hk-group-row > td,
+.is-stacked tbody .hk-group-footer > td {
+  display: block;
+  text-align: left;
+}

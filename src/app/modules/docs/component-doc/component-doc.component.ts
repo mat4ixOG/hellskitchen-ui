@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   COMPONENTS,
@@ -9,6 +9,7 @@ import {
 import { CodeBlockComponent } from '../../../shared/components/code-block/code-block.component';
 import { DemoRendererComponent, DemoId } from '../../../shared/demos/demo-renderer/demo-renderer.component';
 import { hasDemo, isWideDemo } from '../../../shared/demos/demo-registry';
+import { StackblitzService } from '../../../shared/services/stackblitz.service';
 
 @Component({
   selector: 'app-component-doc',
@@ -17,8 +18,27 @@ import { hasDemo, isWideDemo } from '../../../shared/demos/demo-registry';
   styleUrl: './component-doc.component.css'
 })
 export class ComponentDocComponent {
+  private readonly stackblitz = inject(StackblitzService);
+
   /** Bound from the :slug route param via withComponentInputBinding(). */
   readonly slug = input<string>('');
+
+  // Wired but not surfaced: the StackBlitz button in the template is
+  // commented out until the pattern components actually ship. See the note
+  // there. Kept live so re-enabling is a template change only.
+  readonly sandboxBusy = this.stackblitz.busy;
+  readonly sandboxError = this.stackblitz.error;
+
+  /**
+   * Opens the demo's real source as a runnable project. Works for patterns as
+   * well as packaged components — for a pattern the copied source *is* the
+   * component, which is exactly what someone reading a pattern page needs.
+   */
+  openInStackblitz(): void {
+    const entry = this.entry();
+    if (!entry) return;
+    void this.stackblitz.open(entry.slug, entry.name, entry.packaged);
+  }
 
   readonly globalTokens = GLOBAL_TOKENS;
   readonly entry = computed(() => findComponent(this.slug()));

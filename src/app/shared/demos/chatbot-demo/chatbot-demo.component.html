@@ -1,0 +1,79 @@
+<div class="flex w-full max-w-3xl flex-col gap-3">
+
+  <!-- Variant switch -->
+  <div class="flex flex-wrap items-center gap-2">
+    <span class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">Variant</span>
+    <button type="button" (click)="showVariant('inline')" [attr.aria-pressed]="variant() === 'inline'"
+      [class]="chip(variant() === 'inline')">Inline</button>
+    <button type="button" (click)="showVariant('launcher')" [attr.aria-pressed]="variant() === 'launcher'"
+      [class]="chip(variant() === 'launcher')">Launcher</button>
+  </div>
+
+  @if (variant() === 'inline') {
+    <app-chat-panel (toolsChanged)="onToolsChanged($event)" />
+  } @else {
+    <!-- Not a second copy of the panel: the launcher variant *is* the one in
+         the corner, so the demo points at it rather than duplicating it. -->
+    <div class="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-slate-300 dark:border-white/15
+                bg-slate-50 dark:bg-white/[0.03] px-6 py-12 text-center">
+      <span class="grid h-12 w-12 place-items-center rounded-full text-white shadow-lg"
+        style="background: linear-gradient(135deg, #dc2626, #991b1b); box-shadow: 0 8px 24px rgb(220 38 38 / 0.35);">
+        <i class="pi pi-comments" aria-hidden="true"></i>
+      </span>
+      <div>
+        <p class="m-0 text-sm font-semibold text-slate-900 dark:text-white">It is already open, bottom-right.</p>
+        <p class="mx-auto mt-1.5 mb-0 max-w-sm text-sm leading-relaxed text-slate-600 dark:text-gray-400">
+          Same engine, same tools, same voice — docked in a card instead of sitting in the page.
+          It is mounted once in the app shell, so it rides every route.
+        </p>
+      </div>
+      <button type="button" (click)="openLauncher()" class="hk-chat-chip is-on">
+        <i class="pi pi-arrow-down-right text-[0.65rem]" aria-hidden="true"></i>
+        Open it
+      </button>
+    </div>
+  }
+
+  <!-- The extension point, live -->
+  @if (variant() === 'inline') {
+  <div class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] p-4">
+    <div class="flex flex-wrap items-center gap-2">
+      <h4 class="m-0 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">
+        Your own functions
+      </h4>
+      <button type="button" (click)="addCustomTool()" [disabled]="customAdded()"
+        class="hk-chat-chip ml-auto">
+        <i class="pi pi-plus text-[0.65rem]" aria-hidden="true"></i>
+        {{ customAdded() ? 'roll_dice registered' : 'Register roll_dice' }}
+      </button>
+    </div>
+
+    <p class="mt-2 mb-2 text-xs leading-relaxed text-slate-600 dark:text-gray-400">
+      A tool is a name, a description, a parameter list and a plain function. Register one at any
+      time — including mid-conversation — and it is callable from that turn on.
+    </p>
+
+    <pre class="hk-chat-code"><code>engine.registerTool(&#123;
+  name: 'roll_dice',
+  description: 'Roll one or more dice.',
+  parameters: [
+    &#123; name: 'sides', type: 'number', description: 'Faces per die.' &#125;,
+    &#123; name: 'count', type: 'number', description: 'How many dice.' &#125;
+  ],
+  run: (&#123; sides, count &#125;) =&gt; &#123;
+    // ...your code. Async is fine.
+    return &#123; rolls, total &#125;;
+  &#125;
+&#125;);</code></pre>
+
+    <div class="mt-3 flex flex-wrap gap-1.5">
+      @for (tool of tools(); track tool.name) {
+        <span class="hk-chat-tool-pill">
+          <i class="pi {{ tool.icon ?? 'pi-wrench' }} text-[0.65rem]" aria-hidden="true"></i>
+          {{ tool.name }}
+        </span>
+      }
+    </div>
+  </div>
+  }
+</div>

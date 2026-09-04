@@ -64,9 +64,22 @@
 
     <!-- Bottom bar -->
     <div class="mt-6 flex flex-col-reverse items-center gap-6 sm:flex-row sm:justify-between">
-      <p class="text-xs text-slate-500 dark:text-gray-500">
-        &copy; {{ year }} Hell's Kitchen UI · MIT licensed · Built with Angular
-      </p>
+      <div class="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
+        <p class="m-0 text-xs text-slate-500 dark:text-gray-500">
+          &copy; {{ year }} Hell's Kitchen UI · MIT licensed · Built with Angular
+        </p>
+
+        <!-- Absent, not zero, while the count is unknown. -->
+        @if (visitorCount(); as total) {
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-white/10
+                       px-2.5 py-1 text-[0.7rem] text-slate-500 dark:text-gray-500"
+            [title]="format(total) + ' visits since launch'">
+            <i class="pi pi-eye text-[0.65rem] text-red-600 dark:text-red-400" aria-hidden="true"></i>
+            <span class="font-mono">{{ format(total) }}</span>
+            <span>visits</span>
+          </span>
+        }
+      </div>
 
       <div class="flex items-center gap-2">
         @for (social of socials; track social.label) {

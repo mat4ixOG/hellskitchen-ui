@@ -30,6 +30,10 @@ export const GUIDES: Guide[] = [
     icon: 'pi pi-play',
     blocks: [
       { kind: 'p', text: 'Every component is standalone. There is no module to import, no global config to register, and nothing to bootstrap before first use.' },
+      {
+        kind: 'p',
+        text: 'Components exported from the package are marked "In package" on their docs page, and the catalogue has a filter for them. The data grid, both charts, the button and all eight backgrounds ship today; the rest of the catalogue is being moved into the package as each one is finished.'
+      },
       { kind: 'h', text: 'Install', id: 'install' },
       { kind: 'code', code: 'npm i hellskitchen-ui\n# or\npnpm add hellskitchen-ui', file: 'terminal' },
       { kind: 'h', text: 'Declare the layer order', id: 'tokens' },

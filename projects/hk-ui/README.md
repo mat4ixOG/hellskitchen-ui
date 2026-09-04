@@ -10,7 +10,7 @@ no global stylesheet to import.
 npm i hellskitchen-ui
 ```
 
-**[Live documentation, with every component running →](https://hellskitchen-ui.pages.dev)**
+**[Live documentation, with every component running →](https://hellskitchen-ui.org)**
 
 ## Angular version support
 
@@ -126,4 +126,4 @@ matters to you.
 
 MIT
 
-[docs]: https://hellskitchen-ui.pages.dev
+[docs]: https://hellskitchen-ui.org

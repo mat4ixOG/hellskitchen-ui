@@ -362,20 +362,34 @@ export function matches(value: unknown, meta: HkFilterMeta): boolean {
       return left >= right;
     }
     case 'between': {
-      const dateLeft = toDate(needle);
-      const dateRight = toDate(value2);
-      const cellDate = toDate(value);
-      // Date range only when both bounds parse as dates but not as numbers.
-      if (cellDate && (dateLeft || dateRight) && toNumber(needle) === null) {
+      const low = toNumber(needle);
+      const high = toNumber(value2);
+      // Which range this is has to be decided from the *bounds the user
+      // supplied*, never from the cell. Deciding it on `toNumber(needle)`
+      // alone read a one-sided range — an empty lower bound with `10` above —
+      // as a date range, and then compared the cell as a millisecond
+      // timestamp: every value in the same 1970 day passed, so "≤ 10" matched
+      // 50,000. A numeric range is one where every supplied bound is a number.
+      const lowGiven = !isBlank(needle);
+      const highGiven = !isBlank(value2);
+      const numericRange =
+        (lowGiven || highGiven) &&
+        (!lowGiven || low !== null) &&
+        (!highGiven || high !== null);
+
+      if (!numericRange) {
+        const cellDate = toDate(value);
+        if (!cellDate) return false;
+        const dateLeft = toDate(needle);
+        const dateRight = toDate(value2);
         const time = cellDate.getTime();
         if (dateLeft && time < startOfDay(dateLeft)) return false;
         if (dateRight && time > endOfDay(dateRight)) return false;
         return true;
       }
+
       const cell = toNumber(value);
       if (cell === null) return false;
-      const low = toNumber(needle);
-      const high = toNumber(value2);
       if (low !== null && cell < low) return false;
       if (high !== null && cell > high) return false;
       return true;
@@ -540,10 +554,13 @@ export function aggregate(rows: any[], column: HkColumn, field: string): unknown
       return numbers.reduce((total, value) => total + value, 0);
     case 'avg':
       return numbers.reduce((total, value) => total + value, 0) / numbers.length;
+    // Not `Math.min(...numbers)`: spreading pushes one argument per row onto
+    // the stack, so a column the grid is explicitly built to handle — ~125k
+    // rows and up — threw RangeError instead of returning a footer value.
     case 'min':
-      return Math.min(...numbers);
+      return numbers.reduce((lowest, value) => (value < lowest ? value : lowest));
     case 'max':
-      return Math.max(...numbers);
+      return numbers.reduce((highest, value) => (value > highest ? value : highest));
     default:
       return null;
   }

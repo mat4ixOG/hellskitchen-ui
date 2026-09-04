@@ -12,6 +12,7 @@ export type Category =
   | 'Layout'
   | 'Data'
   | 'Backgrounds'
+  | 'AI'
   | 'Utility';
 
 /**
@@ -47,6 +48,16 @@ export interface ComponentEntry {
   selector: string;
   category: Category;
   status: Status;
+  /**
+   * Whether `npm i hellskitchen-ui` gets you this one.
+   *
+   * The catalogue is bigger than the package: most entries are patterns built
+   * and documented on this site, with the source to copy, not exports you can
+   * import. Saying so per entry is the difference between a reference and a
+   * promise the install cannot keep — `component-catalog.spec.ts` holds this
+   * flag to the library's real public API so it cannot drift.
+   */
+  packaged: boolean;
   /** One line for the catalogue card. */
   tagline: string;
   /** Longer intro for the docs page. */
@@ -68,6 +79,7 @@ export const CATEGORIES: Category[] = [
   'Layout',
   'Data',
   'Backgrounds',
+  'AI',
   'Utility'
 ];
 
@@ -91,14 +103,13 @@ export const COMPONENTS: ComponentEntry[] = [
     selector: 'hk-switch',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 2.1,
     tagline: 'Two-way bound toggle with a spring-eased thumb.',
     description:
       'A checkbox that reads as an on/off control. Model-bound through a signal, so no ControlValueAccessor boilerplate unless you want reactive forms — in which case it implements one too.',
     tags: ['toggle', 'checkbox', 'boolean'],
-    usage: `import { HkSwitch } from 'hellskitchen-ui';
-
-@Component({
+    usage: `@Component({
   imports: [HkSwitch],
   template: \`
     <hk-switch
@@ -142,6 +153,7 @@ export class SettingsComponent {
     selector: 'hk-rating',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 1.8,
     tagline: 'Any icon, any count, half steps, keyboard driven.',
     description:
@@ -177,6 +189,7 @@ export class SettingsComponent {
     selector: 'hk-input',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 2.4,
     tagline: 'Prefix, suffix, hint, error — and attached buttons.',
     description:
@@ -240,6 +253,7 @@ export class SettingsComponent {
     selector: 'hk-textarea',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 1.6,
     tagline: 'Auto-growing textarea with a character counter.',
     description:
@@ -279,6 +293,7 @@ export class SettingsComponent {
     selector: 'hk-select',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 4.2,
     tagline: 'Virtualised single and multi select with typeahead.',
     description:
@@ -324,15 +339,14 @@ export class SettingsComponent {
     name: 'Multi select',
     selector: 'hk-multi-select',
     category: 'Forms',
-    status: 'new',
+    status: 'stable',
+    packaged: false,
     size: 3.2,
     tagline: 'Chips, grouped options, filter-aware select-all.',
     description:
       'A select that holds many values without growing without bound. Past maxChips the rest collapse into a "+n more" control, so a field with forty selections is the same height as one with two. Select-all acts on the filtered rows rather than the whole list, and reports that as an indeterminate state — the one detail a multi-select usually gets wrong.',
     tags: ['select', 'multiple', 'chips', 'tags', 'filter'],
-    usage: `import { HkMultiSelect } from 'hellskitchen-ui';
-
-@Component({
+    usage: `@Component({
   imports: [HkMultiSelect],
   template: \`
     <hk-multi-select
@@ -392,6 +406,7 @@ export class RegionPicker {
     selector: 'hk-combobox',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 4.8,
     tagline: 'Async-filterable select that accepts free text.',
     description:
@@ -433,6 +448,7 @@ export class RegionPicker {
     selector: 'hk-checkbox',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 1.5,
     tagline: 'Tri-state checkbox with an animated tick.',
     description:
@@ -470,6 +486,7 @@ export class RegionPicker {
     selector: 'hk-radio-group',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 1.9,
     tagline: 'Roving-tabindex radio set, horizontal or stacked.',
     description:
@@ -507,6 +524,7 @@ export class RegionPicker {
     selector: 'hk-slider',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 2.8,
     tagline: 'Single or range slider with ticks and live value bubble.',
     description:
@@ -555,6 +573,7 @@ export class RegionPicker {
     selector: 'hk-date-picker',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 6.1,
     tagline: 'Single, multiple or range — with time and an output format.',
     description:
@@ -615,6 +634,7 @@ export class RegionPicker {
     selector: 'hk-file-drop',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 3.2,
     tagline: 'Drag-and-drop upload zone with per-file progress.',
     description:
@@ -660,6 +680,7 @@ export class RegionPicker {
     selector: 'hk-pin-input',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 1.7,
     tagline: 'One-time-code boxes with paste splitting.',
     description:
@@ -699,15 +720,14 @@ export class RegionPicker {
     name: 'Password',
     selector: 'hk-password',
     category: 'Forms',
-    status: 'new',
+    status: 'stable',
+    packaged: false,
     size: 2.4,
     tagline: 'Strength scored from rules, reveal toggle, Caps Lock warning.',
     description:
       'A password field that tells the user what it wants before they get it wrong. Strength is the count of satisfied rules rather than a function of length — twelve lowercase characters are not strong, and saying so does real harm — which also means the meter and the checklist can never disagree. Caps Lock is surfaced as a warning, because it is the most common reason a correct password is rejected and the browser will not mention it.',
     tags: ['password', 'strength', 'security', 'form', 'reveal'],
-    usage: `import { HkPassword } from 'hellskitchen-ui';
-
-@Component({
+    usage: `@Component({
   imports: [HkPassword, ReactiveFormsModule],
   template: \`
     <hk-password
@@ -755,15 +775,14 @@ export class SignupComponent { /* … */ }`,
     name: 'Signup form',
     selector: 'hk-signup-form',
     category: 'Forms',
-    status: 'new',
+    status: 'stable',
+    packaged: false,
     size: 4.6,
     tagline: 'Reactive, cross-validated, SSO first.',
     description:
       'A whole signup flow rather than a field: reactive controls, per-field validators, a cross-field confirm check on the group, and SSO offered above the form instead of buried under it. Errors appear on touched or submitted, never on the first keystroke, and the submit button is never disabled by invalidity — a dead button gives no reason, while a rejected submit surfaces every message at once.',
     tags: ['form', 'signup', 'reactive', 'validation', 'sso', 'auth'],
-    usage: `import { HkSignupForm } from 'hellskitchen-ui';
-
-@Component({
+    usage: `@Component({
   imports: [HkSignupForm],
   template: \`
     <hk-signup-form
@@ -817,6 +836,7 @@ export class SignupPage {
     selector: 'hk-form-field',
     category: 'Forms',
     status: 'stable',
+    packaged: false,
     size: 1.4,
     tagline: 'Label, hint and error wiring for any control.',
     description:
@@ -853,15 +873,14 @@ export class SignupPage {
     name: 'Navbar',
     selector: 'hk-navbar',
     category: 'Navigation',
-    status: 'new',
+    status: 'stable',
+    packaged: false,
     size: 3.8,
     tagline: 'Pill, app bar or dock — one travelling indicator.',
     description:
       'Three presentations of one navbar. The active indicator is a single element that travels between items rather than a border that reappears on whichever item is current: one element transitioning is what makes the movement readable, and it means the motion style is a swap of which properties animate, not three implementations. Offsets are arithmetic — every item in a strip is one nth wide — so there is no ResizeObserver and nothing to go stale on a re-render.',
     tags: ['navbar', 'nav', 'header', 'menu', 'dock', 'responsive'],
-    usage: `import { HkNavbar } from 'hellskitchen-ui';
-
-@Component({
+    usage: `@Component({
   imports: [HkNavbar],
   template: \`
     <hk-navbar
@@ -919,6 +938,7 @@ export class ShellComponent {
     selector: 'hk-tabs',
     category: 'Navigation',
     status: 'stable',
+    packaged: false,
     size: 2.9,
     tagline: 'Sliding indicator, and badges bound to live counts.',
     description:
@@ -966,6 +986,7 @@ export class ShellComponent {
     selector: 'hk-stepper',
     category: 'Navigation',
     status: 'stable',
+    packaged: false,
     size: 3.1,
     tagline: 'Three presentations, one wizard state.',
     description: 'Multi-step flows with validation gating: in linear mode a step only unlocks when the previous one reports valid. Three presentations share that one state — a numbered rail, a vertical panel list, and a compact progress header — so `variant` changes how a wizard looks without touching what it does or what it emits.',
@@ -1001,6 +1022,7 @@ export class ShellComponent {
     selector: 'hk-breadcrumb',
     category: 'Navigation',
     status: 'stable',
+    packaged: false,
     size: 1.2,
     tagline: 'Slash, chevron or pills — all collapsing the same way.',
     description:
@@ -1040,6 +1062,7 @@ export class ShellComponent {
     selector: 'hk-pagination',
     category: 'Navigation',
     status: 'stable',
+    packaged: false,
     size: 2.0,
     tagline: 'Page list with ellipsis windowing and page-size select.',
     description:
@@ -1078,6 +1101,7 @@ export class ShellComponent {
     selector: 'hk-menu',
     category: 'Navigation',
     status: 'stable',
+    packaged: false,
     size: 3.6,
     tagline: 'Nested, keyboard-driven, burger or labelled trigger.',
     description:
@@ -1126,6 +1150,7 @@ export class ShellComponent {
     selector: 'hk-sidebar-nav',
     category: 'Navigation',
     status: 'stable',
+    packaged: false,
     size: 2.7,
     tagline: 'Collapsible route tree with active-branch tracking.',
     description:
@@ -1164,6 +1189,7 @@ export class ShellComponent {
     selector: 'hk-command',
     category: 'Navigation',
     status: 'stable',
+    packaged: false,
     size: 5.4,
     tagline: 'Fuzzy-matched command list on a global hotkey.',
     description:
@@ -1205,6 +1231,7 @@ export class ShellComponent {
     selector: 'hk-toast',
     category: 'Feedback',
     status: 'stable',
+    packaged: false,
     size: 3.4,
     tagline: 'Stacked, auto-dismissing, pause-on-hover.',
     description:
@@ -1259,7 +1286,8 @@ export class DeployComponent {
     name: 'Accordion',
     selector: 'hk-accordion',
     category: 'Feedback',
-    status: 'stable',
+    status: 'new',
+    packaged: false,
     size: 2.2,
     tagline: 'Height-animated panels, single or multi expand.',
     description:
@@ -1271,15 +1299,23 @@ export class DeployComponent {
   }
 </hk-accordion>`,
     api: [
-      { kind: 'input', name: 'multiple', type: 'boolean', default: 'false', description: 'Allows more than one panel open.' },
+      { kind: 'input', name: 'multiple', type: 'boolean', default: 'false', description: 'Allows more than one panel open. Switching back to single keeps only the first, so the mode is never contradicted by the state.' },
       { kind: 'input', name: 'open', type: 'string[]', default: '[]', description: 'Ids of open panels. Two-way bindable.' },
-      { kind: 'output', name: 'toggled', type: 'EventEmitter<string>', default: '—', description: 'Emits the panel id that changed.' }
+      { kind: 'input', name: 'collapsible', type: 'boolean', default: 'true', description: 'Whether the last open panel can be closed. An accordion that cannot be fully closed traps the reader.' },
+      { kind: 'input', name: 'disabled', type: 'boolean', default: 'false', description: 'Per-panel, on hk-panel. A disabled header is skipped by the arrow keys rather than focused.' },
+      { kind: 'output', name: 'toggled', type: 'EventEmitter<string>', default: '—', description: 'Emits the panel id that changed.' },
+      { kind: 'method', name: 'expandAll()', type: '() => void', default: '—', description: 'Opens every enabled panel; implies multiple.' },
+      { kind: 'method', name: 'collapseAll()', type: '() => void', default: '—', description: 'Closes every panel.' }
     ],
     keyboard: [
       { keys: 'Enter / Space', action: 'Toggle the focused panel' },
       { keys: '↑ / ↓', action: 'Move between headers' }
     ],
-    a11y: ['Headers are real buttons with aria-expanded and aria-controls.']
+    a11y: [
+      'Headers are real buttons with aria-expanded and aria-controls, wrapped in a heading so the panel list is navigable by heading.',
+      'Each panel is a region labelled by its own header.',
+      'A closed panel is inert, so its content is out of the tab order rather than merely invisible.'
+    ]
   },
   {
     slug: 'alert',
@@ -1287,6 +1323,7 @@ export class DeployComponent {
     selector: 'hk-alert',
     category: 'Feedback',
     status: 'stable',
+    packaged: false,
     size: 1.3,
     tagline: 'Inline banner in four tones, dismissible.',
     description:
@@ -1326,6 +1363,7 @@ export class DeployComponent {
     selector: 'hk-progress',
     category: 'Feedback',
     status: 'stable',
+    packaged: false,
     size: 1.1,
     tagline: 'Linear and circular progress, determinate or not.',
     description:
@@ -1357,6 +1395,7 @@ export class DeployComponent {
     selector: 'hk-skeleton',
     category: 'Feedback',
     status: 'stable',
+    packaged: false,
     size: 0.8,
     tagline: 'Shimmer placeholders that match your real layout.',
     description:
@@ -1394,6 +1433,7 @@ export class DeployComponent {
     selector: 'hk-spinner',
     category: 'Feedback',
     status: 'stable',
+    packaged: false,
     size: 0.6,
     tagline: 'Seven styles, all sized off the current font.',
     description:
@@ -1438,6 +1478,7 @@ export class DeployComponent {
     selector: 'hk-empty',
     category: 'Feedback',
     status: 'stable',
+    packaged: false,
     size: 1.0,
     tagline: 'Illustration, message and call to action.',
     description:
@@ -1473,6 +1514,7 @@ export class DeployComponent {
     selector: 'hk-dialog',
     category: 'Overlay',
     status: 'stable',
+    packaged: false,
     size: 3.8,
     tagline: 'Focus-trapped modal built on the native dialog element.',
     description:
@@ -1514,6 +1556,7 @@ export class DeployComponent {
     selector: 'hk-drawer',
     category: 'Overlay',
     status: 'stable',
+    packaged: false,
     size: 3.0,
     tagline: 'Edge sheet from any side, swipe-dismissable on touch.',
     description:
@@ -1551,6 +1594,7 @@ export class DeployComponent {
     selector: 'hk-popover',
     category: 'Overlay',
     status: 'stable',
+    packaged: false,
     size: 2.6,
     tagline: 'Anchored panel that flips and shifts to stay on screen.',
     description:
@@ -1598,6 +1642,7 @@ export class DeployComponent {
     selector: 'hkTooltip',
     category: 'Overlay',
     status: 'stable',
+    packaged: false,
     size: 1.4,
     tagline: 'Directive tooltip with hover, focus and touch triggers.',
     description:
@@ -1633,6 +1678,7 @@ export class DeployComponent {
     selector: 'HkConfirmService',
     category: 'Overlay',
     status: 'stable',
+    packaged: false,
     size: 1.9,
     tagline: 'Promise-returning confirmation, no template needed.',
     description:
@@ -1671,6 +1717,7 @@ if (ok) this.remove();`,
     selector: 'hkContextMenu',
     category: 'Overlay',
     status: 'stable',
+    packaged: false,
     size: 2.3,
     tagline: 'Right-click menu that respects viewport edges.',
     description:
@@ -1707,6 +1754,7 @@ if (ok) this.remove();`,
     selector: 'hk-card',
     category: 'Layout',
     status: 'stable',
+    packaged: false,
     size: 0.9,
     tagline: 'Header, body, footer and media — every slot independent.',
     description:
@@ -1761,6 +1809,7 @@ if (ok) this.remove();`,
     selector: 'hk-divider',
     category: 'Layout',
     status: 'stable',
+    packaged: false,
     size: 0.4,
     tagline: 'Horizontal or vertical rule with an optional label.',
     description:
@@ -1789,6 +1838,7 @@ if (ok) this.remove();`,
     selector: 'hk-split',
     category: 'Layout',
     status: 'stable',
+    packaged: false,
     size: 2.5,
     tagline: 'Draggable splitter with keyboard resize and min sizes.',
     description:
@@ -1825,6 +1875,7 @@ if (ok) this.remove();`,
     selector: 'hk-scroll-area',
     category: 'Layout',
     status: 'stable',
+    packaged: false,
     size: 1.6,
     tagline: 'Styled scrollbars with edge-fade affordances.',
     description:
@@ -1859,6 +1910,7 @@ if (ok) this.remove();`,
     selector: 'hk-stack',
     category: 'Layout',
     status: 'stable',
+    packaged: false,
     size: 0.5,
     tagline: 'Flex row or column with token-driven gaps.',
     description:
@@ -1888,6 +1940,7 @@ if (ok) this.remove();`,
     selector: 'hk-app-shell',
     category: 'Layout',
     status: 'stable',
+    packaged: false,
     size: 2.8,
     tagline: 'Header, sidebar and content frame with responsive rules.',
     description:
@@ -1920,11 +1973,58 @@ if (ok) this.remove();`,
 
   // ── Data ────────────────────────────────────────────────────
   {
+    slug: 'carousel',
+    name: 'Carousel',
+    selector: 'hk-carousel',
+    category: 'Layout',
+    status: 'new',
+    packaged: false,
+    size: 3.1,
+    tagline: 'One transform, swipe and keys, and autoplay that knows when to stop.',
+    description:
+      'The whole track moves on a single transform rather than each slide animating itself, so it stays on the compositor however many slides there are. Autoplay is the part carousels usually get wrong: it suspends on hover, on focus anywhere inside, and mid-drag, and it never starts at all under prefers-reduced-motion — the user has already told the OS how they feel about things that move on their own.',
+    tags: ['slider', 'gallery', 'swipe'],
+    usage: `<hk-carousel [(index)]="slide" [autoplay]="true" [interval]="4000" [loop]="true">
+  @for (item of highlights; track item.id) {
+    <hk-slide>…</hk-slide>
+  }
+</hk-carousel>`,
+    api: [
+      { kind: 'input', name: 'index', type: 'number', default: '0', description: 'Active slide. Two-way bindable.' },
+      { kind: 'input', name: 'autoplay', type: 'boolean', default: 'false', description: 'Advance on a timer. Suspended by hover, focus and drag, and ignored under reduced motion.' },
+      { kind: 'input', name: 'interval', type: 'number', default: '4000', description: 'Milliseconds between advances. Floors at 600 so a bound value cannot spin the track.' },
+      { kind: 'input', name: 'loop', type: 'boolean', default: 'true', description: 'Wrap past the ends. When false, the arrows disable at the edges instead.' },
+      { kind: 'input', name: 'swipe', type: 'boolean', default: 'true', description: 'Pointer dragging. The threshold is a tenth of the track, so reading with a shaky hand is not a swipe.' },
+      { kind: 'input', name: 'showArrows', type: 'boolean', default: 'true', description: 'Previous / next controls.' },
+      { kind: 'input', name: 'showDots', type: 'boolean', default: 'true', description: 'The position indicator, which doubles as direct navigation.' },
+      { kind: 'output', name: 'changed', type: 'EventEmitter<number>', default: '—', description: 'Emits the new index.' },
+      { kind: 'method', name: 'next() / prev()', type: '() => void', default: '—', description: 'Advance or retreat, honouring loop.' },
+      { kind: 'method', name: 'go(index)', type: '(index: number) => void', default: '—', description: 'Jump to a slide, clamped or wrapped by loop.' }
+    ],
+    tokens: [
+      { name: '--hk-carousel-ease', default: 'cubic-bezier(.22,1,.36,1)', description: 'Track easing.' },
+      { name: '--hk-carousel-duration', default: '420ms', description: 'Slide duration. Forced to 0 under reduced motion.' },
+      { name: '--hk-carousel-arrow-bg', default: 'rgb(255 255 255 / .9)', description: 'Arrow button fill.' }
+    ],
+    keyboard: [
+      { keys: '← / →', action: 'Previous / next slide' },
+      { keys: 'Home / End', action: 'First / last slide' },
+      { keys: 'Tab', action: 'Into the dots, which are direct navigation' }
+    ],
+    a11y: [
+      'role="region" with aria-roledescription="carousel"; each slide is a labelled group reading "n of m".',
+      'Off-screen slides are inert, so their links are not silently tabbable.',
+      'Autoplay stops on focus-in and stays stopped while focus is anywhere inside — otherwise the thing being read moves out from under the reader.',
+      'The position is announced in a polite live region, never assertive: a slide changing is not an alert.'
+    ]
+  },
+  {
     slug: 'table',
     name: 'Table',
     selector: 'hk-table',
     category: 'Data',
     status: 'stable',
+    packaged: true,
     size: 14.2,
     tagline: 'Grouped headers, filters, virtual scroll — the whole grid.',
     description:
@@ -1989,6 +2089,17 @@ export class DeploysComponent {
       { kind: 'input', name: 'globalFilterFields', type: 'string[]', default: '[]', description: 'Fields the search looks at. Defaults to every visible leaf.' },
       { kind: 'input', name: 'selectionMode', type: "'single' | 'multiple' | 'checkbox' | null", default: 'null', description: 'How rows are picked. Checkbox adds a leading column with select-all.' },
       { kind: 'input', name: 'selection', type: 'T[]', default: '[]', description: 'Selected rows — always an array, even in single mode. Two-way bindable.' },
+      { kind: 'input', name: 'rowSelectable', type: '(row: T, i: number) => boolean', default: 'null', description: 'Which rows may be selected. A rejected row is skipped by click, by the space key and by select-all alike — a checkbox that renders enabled then refuses to tick is worse than one never offered.' },
+      { kind: 'input', name: 'selectAllScope', type: "'page' | 'filtered'", default: "'page'", description: 'What the header checkbox covers. `filtered` ticks every row the filters match across all pages, which is what "select all" usually means on page 3 of 40.' },
+      { kind: 'input', name: 'rangeSelection', type: 'boolean', default: 'true', description: 'Shift-click selects the span between the last selection and the click, across page boundaries.' },
+      { kind: 'input', name: 'frozenRows', type: 'T[]', default: '[]', description: 'Rows pinned above the scrolling body — a totals line, a row being entered. Separate from `value`, so they never sort, filter or page away, and they honour frozen columns too.' },
+      { kind: 'input', name: 'responsiveLayout', type: "'scroll' | 'stack'", default: "'scroll'", description: 'Below `stackBreakpoint`, `stack` turns each row into a card with every cell labelled by its column. Measured off the grid’s own box, so one in a narrow sidebar stacks while the page around it stays wide.' },
+      { kind: 'input', name: 'stackBreakpoint', type: 'number', default: '640', description: 'Width in px below which `stack` takes over.' },
+      { kind: 'input', name: 'defaultSortOrder', type: '1 | -1', default: '1', description: 'Direction a column takes on its first click. Descending-first suits a “newest” or “largest” column.' },
+      { kind: 'input', name: 'resetPageOnSort', type: 'boolean', default: 'true', description: 'Whether sorting returns to page one. Off keeps the reader’s offset.' },
+      { kind: 'input', name: 'customSort', type: '(rows: T[], sort: HkSortMeta[]) => T[]', default: 'null', description: 'Replaces the whole sort step, for orderings no per-column comparator can express.' },
+      { kind: 'input', name: 'csvSeparator', type: 'string', default: "','", description: 'Field separator for the export. Locales with a comma decimal mark need `;` — Excel there splits on `;`, and a comma-separated file opens as one column per row.' },
+      { kind: 'input', name: 'exportFormat', type: '(value, column, row) => string', default: 'null', description: 'Replaces the cell-to-text step for the export.' },
       { kind: 'input', name: 'rowExpansion', type: 'boolean', default: 'false', description: 'Adds the expander column; pair with an "expansion" template.' },
       { kind: 'input', name: 'expandedKeys', type: 'Record<string, boolean>', default: '{}', description: 'Open rows, keyed by dataKey. Two-way bindable.' },
       { kind: 'input', name: 'groupRowsBy', type: 'string', default: "''", description: 'Field to group rows by. Groups render contiguously.' },
@@ -2030,6 +2141,8 @@ export class DeploysComponent {
       { name: '--hk-table-density', default: '1', description: 'Multiplier on cell padding. [size] sets it; override for anything between.' },
       { name: '--hk-table-cell-x', default: '0.7rem', description: 'Horizontal cell padding.' },
       { name: '--hk-table-frozen-shadow', default: '8px 0 12px -10px rgb(0 0 0 / 0.85)', description: 'Edge shadow that separates a frozen column from the scrolling body.' },
+      { name: '--hk-table-frozen-row-bg', default: 'var(--hk-table-header-bg)', description: 'Fill behind a pinned row.' },
+      { name: '--hk-table-frozen-row-shadow', default: '0 4px 8px -6px rgb(0 0 0 / .35)', description: 'Seam under the pinned block, so it reads as pinned rather than as the first data row.' },
       { name: '--hk-table-panel-bg', default: '#141416', description: 'Background for the filter and column-toggle panels.' }
     ],
     keyboard: [
@@ -2054,6 +2167,7 @@ export class DeploysComponent {
     selector: 'hk-tree',
     category: 'Data',
     status: 'stable',
+    packaged: false,
     size: 4.1,
     tagline: 'Lazy-loading tree with checkbox cascade.',
     description:
@@ -2094,6 +2208,7 @@ export class DeploysComponent {
     selector: 'hk-tag',
     category: 'Data',
     status: 'stable',
+    packaged: false,
     size: 0.7,
     tagline: 'Compact label with tone, icon and remove button.',
     description:
@@ -2128,6 +2243,7 @@ export class DeploysComponent {
     selector: 'hk-badge',
     category: 'Data',
     status: 'stable',
+    packaged: false,
     size: 0.5,
     tagline: 'Count or dot indicator, anchorable to any element.',
     description:
@@ -2162,6 +2278,7 @@ export class DeploysComponent {
     selector: 'hk-avatar',
     category: 'Data',
     status: 'stable',
+    packaged: false,
     size: 1.1,
     tagline: 'Image, initials or icon avatar with stack grouping.',
     description:
@@ -2199,6 +2316,7 @@ export class DeploysComponent {
     selector: 'hk-timeline',
     category: 'Data',
     status: 'stable',
+    packaged: false,
     size: 2.0,
     tagline: 'Vertical or horizontal event rail with custom markers.',
     description:
@@ -2225,6 +2343,7 @@ export class DeploysComponent {
     selector: 'hk-stat',
     category: 'Data',
     status: 'stable',
+    packaged: false,
     size: 1.3,
     tagline: 'Metric tile with delta, sparkline slot and count-up.',
     description:
@@ -2264,6 +2383,7 @@ export class DeploysComponent {
     selector: 'hk-button',
     category: 'Forms',
     status: 'stable',
+    packaged: true,
     size: 3.4,
     tagline: 'Six variants, five tones, badges, liquid glass.',
     description:
@@ -2333,6 +2453,7 @@ export class DeploysComponent {
     selector: 'hk-line-chart',
     category: 'Data',
     status: 'stable',
+    packaged: true,
     size: 5.2,
     tagline: 'SVG line and area, with a crosshair and a table view.',
     description:
@@ -2385,6 +2506,7 @@ readonly series: HkSeries[] = [
     selector: 'hk-bar-chart',
     category: 'Data',
     status: 'stable',
+    packaged: true,
     size: 4.8,
     tagline: 'Grouped or stacked bars, vertical or horizontal.',
     description:
@@ -2425,6 +2547,7 @@ readonly series: HkSeries[] = [
     selector: 'hk-aurora',
     category: 'Backgrounds',
     status: 'stable',
+    packaged: true,
     size: 1.9,
     tagline: 'A domain-warped flow field, rendered per pixel.',
     description:
@@ -2462,6 +2585,7 @@ readonly series: HkSeries[] = [
     selector: 'hk-particle-field',
     category: 'Backgrounds',
     status: 'stable',
+    packaged: true,
     size: 3.1,
     tagline: 'Linked particles that part around the pointer.',
     description:
@@ -2499,6 +2623,7 @@ readonly series: HkSeries[] = [
     selector: 'hk-beams',
     category: 'Backgrounds',
     status: 'stable',
+    packaged: true,
     size: 1.6,
     tagline: 'Sweeping light beams that brighten where they cross.',
     description:
@@ -2534,6 +2659,7 @@ readonly series: HkSeries[] = [
     selector: 'hk-waves',
     category: 'Backgrounds',
     status: 'stable',
+    packaged: true,
     size: 1.8,
     tagline: 'Stacked sine bands with a filled falloff.',
     description:
@@ -2570,6 +2696,7 @@ readonly series: HkSeries[] = [
     selector: 'hk-dot-matrix',
     category: 'Backgrounds',
     status: 'stable',
+    packaged: true,
     size: 1.7,
     tagline: 'A dot grid that swells in a wave and bulges toward the pointer.',
     description:
@@ -2606,6 +2733,7 @@ readonly series: HkSeries[] = [
     selector: 'hk-grid-motion',
     category: 'Backgrounds',
     status: 'stable',
+    packaged: true,
     size: 1.5,
     tagline: 'A perspective grid receding to a horizon.',
     description:
@@ -2642,6 +2770,7 @@ readonly series: HkSeries[] = [
     selector: 'hk-dither',
     category: 'Backgrounds',
     status: 'stable',
+    packaged: true,
     size: 1.4,
     tagline: 'Ordered-dither bands — the chunky retro look.',
     description:
@@ -2677,6 +2806,7 @@ readonly series: HkSeries[] = [
     selector: 'hk-spotlight',
     category: 'Backgrounds',
     status: 'stable',
+    packaged: true,
     size: 1.1,
     tagline: 'A light that follows the pointer, revealing a grid.',
     description:
@@ -2707,11 +2837,75 @@ readonly series: HkSeries[] = [
 
   // ── Utility ─────────────────────────────────────────────────
   {
+    slug: 'chatbot',
+    name: 'Chatbot',
+    selector: 'hk-chatbot',
+    category: 'AI',
+    status: 'new',
+    packaged: false,
+    size: 7.4,
+    tagline: 'Streaming transcript, tool calling and voice — bring your own model.',
+    description:
+      'A complete assistant surface with the vendor left out. The engine is plain TypeScript: it owns the transcript, streams tokens into the current message, runs whatever tools you registered and feeds the results back for another round. What talks to a model is a single function you supply, so the demo runs on a local transport with no key and no network, and going live is one swap. Voice is both directions — dictation into the composer, synthesis out of it — and both are feature-detected, so a browser without them simply does not show the button.',
+    tags: ['ai', 'chat', 'assistant', 'voice', 'tools'],
+    usage: `const engine = new HkChatEngine({
+  // Your own server, which holds the key. Never call a provider from
+  // the browser — the key would ship to every visitor.
+  transport: streamFromEndpoint('/api/chat'),
+  systemPrompt: 'You are a support assistant. Be brief.',
+  tools: STARTER_TOOLS,
+  onChange: (messages) => this.messages.set(messages)
+});
+
+// A tool is a name, a description, a parameter list and a function.
+// Register one at any time — it is callable from that turn on.
+engine.registerTool({
+  name: 'refund_order',
+  description: 'Refund an order by id.',
+  parameters: [
+    { name: 'orderId', type: 'string', description: 'Order to refund.', required: true }
+  ],
+  run: async ({ orderId }) => api.refund(String(orderId))
+});
+
+await engine.send('refund order 8823');`,
+    api: [
+      { kind: 'input', name: 'transport', type: 'HkChatTransport', default: '—', description: 'Turns a request into an async stream of chunks. The only thing that knows about a model.' },
+      { kind: 'input', name: 'systemPrompt', type: 'string', default: "''", description: 'Seeded as the first message and restored on reset(). Never rendered as a bubble.' },
+      { kind: 'input', name: 'tools', type: 'HkTool[]', default: '[]', description: 'Initial tool registry. Add to it later with registerTool().' },
+      { kind: 'input', name: 'maxToolRounds', type: 'number', default: '3', description: 'How many tool rounds one turn may take, so a model that keeps calling itself cannot loop forever.' },
+      { kind: 'input', name: 'speakReplies', type: 'boolean', default: 'false', description: 'Read replies aloud as they stream, a sentence at a time.' },
+      { kind: 'output', name: 'onChange', type: '(messages: HkChatMessage[]) => void', default: '—', description: 'Fires on every mutation with a fresh array, so a signal can hold it.' },
+      { kind: 'output', name: 'onToolCall', type: '(call: HkToolCall) => void', default: '—', description: 'Fires per finished call, with args, result and elapsed ms.' },
+      { kind: 'method', name: 'send(text)', type: '(text: string) => Promise<void>', default: '—', description: 'Runs a full turn: stream, tool calls, and the rounds they trigger.' },
+      { kind: 'method', name: 'registerTool(tool)', type: '(tool: HkTool) => void', default: '—', description: 'Add or replace a tool, including mid-conversation.' },
+      { kind: 'method', name: 'abort()', type: '() => void', default: '—', description: 'Cancels the in-flight turn and keeps whatever already streamed.' },
+      { kind: 'method', name: 'reset()', type: '() => void', default: '—', description: 'Clears the transcript back to the system prompt.' }
+    ],
+    tokens: [
+      { name: '--hk-chat-bubble-user', default: 'var(--hk-accent)', description: 'User bubble fill.' },
+      { name: '--hk-chat-bubble-bot', default: 'var(--hk-surface)', description: 'Assistant bubble fill.' },
+      { name: '--hk-chat-log-height', default: '20rem', description: 'Transcript height before it scrolls.' }
+    ],
+    keyboard: [
+      { keys: 'Enter', action: 'Send' },
+      { keys: 'Shift + Enter', action: 'Newline' },
+      { keys: 'Esc', action: 'Stop the in-flight reply' }
+    ],
+    a11y: [
+      'The transcript is role="log" with aria-live="polite", so a reply is announced without interrupting.',
+      'Dictation and speech are feature-detected: an unsupported browser gets no dead button.',
+      'Recording is signalled by colour, an animated ring and aria-pressed together, never colour alone.',
+      'Every animation here — the caret, the tool spinner, the mic ring — stops under prefers-reduced-motion.'
+    ]
+  },
+  {
     slug: 'reveal',
     name: 'Reveal',
     selector: 'hkReveal',
     category: 'Utility',
     status: 'stable',
+    packaged: false,
     size: 0.6,
     tagline: 'Scroll-triggered enter animation with stagger.',
     description:
@@ -2741,6 +2935,7 @@ readonly series: HkSeries[] = [
     selector: 'hkCountUp',
     category: 'Utility',
     status: 'stable',
+    packaged: false,
     size: 0.5,
     tagline: 'Animates a number into view, reduced-motion aware.',
     description:
@@ -2767,6 +2962,7 @@ readonly series: HkSeries[] = [
     selector: 'hkCopy',
     category: 'Utility',
     status: 'stable',
+    packaged: false,
     size: 0.4,
     tagline: 'Copy-to-clipboard directive with a confirmation state.',
     description:
@@ -2798,6 +2994,7 @@ readonly series: HkSeries[] = [
     selector: 'HkHotkeyService',
     category: 'Utility',
     status: 'stable',
+    packaged: false,
     size: 0.9,
     tagline: 'Scoped keyboard shortcuts that clean themselves up.',
     description:
@@ -2827,6 +3024,7 @@ constructor() {
     selector: 'HkThemeService',
     category: 'Utility',
     status: 'stable',
+    packaged: false,
     size: 1.2,
     tagline: 'Reads, writes and persists the token layer at runtime.',
     description:
@@ -2863,6 +3061,7 @@ this.theme.setToken('--hk-accent', '#3b82f6');`,
     selector: 'hkIntersect',
     category: 'Utility',
     status: 'stable',
+    packaged: false,
     size: 0.5,
     tagline: 'Emits when an element enters or leaves the viewport.',
     description:

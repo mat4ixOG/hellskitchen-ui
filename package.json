@@ -13,7 +13,8 @@
     "pack:lib": "npm run build:lib && cd dist/hk-ui && npm pack",
     "publish:lib": "npm run build:lib && cd dist/hk-ui && npm publish",
     "serve:ssr:hk-docs": "node dist/hk-docs/server/server.mjs",
-    "build:site": "npm run build:lib && ng build hk-docs && node scripts/post-build.mjs"
+    "build:site": "npm run build:lib && ng build hk-docs && node scripts/post-build.mjs",
+    "gen:demo-source": "node scripts/gen-demo-source.mjs"
   },
   "private": true,
   "dependencies": {
@@ -55,5 +56,5 @@
     "ng-packagr": "^19.2.0",
     "typescript": "~5.7.2"
   },
-  "description": "Workspace for hellskitchen-ui — the library lives in projects/hk-ui, the docs site in src."
+  "description": "Workspace for hellskitchen-ui \u2014 the library lives in projects/hk-ui, the docs site in src."
 }

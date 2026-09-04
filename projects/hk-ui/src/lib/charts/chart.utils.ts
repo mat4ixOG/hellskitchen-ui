@@ -81,6 +81,10 @@ export function buildTicks(
   format: (v: number) => string
 ): HkTick[] {
   const ticks: HkTick[] = [];
+  // A zero, negative or non-finite step makes `count` Infinity and the loop
+  // below never ends. `niceDomain` never produces one, but this is exported
+  // for charts built directly on these helpers.
+  if (!Number.isFinite(step) || step <= 0 || !Number.isFinite(max - min)) return ticks;
   // Floating-point accumulation drifts; derive each tick from its index.
   const count = Math.round((max - min) / step);
   for (let i = 0; i <= count; i++) {
