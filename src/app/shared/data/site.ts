@@ -37,3 +37,29 @@ export function canonicalUrl(path: string): string {
   const trimmed = clean.replace(/\/+$/, '');
   return `${SITE_URL}${trimmed}/`;
 }
+
+/**
+ * Trims a docs description down to something a search result can show.
+ *
+ * The catalogue descriptions are written for the page, where a long paragraph
+ * is fine. A meta description is not the page: Google renders roughly 160
+ * characters and drops the rest, so a raw `.slice()` used to hand it a cut
+ * mid-word — "footer aggregates, virtua". Cuts on a word boundary instead, and
+ * prefers to stop on a sentence end when one falls in range, because a clean
+ * sentence reads as a summary rather than as truncated text.
+ */
+export function metaDescription(text: string, max = 200): string {
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+
+  const window = clean.slice(0, max);
+
+  // A sentence ending in the back half is a better stopping point than any
+  // word boundary — take it and drop the ellipsis.
+  const sentenceEnd = Math.max(window.lastIndexOf('. '), window.lastIndexOf('? '));
+  if (sentenceEnd > max * 0.5) return clean.slice(0, sentenceEnd + 1);
+
+  const lastSpace = window.lastIndexOf(' ');
+  // Strip punctuation left dangling by the cut, so it is not ", …".
+  return `${window.slice(0, lastSpace > 0 ? lastSpace : max).replace(/[,;:.\s]+$/, '')}…`;
+}

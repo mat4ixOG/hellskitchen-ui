@@ -21,3 +21,7 @@ console.log('post-build: 404.html written');
 // robots.txt ships from public/, but the sitemap has to be generated after the
 // build so it can be written into the output directory.
 await import('./gen-sitemap.mjs');
+
+// llms.txt is the same idea for agents rather than crawlers, and needs the
+// output directory to exist for the same reason.
+await import('./gen-llms.mjs');

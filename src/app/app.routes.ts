@@ -1,7 +1,7 @@
 import { ResolveFn, Routes } from '@angular/router';
 import { COMPONENTS } from './shared/data/component-catalog';
 import { GUIDES } from './shared/data/guides';
-import { DEFAULT_DESCRIPTION, SITE_NAME } from './shared/data/site';
+import { DEFAULT_DESCRIPTION, SITE_NAME, metaDescription } from './shared/data/site';
 
 /**
  * Titles and descriptions for the parameterised routes.
@@ -19,7 +19,7 @@ const componentTitle: ResolveFn<string> = (route) => {
 const componentDescription: ResolveFn<string> = (route) => {
   const entry = COMPONENTS.find((c) => c.slug === route.paramMap.get('slug'));
   if (!entry) return DEFAULT_DESCRIPTION;
-  return (entry.description ?? entry.tagline).slice(0, 300);
+  return metaDescription(entry.description ?? entry.tagline);
 };
 
 const guideTitle: ResolveFn<string> = (route) => {
@@ -94,7 +94,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./modules/not-found/not-found.component').then((m) => m.NotFoundComponent),
     title: NOT_FOUND_TITLE,
-    data: { description: 'That page does not exist.' }
+    data: { description: 'That page does not exist.', noindex: true }
   },
   {
     // A real 404 rather than `redirectTo: ''` — that answered every bad URL with
@@ -103,6 +103,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./modules/not-found/not-found.component').then((m) => m.NotFoundComponent),
     title: NOT_FOUND_TITLE,
-    data: { description: 'That page does not exist.' }
+    data: { description: 'That page does not exist.', noindex: true }
   }
 ];
