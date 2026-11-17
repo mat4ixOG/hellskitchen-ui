@@ -1,0 +1,154 @@
+<!-- Inline icons: the library ships no icon font. -->
+<ng-template #iconChat>
+  <svg class="hk-chat-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12Z" /></svg>
+</ng-template>
+<ng-template #iconSpark>
+  <svg class="hk-chat-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9Z" /><path d="M19 3v4M17 5h4" /></svg>
+</ng-template>
+<ng-template #iconUser>
+  <svg class="hk-chat-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
+</ng-template>
+<ng-template #iconWrench>
+  <svg class="hk-chat-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0 5 5L21 13l-8 8-3-3 8-8Zm0 0L9 12M3 21l6-6" /></svg>
+</ng-template>
+
+<div class="hk-chat-root">
+
+  @if (showToolbar()) {
+    <div class="hk-chat-toolbar">
+      <span class="hk-chat-status">
+        <span class="hk-chat-status-dot" [class.is-busy]="busy()"></span>
+        {{ busy() ? 'Thinking' : 'Ready' }}
+      </span>
+      <span class="hk-chat-faint">·</span>
+      <span class="hk-chat-meta">{{ tools().length }} tools</span>
+
+      <span class="hk-chat-actions">
+        @if (canSpeak()) {
+          <button type="button" (click)="toggleSpeech()" [attr.aria-pressed]="speakReplies()"
+            class="hk-chat-chip" [class.is-on]="speakReplies()">
+            <svg class="hk-chat-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M11 5 6 9H3v6h3l5 4Z" />
+              @if (speakReplies()) {
+                <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" />
+              } @else {
+                <path d="m16 9 5 6M21 9l-5 6" />
+              }
+            </svg>
+            Speak
+          </button>
+        }
+        @if (busy()) {
+          <button type="button" (click)="stop()" class="hk-chat-chip">
+            <svg class="hk-chat-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><rect x="9" y="9" width="6" height="6" /></svg>
+            Stop
+          </button>
+        }
+        <button type="button" (click)="clear()" class="hk-chat-chip">
+          <svg class="hk-chat-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 21-4-4L14 6l6 6-9 9Zm0 0h14M9 11l6 6" /></svg>
+          Clear
+        </button>
+      </span>
+    </div>
+  }
+
+  <!-- Transcript -->
+  <div #transcript class="hk-chat-log" [style.height]="logHeight()"
+    role="log" aria-live="polite" aria-label="Conversation">
+
+    @if (empty()) {
+      <div class="hk-chat-empty">
+        <span class="hk-chat-empty-badge"><ng-container [ngTemplateOutlet]="iconChat" /></span>
+        <p class="hk-chat-empty-text">{{ emptyMessage() }}</p>
+        @if (suggestions().length) {
+          <div class="hk-chat-suggestions">
+            @for (item of suggestions(); track item) {
+              <button type="button" (click)="ask(item)" class="hk-chat-suggestion">{{ item }}</button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @for (message of visible(); track message.id) {
+      <div class="hk-chat-row" [class.is-user]="message.role === 'user'">
+        <span class="hk-chat-avatar" [class.is-user]="message.role === 'user'">
+          <ng-container [ngTemplateOutlet]="message.role === 'user' ? iconUser : iconSpark" />
+        </span>
+
+        <div class="hk-chat-body" [class.is-user]="message.role === 'user'">
+          @for (call of message.toolCalls ?? []; track call.id) {
+            <div class="hk-chat-tool" [class.is-error]="call.state === 'error'">
+              @if (iconOf(call.name); as icon) {
+                <i [class]="icon" class="hk-chat-tool-icon" aria-hidden="true"></i>
+              } @else {
+                <ng-container [ngTemplateOutlet]="iconWrench" />
+              }
+              <code class="hk-chat-strong">{{ call.name }}</code>
+              <span class="hk-chat-o60">({{ argsOf(call) }})</span>
+              @if (call.state === 'running') {
+                <span class="hk-chat-dots" aria-label="running"><i></i><i></i><i></i></span>
+              } @else {
+                <span class="hk-chat-o45">→</span>
+                <code class="hk-chat-result">{{ resultOf(call) }}</code>
+                @if (call.ms !== undefined) { <span class="hk-chat-o40">{{ call.ms }}ms</span> }
+              }
+            </div>
+          }
+
+          @if (message.content || message.streaming) {
+            <div class="hk-chat-bubble" [class.is-user]="message.role === 'user'">
+              <span class="hk-chat-pre">{{ message.content }}</span>
+              @if (message.streaming) { <span class="hk-chat-caret" aria-hidden="true"></span> }
+            </div>
+          }
+
+          @if (message.error) {
+            <p class="hk-chat-error">
+              <svg class="hk-chat-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20Z" /><path d="M12 10v4M12 17.5v.5" /></svg>
+              {{ message.error }}
+            </p>
+          }
+
+          <p class="hk-chat-time">{{ timeOf(message) }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (notice()) {
+    <p class="hk-chat-notice" role="status">
+      <svg class="hk-chat-svg hk-chat-notice-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 7.5v.5" /></svg>
+      {{ notice() }}
+    </p>
+  }
+
+  <!-- Composer -->
+  <div class="hk-chat-composer">
+    <textarea #composer rows="1"
+      [value]="draft()"
+      (input)="draft.set($any($event.target).value)"
+      (keydown)="onKeydown($event)"
+      [placeholder]="listening() ? 'Listening…' : 'Ask something, or press the mic'"
+      aria-label="Message"
+      class="hk-chat-input"></textarea>
+
+    @if (interim()) {
+      <span class="hk-chat-interim">{{ interim() }}</span>
+    }
+
+    @if (canDictate()) {
+      <button type="button" (click)="toggleDictation()"
+        [attr.aria-pressed]="listening()"
+        [attr.aria-label]="listening() ? 'Stop dictation' : 'Start dictation'"
+        class="hk-chat-icon" [class.is-listening]="listening()">
+        <svg class="hk-chat-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
+      </button>
+    }
+
+    <button type="button" (click)="send()" [disabled]="!draft().trim() || busy()"
+      class="hk-chat-send" aria-label="Send">
+      <svg class="hk-chat-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4Z" /></svg>
+    </button>
+  </div>
+</div>

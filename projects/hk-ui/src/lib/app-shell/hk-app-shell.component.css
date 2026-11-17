@@ -1,0 +1,60 @@
+@layer components {
+  :host {
+    --hk-shell-edge: #e2e8f0;
+    --hk-shell-surface: var(--hk-shell-bg, #ffffff);
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  :host-context(.dark) {
+    --hk-shell-edge: rgb(255 255 255 / 0.1);
+    --hk-shell-surface: var(--hk-shell-bg, #0a0a0a);
+  }
+
+  .hk-shell-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: var(--hk-shell-header-h, 3.5rem);
+    border-bottom: 1px solid var(--hk-shell-edge);
+  }
+
+  .hk-shell-body {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .hk-shell-nav {
+    box-sizing: border-box;
+    width: var(--hk-shell-nav-w, 13rem);
+    flex-shrink: 0;
+    overflow: auto;
+    border-right: 1px solid var(--hk-shell-edge);
+    background: var(--hk-shell-surface);
+  }
+
+  .hk-shell-nav[hidden] {
+    display: none;
+  }
+
+  /* Below the breakpoint the rail floats over the content instead of
+     squeezing it. */
+  :host(.is-overlay) .hk-shell-nav {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 20;
+    box-shadow: 0 25px 50px -12px rgb(15 23 42 / 0.25);
+  }
+
+  .hk-shell-content {
+    flex: 1 1 0%;
+    min-width: 0;
+    overflow: auto;
+    background: var(--hk-shell-surface);
+  }
+}

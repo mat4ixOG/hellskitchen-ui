@@ -1,0 +1,57 @@
+@layer components {
+  /* Label colour and weight are inherited from the host, so a consumer can
+     set them with one class on <hk-checkbox>. */
+  :host {
+    display: block;
+    color: #334155;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  :host-context(.dark) { color: #d1d5db; }
+
+  .hk-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .hk-checkbox:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .hk-checkbox-box {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    box-sizing: border-box;
+    width: var(--hk-checkbox-size, 1rem);
+    height: var(--hk-checkbox-size, 1rem);
+    border: 1px solid #cbd5e1;
+    border-radius: 0.25rem;
+    color: var(--hk-checkbox-tick, #ffffff);
+    transition: background-color 150ms, border-color 150ms;
+  }
+  :host-context(.dark) .hk-checkbox-box { border-color: rgb(255 255 255 / 0.2); }
+  .hk-checkbox-box.is-on,
+  :host-context(.dark) .hk-checkbox-box.is-on {
+    border-color: var(--hk-checkbox-fill, #dc2626);
+    background: var(--hk-checkbox-fill, #dc2626);
+  }
+
+  .hk-checkbox-tick {
+    font-size: 0.72rem;
+    line-height: 1;
+  }
+  .hk-checkbox-dash {
+    width: 0.5rem;
+    height: 0.125rem;
+    background: var(--hk-checkbox-tick, #ffffff);
+  }
+  :host-context(.dark) .hk-checkbox-dash { background: var(--hk-checkbox-tick, #0a0a0a); }
+}

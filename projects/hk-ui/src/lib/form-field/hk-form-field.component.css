@@ -1,0 +1,72 @@
+@layer components {
+  :host {
+    display: block;
+  }
+
+  .hk-field-label {
+    display: block;
+    margin-bottom: var(--hk-field-gap, 0.375rem);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    color: #475569;
+  }
+  :host-context(.dark) .hk-field-label { color: #9ca3af; }
+
+  .hk-field-required { color: #dc2626; }
+  :host-context(.dark) .hk-field-required { color: #f87171; }
+
+  .hk-field-hint,
+  .hk-field-error {
+    margin: var(--hk-field-gap, 0.375rem) 0 0;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  .hk-field-hint { color: #475569; }
+  :host-context(.dark) .hk-field-hint { color: #9ca3af; }
+
+  .hk-field-error {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--hk-field-error, #dc2626);
+  }
+  :host-context(.dark) .hk-field-error { color: var(--hk-field-error, #f87171); }
+
+  /* The projected control belongs to the consumer's view, so it is reached
+     through ::ng-deep — but only beneath this host. */
+  :host ::ng-deep .hk-control {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background: #ffffff;
+    color: #0f172a;
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    outline: none;
+    transition: border-color 150ms;
+  }
+  :host ::ng-deep .hk-control:focus { border-color: #ef4444; }
+  :host ::ng-deep .hk-control[aria-invalid='true'] { border-color: #f87171; }
+
+  :host-context(.dark) ::ng-deep .hk-control {
+    border-color: rgb(255 255 255 / 0.1);
+    background: #0a0a0a;
+    color: #ffffff;
+  }
+  :host-context(.dark) ::ng-deep .hk-control:focus { border-color: rgb(220 38 38 / 0.7); }
+  :host-context(.dark) ::ng-deep .hk-control[aria-invalid='true'] { border-color: rgb(220 38 38 / 0.5); }
+
+  .hk-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

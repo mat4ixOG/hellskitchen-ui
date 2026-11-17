@@ -1,0 +1,50 @@
+/* Strip and travelling indicator. Every tab is one nth of the strip, so the
+   indicator's offset is arithmetic rather than measured. */
+@layer components {
+  :host {
+    display: block;
+    width: 100%;
+  }
+
+  .hk-tabs-list {
+    position: relative;
+    display: flex;
+    padding: 0.25rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background: var(--hk-tabs-track, #ffffff);
+  }
+
+  :host-context(.dark) .hk-tabs-list {
+    border-color: rgb(255 255 255 / 0.1);
+    background: var(--hk-tabs-track, #0a0a0a);
+  }
+
+  :host(.is-vertical) .hk-tabs-list {
+    flex-direction: column;
+  }
+
+  .hk-tabs-indicator {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: 0.25rem;
+    border-radius: 0.5rem;
+    background: var(--hk-tabs-indicator, linear-gradient(to right, var(--hk-accent, #dc2626), #991b1b));
+    box-shadow:
+      0 10px 15px -3px rgb(239 68 68 / 0.25),
+      0 4px 6px -4px rgb(239 68 68 / 0.25);
+    transition: transform 300ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  :host(.is-vertical) .hk-tabs-indicator {
+    bottom: auto;
+    right: 0.25rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hk-tabs-indicator {
+      transition: none;
+    }
+  }
+}

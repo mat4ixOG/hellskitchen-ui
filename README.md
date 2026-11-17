@@ -2,10 +2,12 @@
 
 [![og](public/og-image.png)](https://hellskitchen-ui.org)
 
-Free, MIT-licensed **Angular components** for Angular 19, 20, 21 and 22: a real
-**data table** with sorting, filtering, grouped headers, virtual scroll and CSV
-export, **line and bar charts**, a themeable **button**, and eight **animated
-WebGL backgrounds**. Standalone, signal-based, SSR-safe — no Tailwind, no icon
+Free, MIT-licensed **Angular components** for Angular 19, 20, 21 and 22 — 69 of
+them, every one importable from npm: forms (input, select, multi-select,
+combobox, date picker, file drop…), overlays (dialog, drawer, popover, tooltip,
+toast…), navigation (tabs, stepper, menu, command palette…), a real **data
+table**, **line and bar charts**, a tree, layout and feedback components, and
+eight **animated WebGL backgrounds**. Standalone, signal-based, SSR-safe — no Tailwind, no icon
 font, no global stylesheet.
 
 **[Live docs and demos →](https://hellskitchen-ui.org)** · **[All components →](https://hellskitchen-ui.org/components/)** · **[npm →](https://www.npmjs.com/package/hellskitchen-ui)**
@@ -25,13 +27,13 @@ This repository holds two things, and the difference matters:
 
 | | What it is | Published? |
 | --- | --- | --- |
-| `projects/hk-ui` | The library: button, data table, charts, eight animated backgrounds | **Yes** — `hellskitchen-ui` |
-| `src` | The documentation site, and ~60 demo components | No |
+| `projects/hk-ui` | The library: all 69 components documented on the site | **Yes** — `hellskitchen-ui` |
+| `src` | The documentation site, whose demos render the library components | No |
 
-The catalogue on the site documents far more components than the package
-exports. **Those extra entries are reference implementations, not exports** —
-self-contained code you can read and copy, written to show how the pattern is
-built. Only the four families in `projects/hk-ui` are importable from npm.
+Every component in the site's catalogue is exported from the package, and the
+site's demos import them from `hellskitchen-ui` exactly as a consumer would.
+`component-catalog.spec.ts` keeps the catalogue in step with the package's
+real exports.
 
 Every component is standalone and signal-based, styled with plain CSS. The
 package pulls in no Tailwind, no icon font and no global stylesheet.
@@ -39,7 +41,7 @@ package pulls in no Tailwind, no icon font and no global stylesheet.
 ## Layout
 
 ```
-projects/hk-ui/src/lib/   the library — button, table, charts, backgrounds
+projects/hk-ui/src/lib/   the library — one folder per component
 projects/hk-ui/src/       public-api.ts: the entire published surface
 src/app/shared/demos/     demo components rendered by the docs site
 src/app/shared/data/      the component catalogue (drives the site)

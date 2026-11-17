@@ -1,0 +1,66 @@
+@layer components {
+  :host {
+    --hk-switch-w: 2.75rem;
+    --hk-switch-h: 1.5rem;
+    --hk-switch-knob: 1.125rem;
+    --hk-switch-shift: 1.25rem;
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  :host([data-size='sm']) {
+    --hk-switch-w: 2.25rem;
+    --hk-switch-h: 1.25rem;
+    --hk-switch-knob: 0.875rem;
+    --hk-switch-shift: 1rem;
+  }
+  :host([data-size='lg']) {
+    --hk-switch-w: 3.5rem;
+    --hk-switch-h: 2rem;
+    --hk-switch-knob: 1.5rem;
+    --hk-switch-shift: 1.5rem;
+  }
+
+  .hk-switch-track {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    box-sizing: border-box;
+    width: var(--hk-switch-w);
+    height: var(--hk-switch-h);
+    padding: 0.25rem;
+    border: 0;
+    border-radius: 9999px;
+    background: var(--hk-switch-track, #cbd5e1);
+    cursor: pointer;
+    transition: background-color 300ms, box-shadow 300ms;
+  }
+  :host-context(.dark) .hk-switch-track { background: var(--hk-switch-track, #262626); }
+
+  .hk-switch-track.is-on { background: var(--hk-switch-on, #dc2626); }
+  .hk-switch-track.is-on.is-crimson,
+  :host-context(.dark) .hk-switch-track.is-on.is-crimson {
+    background: linear-gradient(to right, #dc2626, #991b1b);
+    box-shadow: 0 10px 15px -3px rgb(239 68 68 / 0.25), 0 4px 6px -4px rgb(239 68 68 / 0.25);
+  }
+  :host-context(.dark) .hk-switch-track.is-on:not(.is-crimson) { background: var(--hk-switch-on); }
+
+  .hk-switch-track:focus { outline: none; }
+  .hk-switch-track:focus-visible { box-shadow: 0 0 0 2px rgb(239 68 68 / 0.5); }
+  .hk-switch-track:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .hk-switch-thumb {
+    width: var(--hk-switch-knob);
+    height: var(--hk-switch-knob);
+    border-radius: 9999px;
+    background: var(--hk-switch-thumb, #ffffff);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    transition: transform 300ms var(--hk-switch-ease, cubic-bezier(0.34, 1.56, 0.64, 1));
+  }
+  :host-context(.dark) .hk-switch-thumb { background: var(--hk-switch-thumb, #0a0a0a); }
+  .is-on .hk-switch-thumb { transform: translateX(var(--hk-switch-shift)); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hk-switch-track, .hk-switch-thumb { transition: none; }
+  }
+}

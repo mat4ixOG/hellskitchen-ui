@@ -1,0 +1,79 @@
+@layer components {
+  :host { display: block; }
+
+  .hk-radio-group { display: flex; flex-direction: column; }
+  :host([data-orientation='horizontal']) .hk-radio-group { flex-direction: row; gap: 0.5rem; }
+
+  .hk-radio {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 0 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 150ms, background-color 150ms;
+  }
+  :host([data-orientation='horizontal']) .hk-radio { margin: 0; }
+  .hk-radio:hover { border-color: #cbd5e1; }
+  .hk-radio.is-selected,
+  .hk-radio.is-selected:hover {
+    border-color: #fca5a5;
+    background: #fef2f2;
+  }
+  :host-context(.dark) .hk-radio {
+    border-color: rgb(255 255 255 / 0.1);
+    background: rgb(255 255 255 / 0.03);
+  }
+  :host-context(.dark) .hk-radio:hover { border-color: rgb(255 255 255 / 0.2); }
+  :host-context(.dark) .hk-radio.is-selected {
+    border-color: rgb(185 28 28 / 0.6);
+    background: rgb(69 10 10 / 0.4);
+  }
+
+  .hk-radio-ring {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    box-sizing: border-box;
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.125rem;
+    border: 1px solid var(--hk-radio-border, #94a3b8);
+    border-radius: 9999px;
+  }
+  :host-context(.dark) .hk-radio-ring { border-color: var(--hk-radio-border, rgb(255 255 255 / 0.25)); }
+  .is-selected .hk-radio-ring { border-color: #ef4444; }
+  :host-context(.dark) .is-selected .hk-radio-ring { border-color: rgb(220 38 38 / 0.7); }
+
+  .hk-radio-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--hk-radio-dot, #ef4444);
+  }
+
+  .hk-radio-label {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  :host-context(.dark) .hk-radio-label { color: #ffffff; }
+
+  .hk-radio-hint {
+    display: block;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #475569;
+  }
+  :host-context(.dark) .hk-radio-hint { color: #9ca3af; }
+}

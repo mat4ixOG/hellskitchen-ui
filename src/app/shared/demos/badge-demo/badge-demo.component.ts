@@ -1,27 +1,21 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { HkBadgeComponent } from 'hellskitchen-ui';
 
 /** Count, dot and overflow ("99+"), anchored to whatever you like. */
 @Component({
   selector: 'app-badge-demo',
+  imports: [HkBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="w-full max-w-sm">
       <div class="flex items-center gap-6 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] p-6">
-        <span class="relative inline-block">
+        <hk-badge [count]="count()" [max]="99">
           <i class="pi pi-bell text-xl text-slate-700 dark:text-gray-300"></i>
-          @if (count() > 0) {
-            <span class="absolute -right-2 -top-2 min-w-4 rounded-full bg-red-600 px-1 text-center text-[0.72rem] font-bold leading-4 text-white">
-              {{ label() }}
-            </span>
-          }
-        </span>
+        </hk-badge>
 
-        <span class="relative inline-block">
+        <hk-badge variant="dot" [count]="count()">
           <i class="pi pi-inbox text-xl text-slate-700 dark:text-gray-300"></i>
-          @if (count() > 0) {
-            <span class="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-black"></span>
-          }
-        </span>
+        </hk-badge>
 
         <button type="button"
           class="relative rounded-xl border border-slate-200 dark:border-white/10 px-3 py-1.5 text-xs text-slate-700 dark:text-gray-300">

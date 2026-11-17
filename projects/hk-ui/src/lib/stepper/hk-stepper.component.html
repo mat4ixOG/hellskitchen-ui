@@ -1,0 +1,86 @@
+@switch (variant()) {
+
+  <!-- Rail: numbered markers on a filling track -->
+  @case ('rail') {
+    <div class="hk-step-rail">
+      <span aria-hidden="true" class="hk-step-track"></span>
+      <span aria-hidden="true" class="hk-step-fill"
+        [style.width.%]="orientation() === 'horizontal' ? railFill() : null"
+        [style.height.%]="orientation() === 'vertical' ? railFill() : null"></span>
+
+      @for (item of steps(); track $index) {
+        <button type="button" class="hk-step-rail-item" (click)="go($index)"
+          [class.is-reached]="$index <= step()"
+          [attr.aria-current]="step() === $index ? 'step' : null">
+          <span class="hk-step-marker">
+            @if ($index < step()) {
+              <svg class="hk-step-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+            } @else {
+              {{ $index + 1 }}
+            }
+          </span>
+          <span class="hk-step-rail-label">{{ item.label() }}</span>
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Panels: a vertical rail that carries its own copy -->
+  @case ('panels') {
+    <ol class="hk-step-panels">
+      @for (item of steps(); track $index) {
+        <li class="hk-step-panel" [class.is-reached]="$index <= step()" [class.is-done]="$index < step()">
+          @if (!$last) {
+            <span aria-hidden="true" class="hk-step-connector"></span>
+          }
+
+          <button type="button" class="hk-step-marker is-small" (click)="go($index)"
+            [attr.aria-current]="step() === $index ? 'step' : null">
+            @if ($index < step()) {
+              <svg class="hk-step-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+            } @else {
+              {{ $index + 1 }}
+            }
+          </button>
+
+          <div class="hk-step-panel-body">
+            <p class="hk-step-panel-title">{{ item.label() }}</p>
+            @if ($index === step() && item.detail()) {
+              <p class="hk-step-detail">{{ item.detail() }}</p>
+            }
+          </div>
+
+          @if ($index < step()) {
+            <span class="hk-step-done">Done</span>
+          }
+        </li>
+      }
+    </ol>
+  }
+
+  <!-- Progress: the compact one, for a wizard header -->
+  @case ('progress') {
+    <div class="hk-step-progress">
+      @if (current(); as active) {
+        <div class="hk-step-progress-head">
+          <p class="hk-step-progress-title">{{ active.label() }}</p>
+          <p class="hk-step-progress-count">Step {{ step() + 1 }} of {{ steps().length }}</p>
+        </div>
+        @if (active.detail()) {
+          <p class="hk-step-detail">{{ active.detail() }}</p>
+        }
+      }
+
+      <div class="hk-step-segments" role="progressbar" [attr.aria-valuenow]="step() + 1"
+        aria-valuemin="1" [attr.aria-valuemax]="steps().length">
+        @for (item of steps(); track $index) {
+          <button type="button" class="hk-step-segment" (click)="go($index)"
+            [attr.aria-label]="'Go to ' + item.label()"
+            [attr.aria-current]="step() === $index ? 'step' : null">
+            <span [style.transform]="'scaleX(' + ($index <= step() ? 1 : 0) + ')'"></span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+}

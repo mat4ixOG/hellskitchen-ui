@@ -1,0 +1,35 @@
+<nav class="hk-side" aria-label="Sidebar">
+  @for (section of sections(); track section.id) {
+    <div>
+      <button type="button" class="hk-side-row" (click)="pick(section)"
+        [class.is-active]="activeBranch() === section.id"
+        [attr.aria-current]="active() === section.id ? 'page' : null"
+        [attr.aria-expanded]="section.children?.length && !collapsed() ? open() === section.id : null"
+        [attr.aria-label]="collapsed() ? section.label : null">
+        @if (section.icon) {
+          <svg class="hk-side-icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="section.icon" /></svg>
+        }
+        @if (!collapsed()) {
+          <span class="hk-side-label">{{ section.label }}</span>
+          @if (section.children?.length) {
+            <span class="hk-side-caret" [class.is-open]="open() === section.id" aria-hidden="true">›</span>
+          }
+        }
+      </button>
+
+      @if (!collapsed() && section.children?.length && open() === section.id) {
+        <ul class="hk-side-children">
+          @for (child of section.children; track child.id) {
+            <li>
+              <button type="button" class="hk-side-child" (click)="pickChild(child)"
+                [class.is-active]="active() === child.id"
+                [attr.aria-current]="active() === child.id ? 'page' : null">
+                {{ child.label }}
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</nav>

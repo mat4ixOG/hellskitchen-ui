@@ -1,51 +1,34 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { HkAvatarComponent, HkAvatarStackComponent } from 'hellskitchen-ui';
 
 /** Initials fallback, status ring and a stack that collapses with a +N. */
 @Component({
   selector: 'app-avatar-demo',
+  imports: [HkAvatarComponent, HkAvatarStackComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="w-full max-w-sm space-y-5">
       <div class="flex items-center gap-4">
         @for (person of people; track person.name) {
-          <span class="relative inline-block">
-            <span class="grid h-11 w-11 place-items-center rounded-full text-xs font-bold text-slate-900 dark:text-white"
-              [class]="person.skin">{{ initials(person.name) }}</span>
-            @if (person.online) {
-              <span class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-black"></span>
-            }
-          </span>
+          <hk-avatar [name]="person.name" [online]="person.online" [style.--hk-avatar-bg]="person.bg" />
         }
       </div>
 
-      <div class="flex items-center">
-        @for (person of people.slice(0, shown()); track person.name) {
-          <span class="-ml-2 grid h-9 w-9 place-items-center rounded-full text-[0.72rem] font-bold text-slate-900 dark:text-white ring-2 ring-white dark:ring-black first:ml-0"
-            [class]="person.skin">{{ initials(person.name) }}</span>
+      <hk-avatar-stack [max]="3">
+        @for (person of people; track person.name) {
+          <hk-avatar size="sm" [name]="person.name" [style.--hk-avatar-bg]="person.bg" />
         }
-        @if (people.length > shown()) {
-          <button type="button" (click)="shown.set(people.length)"
-            class="-ml-2 grid h-9 w-9 place-items-center rounded-full bg-slate-200 dark:bg-white/10 text-[0.72rem] font-bold text-slate-700 dark:text-gray-300 ring-2 ring-white dark:ring-black">
-            +{{ people.length - shown() }}
-          </button>
-        }
-      </div>
+      </hk-avatar-stack>
       <p class="text-xs text-slate-600 dark:text-gray-400">{{ people.length }} people on call this week.</p>
     </div>
   `
 })
 export class AvatarDemoComponent {
   readonly people = [
-    { name: 'Debashish Roy', online: true, skin: 'bg-gradient-to-br from-red-600 to-red-900' },
-    { name: 'Aisha Khan', online: true, skin: 'bg-gradient-to-br from-amber-600 to-amber-900' },
-    { name: 'Marco Silva', online: false, skin: 'bg-gradient-to-br from-sky-600 to-sky-900' },
-    { name: 'Lena Fischer', online: false, skin: 'bg-gradient-to-br from-emerald-600 to-emerald-900' },
-    { name: 'Yuki Tanaka', online: true, skin: 'bg-gradient-to-br from-violet-600 to-violet-900' }
+    { name: 'Debashish Roy', online: true, bg: 'linear-gradient(to bottom right, #dc2626, #7f1d1d)' },
+    { name: 'Aisha Khan', online: true, bg: 'linear-gradient(to bottom right, #d97706, #78350f)' },
+    { name: 'Marco Silva', online: false, bg: 'linear-gradient(to bottom right, #0284c7, #0c4a6e)' },
+    { name: 'Lena Fischer', online: false, bg: 'linear-gradient(to bottom right, #059669, #064e3b)' },
+    { name: 'Yuki Tanaka', online: true, bg: 'linear-gradient(to bottom right, #7c3aed, #4c1d95)' }
   ];
-
-  readonly shown = signal(3);
-
-  initials(name: string): string {
-    return name.split(' ').map((part) => part[0]).join('').slice(0, 2);
-  }
 }

@@ -4,6 +4,8 @@
  * The Web Speech API is still prefixed in most browsers and simply absent in
  * some, so everything here degrades to "the button is not shown" rather than
  * throwing. It is also entirely browser-side — nothing here runs during SSR.
+ *
+ * Internal to the chatbot; not part of the public API.
  */
 
 // The DOM lib does not ship these; this is the shape actually used.
@@ -40,34 +42,27 @@ function recognitionCtor(): SpeechRecognitionCtor | null {
     | null;
 }
 
-export function dictationSupported(): boolean {
+export function hkChatbotDictationSupported(): boolean {
   return recognitionCtor() !== null;
 }
 
-export function speechSupported(): boolean {
+export function hkChatbotSpeechSupported(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
 
-export interface DictationHandlers {
+export interface HkChatbotDictationHandlers {
   /** Fires as the user speaks — `final` says whether it will still change. */
   onTranscript: (text: string, final: boolean) => void;
   onError: (message: string) => void;
   onEnd: () => void;
 }
 
-/**
- * A microphone session. `stop()` ends it politely and keeps what was heard;
- * `cancel()` throws it away.
- */
-export class HkDictation {
+/** A microphone session. `stop()` keeps what was heard; `cancel()` throws it away. */
+export class HkChatbotDictation {
   private recognition: SpeechRecognitionLike | null = null;
   private cancelled = false;
 
-  constructor(private readonly handlers: DictationHandlers) {}
-
-  get active(): boolean {
-    return this.recognition !== null;
-  }
+  constructor(private readonly handlers: HkChatbotDictationHandlers) {}
 
   start(lang = 'en-US'): boolean {
     const Ctor = recognitionCtor();
@@ -129,22 +124,16 @@ export class HkDictation {
 }
 
 /**
- * Speaks assistant replies.
- *
- * Chunked by sentence on purpose: a single utterance of a long reply cannot be
- * stopped cleanly mid-way in several browsers, and queueing sentences also lets
- * speech start before the stream has finished arriving.
+ * Speaks assistant replies, chunked by sentence: a single long utterance cannot
+ * be stopped cleanly in several browsers, and queueing sentences lets speech
+ * start before the stream has finished arriving.
  */
-export class HkSpeaker {
+export class HkChatbotSpeaker {
   private queue: string[] = [];
   private speaking = false;
 
-  get available(): boolean {
-    return speechSupported();
-  }
-
   speak(text: string): void {
-    if (!this.available) return;
+    if (!hkChatbotSpeechSupported()) return;
     const clean = text.trim();
     if (!clean) return;
     const sentences = clean.match(/[^.!?]+[.!?]*\s*/g) ?? [clean];
@@ -169,6 +158,6 @@ export class HkSpeaker {
   stop(): void {
     this.queue = [];
     this.speaking = false;
-    if (this.available) window.speechSynthesis.cancel();
+    if (hkChatbotSpeechSupported()) window.speechSynthesis.cancel();
   }
 }

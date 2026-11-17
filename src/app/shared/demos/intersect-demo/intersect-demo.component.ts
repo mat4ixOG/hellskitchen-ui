@@ -1,14 +1,18 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, afterNextRender, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { HkIntersectDirective } from 'hellskitchen-ui';
 
 /** Emits on enter and on exit — the "is this still on screen" primitive. */
 @Component({
   selector: 'app-intersect-demo',
+  imports: [HkIntersectDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="w-full max-w-sm">
       <div #viewport class="h-44 overflow-auto rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] p-4">
         <p class="pb-28 text-center text-xs text-slate-600 dark:text-gray-400">↓ scroll the target into view</p>
-        <div #target class="rounded-xl border px-3 py-6 text-center text-xs transition-colors duration-300"
+        <div hkIntersect [intersectRoot]="viewport" [intersectThreshold]="0.5"
+          (entered)="onEnter()" (left)="onLeave()"
+          class="rounded-xl border px-3 py-6 text-center text-xs transition-colors duration-300"
           [class]="visible()
             ? 'border-emerald-300 dark:border-emerald-700/60 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
             : 'border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-600 dark:text-gray-400'">
@@ -24,31 +28,17 @@ import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, afterNextRe
   `
 })
 export class IntersectDemoComponent {
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-
   readonly visible = signal(false);
   readonly enters = signal(0);
   readonly exits = signal(0);
 
-  constructor() {
-    const destroyRef = inject(DestroyRef);
+  onEnter(): void {
+    this.visible.set(true);
+    this.enters.update((count) => count + 1);
+  }
 
-    afterNextRender(() => {
-      const root = this.host.nativeElement.querySelector<HTMLElement>('[class*="overflow-auto"]');
-      const target = this.host.nativeElement.querySelector<HTMLElement>('[class*="py-6"]');
-      if (!root || !target) return;
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          const showing = entry.isIntersecting;
-          if (showing === this.visible()) return;
-          this.visible.set(showing);
-          (showing ? this.enters : this.exits).update((count) => count + 1);
-        },
-        { root, threshold: 0.5 }
-      );
-      observer.observe(target);
-      destroyRef.onDestroy(() => observer.disconnect());
-    });
+  onLeave(): void {
+    this.visible.set(false);
+    this.exits.update((count) => count + 1);
   }
 }

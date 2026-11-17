@@ -1,0 +1,47 @@
+<div class="hk-dp">
+  <div class="hk-dp-head">
+    <button type="button" class="hk-dp-nav" (click)="shift(-1)" aria-label="Previous month">‹</button>
+    <span class="hk-dp-title" aria-live="polite">{{ label() }}</span>
+    <button type="button" class="hk-dp-nav" (click)="shift(1)" aria-label="Next month">›</button>
+  </div>
+
+  <div class="hk-dp-grid hk-dp-weekdays" aria-hidden="true">
+    @for (day of dayNames(); track $index) { <span>{{ day }}</span> }
+  </div>
+
+  <div class="hk-dp-grid">
+    @for (day of days(); track $index) {
+      @if (day === 0) {
+        <span></span>
+      } @else {
+        <button type="button" class="hk-dp-day"
+          [class.is-selected]="isSelected(day)"
+          [class.is-range]="!isSelected(day) && inRange(day)"
+          [class.is-today]="isToday(day)"
+          [disabled]="isDisabled(day)"
+          [attr.aria-pressed]="isSelected(day)"
+          [attr.aria-label]="dayLabel(day)"
+          (click)="pick(day)">{{ day }}</button>
+      }
+    }
+  </div>
+
+  @if (showTime()) {
+    <div class="hk-dp-time">
+      <span class="hk-dp-muted">Time</span>
+      <input type="number" class="hk-dp-num" aria-label="Hour"
+        [min]="hourFormat() === '12' ? 1 : 0" [max]="hourFormat() === '12' ? 12 : 23"
+        [value]="displayHour()" (input)="setHour($any($event.target).value)" />
+      <span class="hk-dp-faint">:</span>
+      <input type="number" class="hk-dp-num" aria-label="Minute" min="0" max="59"
+        [value]="minute()" (input)="setMinute($any($event.target).value)" />
+      @if (hourFormat() === '12') {
+        <button type="button" class="hk-dp-btn" (click)="toggleMeridiem()"
+          [attr.aria-label]="'Switch to ' + (meridiem() === 'AM' ? 'PM' : 'AM')">{{ meridiem() }}</button>
+      }
+      <button type="button" class="hk-dp-btn hk-dp-now" (click)="now()">Now</button>
+    </div>
+  }
+
+  <p class="hk-dp-hint">{{ hint() }}</p>
+</div>

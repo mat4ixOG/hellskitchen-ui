@@ -1,0 +1,210 @@
+<div class="hk-sf-card">
+  <h3 class="hk-sf-title">Create your account</h3>
+  <p class="hk-sf-sub">Free for the first three services.</p>
+
+  <!-- SSO first: a returning user should not read a form they will skip. -->
+  @if (providers().length) {
+    <div class="hk-sf-sso">
+      @for (provider of providers(); track provider) {
+        <button type="button" class="hk-sf-sso-btn" (click)="useSso(provider)" [disabled]="busy()">
+          @switch (provider) {
+            @case ('google') {
+              <svg class="hk-sf-brand is-google" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+                <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" />
+                <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" />
+                <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" />
+                <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" />
+              </svg>
+            }
+            @case ('github') {
+              <svg class="hk-sf-brand is-mono" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+              </svg>
+            }
+            @case ('microsoft') {
+              <svg class="hk-sf-brand is-microsoft" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <rect x="0" y="0" width="7.5" height="7.5" />
+                <rect x="8.5" y="0" width="7.5" height="7.5" />
+                <rect x="0" y="8.5" width="7.5" height="7.5" />
+                <rect x="8.5" y="8.5" width="7.5" height="7.5" />
+              </svg>
+            }
+            @case ('apple') {
+              <svg class="hk-sf-brand is-mono" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701" />
+              </svg>
+            }
+          }
+          {{ label(provider) }}
+        </button>
+      }
+    </div>
+
+    <div class="hk-sf-divider">
+      <span></span>
+      <span class="hk-sf-divider-text">or with email</span>
+      <span></span>
+    </div>
+  }
+
+  <!-- novalidate: the browser's own bubbles would pre-empt the messages
+       below, and they cannot be styled or translated. -->
+  <form class="hk-sf-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+    <label class="hk-sf-label">
+      <span class="hk-sf-caption">Full name</span>
+      <span class="hk-sf-field" [class.is-invalid]="showError('name')">
+        <span class="hk-sf-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+        </span>
+        <input class="hk-sf-input" formControlName="name" autocomplete="name" placeholder="Dee Dash"
+          [id]="id + '-name'"
+          [attr.aria-invalid]="showError('name')"
+          [attr.aria-describedby]="showError('name') ? id + '-name-error' : null" />
+      </span>
+      @if (showError('name')) {
+        <span class="hk-sf-error" [id]="id + '-name-error'">{{ errorFor('name') }}</span>
+      }
+    </label>
+
+    <label class="hk-sf-label">
+      <span class="hk-sf-caption">Work email</span>
+      <span class="hk-sf-field" [class.is-invalid]="showError('email')">
+        <span class="hk-sf-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" />
+          </svg>
+        </span>
+        <input class="hk-sf-input" formControlName="email" type="email" autocomplete="email" placeholder="you@team.com"
+          [id]="id + '-email'"
+          [attr.aria-invalid]="showError('email')"
+          [attr.aria-describedby]="showError('email') ? id + '-email-error' : null" />
+      </span>
+      @if (showError('email')) {
+        <span class="hk-sf-error" [id]="id + '-email-error'">{{ errorFor('email') }}</span>
+      }
+    </label>
+
+    <label class="hk-sf-label">
+      <span class="hk-sf-caption">Password</span>
+      <span class="hk-sf-field" [class.is-invalid]="showError('password')">
+        <span class="hk-sf-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
+          </svg>
+        </span>
+        <input class="hk-sf-input" formControlName="password" [type]="revealed() ? 'text' : 'password'"
+          autocomplete="new-password" placeholder="At least 12 characters"
+          [id]="id + '-password'"
+          [attr.aria-invalid]="showError('password')"
+          [attr.aria-describedby]="showError('password') ? id + '-password-error' : null" />
+        <button type="button" class="hk-sf-reveal" (click)="revealed.set(!revealed())" [attr.aria-pressed]="revealed()"
+          [attr.aria-label]="revealed() ? 'Hide password' : 'Show password'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" />
+            @if (revealed()) { <path d="M3 3l18 18" /> }
+          </svg>
+        </button>
+      </span>
+
+      @if (control('password').value) {
+        <span class="hk-sf-meter" aria-hidden="true">
+          @for (band of [1, 2, 3, 4, 5]; track band) {
+            <span class="hk-sf-band">
+              <span class="hk-sf-band-fill" [attr.data-score]="score()"
+                [style.transform]="'scaleX(' + (band <= score() ? 1 : 0) + ')'"></span>
+            </span>
+          }
+        </span>
+        <span class="hk-sf-strength">{{ strengthLabel() }}</span>
+      }
+
+      @if (showError('password')) {
+        <span class="hk-sf-error" [id]="id + '-password-error'">{{ errorFor('password') }}</span>
+      }
+    </label>
+
+    <label class="hk-sf-label">
+      <span class="hk-sf-caption">Confirm password</span>
+      <span class="hk-sf-field" [class.is-invalid]="showError('confirm') || mismatch">
+        <span class="hk-sf-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" /><path d="m8 12 3 3 5-6" />
+          </svg>
+        </span>
+        <input class="hk-sf-input" formControlName="confirm" [type]="revealed() ? 'text' : 'password'"
+          autocomplete="new-password" placeholder="Type it again"
+          [id]="id + '-confirm'"
+          [attr.aria-invalid]="mismatch || showError('confirm')"
+          [attr.aria-describedby]="mismatch || showError('confirm') ? id + '-confirm-error' : null" />
+      </span>
+      @if (mismatch) {
+        <span class="hk-sf-error" [id]="id + '-confirm-error'">The two passwords do not match.</span>
+      } @else if (showError('confirm')) {
+        <span class="hk-sf-error" [id]="id + '-confirm-error'">{{ errorFor('confirm') }}</span>
+      }
+    </label>
+
+    @if (roles().length) {
+      <label class="hk-sf-label">
+        <span class="hk-sf-caption">What do you do?</span>
+        <select class="hk-sf-select" formControlName="role" [class.is-invalid]="showError('role')"
+          [id]="id + '-role'"
+          [attr.aria-invalid]="showError('role')"
+          [attr.aria-describedby]="showError('role') ? id + '-role-error' : null">
+          <option value="" disabled>Pick one</option>
+          @for (role of roles(); track role) { <option [value]="role">{{ role }}</option> }
+        </select>
+        @if (showError('role')) {
+          <span class="hk-sf-error" [id]="id + '-role-error'">{{ errorFor('role') }}</span>
+        }
+      </label>
+    }
+
+    <div class="hk-sf-checks">
+      @if (requireTerms()) {
+        <label class="hk-sf-check">
+          <input type="checkbox" formControlName="terms"
+            [id]="id + '-terms'"
+            [attr.aria-invalid]="showError('terms')"
+            [attr.aria-describedby]="showError('terms') ? id + '-terms-error' : null" />
+          <span>
+            I agree to the <a href="#" class="hk-sf-link">terms</a>
+            and <a href="#" class="hk-sf-link">privacy policy</a>.
+          </span>
+        </label>
+        @if (showError('terms')) {
+          <p class="hk-sf-error" [id]="id + '-terms-error'">{{ errorFor('terms') }}</p>
+        }
+      }
+
+      <label class="hk-sf-check">
+        <input type="checkbox" formControlName="updates" />
+        <span>Send me release notes. No more than once a month.</span>
+      </label>
+    </div>
+
+    @if (error()) {
+      <p class="hk-sf-server" role="alert">{{ error() }}</p>
+    }
+
+    <!-- Never disabled on invalid: a button that goes dead gives no reason
+         why. Submitting an invalid form is what surfaces every message. -->
+    <button type="submit" class="hk-sf-submit" [disabled]="busy()">
+      @if (busy()) {
+        <span class="hk-sf-spinner" aria-hidden="true"></span>
+        Creating…
+      } @else {
+        Create account
+      }
+    </button>
+
+    @if (attempted() && form.invalid && !busy()) {
+      <p class="hk-sf-summary" role="alert">
+        {{ invalidCount() }} field{{ invalidCount() === 1 ? '' : 's' }} still need attention.
+      </p>
+    }
+  </form>
+</div>

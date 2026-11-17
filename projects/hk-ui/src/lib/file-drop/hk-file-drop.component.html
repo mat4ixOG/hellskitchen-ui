@@ -1,0 +1,51 @@
+<div class="hk-fd-zone" [class.is-hot]="hot()" [class.is-disabled]="disabled()"
+  (dragover)="onDragOver($event)" (dragleave)="hot.set(false)" (drop)="onDrop($event)">
+  <p class="hk-fd-title">Drop files here</p>
+  <p class="hk-fd-or">or</p>
+  <label class="hk-fd-browse">
+    Browse
+    <input type="file" class="hk-fd-input" [multiple]="multiple()" [disabled]="disabled()"
+      [attr.accept]="acceptAttr()" (change)="onPick($event)" />
+  </label>
+</div>
+
+@if (rejections().length) {
+  <ul class="hk-fd-rejections" role="alert">
+    @for (rejection of rejections(); track $index) {
+      <li>{{ rejection.file.name }} — {{ reasonText(rejection) }}</li>
+    }
+  </ul>
+}
+
+@if (items().length) {
+  <ul class="hk-fd-list">
+    @for (item of items(); track item) {
+      <li class="hk-fd-item">
+        <div class="hk-fd-row">
+          <span class="hk-fd-name">{{ item.file.name }}</span>
+          @if (item.progress === 100) {
+            <span class="hk-fd-done" role="status">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <path d="m8 12 3 3 5-6" />
+              </svg>
+              Uploaded
+            </span>
+          } @else {
+            <span class="hk-fd-pct">{{ item.progress }}%</span>
+          }
+        </div>
+
+        <!-- The bar is a progress indicator, not a receipt: once the file
+             is up it has nothing left to say, so it leaves. -->
+        @if (item.progress < 100 || keepProgress()) {
+          <div class="hk-fd-track" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+            [attr.aria-valuenow]="item.progress" [attr.aria-label]="item.file.name">
+            <span class="hk-fd-bar" [style.width.%]="item.progress"></span>
+          </div>
+        }
+      </li>
+    }
+  </ul>
+}

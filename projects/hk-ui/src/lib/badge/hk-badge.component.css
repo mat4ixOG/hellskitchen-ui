@@ -1,0 +1,43 @@
+@layer components {
+  :host {
+    --hk-badge-bg: #dc2626;
+    --hk-badge-text: #ffffff;
+    --hk-badge-ring: #ffffff;
+
+    position: relative;
+    display: inline-block;
+  }
+
+  :host-context(.dark) { --hk-badge-ring: #000000; }
+
+  :host([data-tone='neutral']) { --hk-badge-bg: #475569; }
+  :host([data-tone='success']) { --hk-badge-bg: #059669; }
+
+  .hk-badge-count {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    box-sizing: border-box;
+    min-width: 1rem;
+    padding: 0 0.25rem;
+    border-radius: 999px;
+    background: var(--hk-badge-bg);
+    color: var(--hk-badge-text);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .hk-badge-dot {
+    position: absolute;
+    top: -0.125rem;
+    right: -0.125rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--hk-badge-bg);
+    box-shadow: 0 0 0 2px var(--hk-badge-ring);
+  }
+}

@@ -78,18 +78,20 @@ in the same application without colliding.
 
 ## Important: what npm actually ships
 
-This site documents ${components.length} components. Only ${packaged.length} of them are exported from
+${
+  reference.length
+    ? `This site documents ${components.length} components. Only ${packaged.length} of them are exported from
 the \`hellskitchen-ui\` package. The rest are reference implementations —
 self-contained source to read and copy, written to show how the pattern is
 built. **Do not write an import for anything in the reference section; it will
-not resolve.**
+not resolve.**`
+    : `All ${components.length} components documented on this site are exported from the
+\`hellskitchen-ui\` package.`
+}
 
 ## Exported from \`hellskitchen-ui\`
 ${byCategory(packaged)}
-
-## Reference implementations (copy the source, do not import)
-${byCategory(reference)}
-
+${reference.length ? `\n## Reference implementations (copy the source, do not import)\n${byCategory(reference)}\n` : ''}
 ## Guides
 
 ${guideList.map((g) => `- [${g.title}](${siteUrl}/docs/guide/${g.id}/): ${g.blurb}`).join('\n')}

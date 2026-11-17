@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { CountUpDirective } from '../../directives/count-up.directive';
+import { HkCountUpDirective } from 'hellskitchen-ui';
 
 /** Animates a number into view; retriggers when the target changes. */
 @Component({
   selector: 'app-count-up-demo',
-  imports: [CountUpDirective],
+  imports: [HkCountUpDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="w-full max-w-sm text-center">
       <div class="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-6 py-8">
         <p class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-          <span appCountUp [countTo]="target()" [countDuration]="1400" countPrefix="$" [countDecimals]="0">0</span>
+          <span hkCountUp [countTo]="target()" [countDuration]="1400" countPrefix="$" [countDecimals]="0">0</span>
         </p>
         <p class="mt-2 text-xs text-slate-600 dark:text-gray-400">Annual recurring revenue</p>
       </div>

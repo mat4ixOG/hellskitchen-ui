@@ -22,12 +22,16 @@
       </button>
     </header>
 
-    <app-chat-panel
-      class="flex min-h-0 flex-1 flex-col p-3"
-      logHeight="100%"
-      [showToolbar]="false"
-      [suggestions]="suggestions"
-      emptyMessage="Ask about the library, or try one of these." />
+    <!-- Deferred so the panel (and the hellskitchen-ui code behind it) stays
+         out of the initial bundle this app-shell component lives in. -->
+    @defer (on immediate) {
+      <app-chat-panel #chatPanel
+        class="flex min-h-0 flex-1 flex-col p-3"
+        logHeight="100%"
+        [showToolbar]="false"
+        [suggestions]="suggestions"
+        emptyMessage="Ask about the library, or try one of these." />
+    }
   </div>
 }
 

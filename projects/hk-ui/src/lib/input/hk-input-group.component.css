@@ -1,0 +1,51 @@
+@layer components {
+  :host {
+    --hk-ig-border: var(--hk-input-border, #e2e8f0);
+    --hk-ig-focus: var(--hk-input-border-focus, #ef4444);
+    --hk-ig-bg: var(--hk-input-bg, #ffffff);
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    border: 1px solid var(--hk-ig-border);
+    border-radius: 0.75rem;
+    background: var(--hk-ig-bg);
+    font-size: 0.875rem;
+    transition: border-color 150ms;
+  }
+  :host(:focus-within) { border-color: var(--hk-ig-focus); }
+
+  :host-context(.dark) {
+    --hk-ig-border: var(--hk-input-border, rgb(255 255 255 / 0.1));
+    --hk-ig-focus: var(--hk-input-border-focus, rgb(220 38 38 / 0.7));
+    --hk-ig-bg: var(--hk-input-bg, #0a0a0a);
+  }
+
+  /* Addons are projected from the consumer's view, so they are reached
+     through ::ng-deep — scoped beneath this host only. */
+  :host ::ng-deep .hk-input-group-addon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    margin: 0;
+    padding: 0 0.875rem;
+    border: 0;
+    background: #f8fafc;
+    color: #334155;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 150ms, color 150ms;
+  }
+  :host ::ng-deep .hk-input-group-addon:hover:not(:disabled) { background: #f1f5f9; }
+  :host ::ng-deep .hk-input-group-addon:disabled { opacity: 0.4; cursor: not-allowed; }
+  :host ::ng-deep .hk-input-group-addon:first-child { border-right: 1px solid #e2e8f0; }
+  :host ::ng-deep .hk-input-group-addon:last-child { border-left: 1px solid #e2e8f0; }
+
+  :host-context(.dark) ::ng-deep .hk-input-group-addon {
+    border-color: rgb(255 255 255 / 0.1);
+    background: rgb(255 255 255 / 0.04);
+    color: #e5e7eb;
+  }
+  :host-context(.dark) ::ng-deep .hk-input-group-addon:hover:not(:disabled) { background: rgb(255 255 255 / 0.08); }
+}

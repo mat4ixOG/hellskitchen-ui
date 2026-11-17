@@ -36,7 +36,9 @@ export class ChatLauncherComponent {
   private readonly launcher = inject(ChatLauncherService);
   private readonly panelEl = viewChild<ElementRef<HTMLElement>>('panelEl');
   private readonly buttonEl = viewChild<ElementRef<HTMLButtonElement>>('buttonEl');
-  private readonly chat = viewChild(ChatPanelComponent);
+  // Queried by template ref, not by class: a class reference would pull the
+  // deferred panel back into the initial bundle.
+  private readonly chat = viewChild<ChatPanelComponent>('chatPanel');
 
   /** Read straight off the service — the template renders nothing when off. */
   readonly enabled = this.launcher.enabled;
@@ -73,6 +75,13 @@ export class ChatLauncherComponent {
         this.launcher.enable();
         this.openPanel();
       });
+    });
+
+    // The panel is deferred, so on first open it arrives after openPanel()
+    // already tried to focus it; focus it once it actually exists.
+    effect(() => {
+      const chat = this.chat();
+      if (chat && untracked(this.open)) queueMicrotask(() => chat.focusComposer());
     });
 
     let firstClose = true;

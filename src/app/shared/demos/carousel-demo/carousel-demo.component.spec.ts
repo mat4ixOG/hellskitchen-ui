@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { CarouselDemoComponent } from './carousel-demo.component';
 
 describe('CarouselDemoComponent', () => {
@@ -15,92 +16,40 @@ describe('CarouselDemoComponent', () => {
     fixture.detectChanges();
   });
 
-  it('wraps in both directions when looping', () => {
+  it('renders one library slide per entry', () => {
+    const slides = fixture.debugElement.queryAll(By.css('hk-slide'));
+    expect(slides.length).toBe(component.slides.length);
+    expect(slides[0].nativeElement.getAttribute('aria-label')).toBe(`1 of ${component.slides.length}`);
+  });
+
+  it('wraps when looping, through the two-way bound index', () => {
     component.loop.set(true);
-    component.prev();
-    expect(component.index()).toBe(component.count() - 1);
-    component.next();
+    fixture.detectChanges();
+    component.carousel()!.prev();
+    expect(component.index()).toBe(component.slides.length - 1);
+    component.carousel()!.next();
     expect(component.index()).toBe(0);
   });
 
-  it('clamps at the ends when not looping', () => {
+  it('clamps and disables the arrows at the ends when the loop control is off', () => {
     component.loop.set(false);
-    component.prev();
+    fixture.detectChanges();
+    component.carousel()!.prev();
     expect(component.index()).toBe(0);
-    expect(component.prevDisabled()).toBeTrue();
-
-    component.go(component.count() - 1);
-    component.next();
-    expect(component.index()).toBe(component.count() - 1);
-    expect(component.nextDisabled()).toBeTrue();
+    const prev = fixture.debugElement.query(By.css('.hk-carousel-arrow.is-prev')).nativeElement as HTMLButtonElement;
+    fixture.detectChanges();
+    expect(prev.disabled).toBeTrue();
   });
 
-  it('never disables the arrows while looping', () => {
-    component.loop.set(true);
-    component.go(0);
-    expect(component.prevDisabled()).toBeFalse();
-    component.go(component.count() - 1);
-    expect(component.nextDisabled()).toBeFalse();
-  });
-
-  it('moves the track one full width per slide', () => {
-    component.go(2);
-    expect(component.offset()).toBe(-200);
-  });
-
-  it('suspends autoplay on hover, focus and drag', () => {
+  it('reports a pause only while autoplay is on and held', () => {
+    expect(component.paused()).toBeFalse();
     component.autoplay.set(true);
-    expect(component.playing()).toBeTrue();
-
-    component.onEnter();
-    expect(component.playing()).toBeFalse();
-    component.onLeave();
-    expect(component.playing()).toBeTrue();
-
-    component.onFocusIn();
-    expect(component.playing()).toBeFalse();
-    // relatedTarget outside the carousel means focus really left.
-    component.onFocusOut({
-      relatedTarget: null,
-      currentTarget: document.createElement('div')
-    } as unknown as FocusEvent);
-    expect(component.playing()).toBeTrue();
-  });
-
-  it('does not treat focus moving between its own controls as leaving', () => {
-    component.autoplay.set(true);
-    const root = document.createElement('div');
-    const inner = document.createElement('button');
-    root.appendChild(inner);
-
-    component.onFocusIn();
-    component.onFocusOut({ relatedTarget: inner, currentTarget: root } as unknown as FocusEvent);
-    // Still inside, so still suspended.
-    expect(component.playing()).toBeFalse();
-  });
-
-  it('maps arrow, Home and End keys onto the track', () => {
-    const press = (key: string) => {
-      const event = new KeyboardEvent('keydown', { key, cancelable: true });
-      component.onKey(event);
-      return event;
-    };
-
-    const right = press('ArrowRight');
-    expect(component.index()).toBe(1);
-    expect(right.defaultPrevented).toBeTrue();
-
-    press('ArrowLeft');
-    expect(component.index()).toBe(0);
-
-    press('End');
-    expect(component.index()).toBe(component.count() - 1);
-
-    press('Home');
-    expect(component.index()).toBe(0);
-
-    // An unrelated key is left alone for the page to handle.
-    const other = press('a');
-    expect(other.defaultPrevented).toBeFalse();
+    fixture.detectChanges();
+    component.carousel()!.onEnter();
+    expect(component.paused()).toBeTrue();
+    component.carousel()!.onLeave();
+    expect(component.paused()).toBeFalse();
+    component.autoplay.set(false);
+    fixture.detectChanges();
   });
 });

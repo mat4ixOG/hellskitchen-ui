@@ -1,0 +1,34 @@
+<div class="hk-slider-head">
+  <span class="hk-slider-label">{{ label() }}</span>
+  <span class="hk-slider-value">{{ display() }}</span>
+</div>
+
+@if (range(); as pair) {
+  <div class="hk-slider-rail">
+    <span class="hk-slider-fill" [style.left.%]="fillLeft()" [style.width.%]="fillWidth()"></span>
+    <input type="range" class="hk-slider-thumb-input"
+      [min]="min()" [max]="max()" [step]="step()" [value]="pair[0]"
+      [attr.aria-label]="'Minimum ' + label()"
+      (input)="setLow(+$any($event.target).value, $any($event.target))"
+      (change)="commit()" />
+    <input type="range" class="hk-slider-thumb-input"
+      [min]="min()" [max]="max()" [step]="step()" [value]="pair[1]"
+      [attr.aria-label]="'Maximum ' + label()"
+      (input)="setHigh(+$any($event.target).value, $any($event.target))"
+      (change)="commit()" />
+  </div>
+} @else {
+  <input type="range" class="hk-slider-single"
+    [min]="min()" [max]="max()" [step]="step()" [value]="value()"
+    [attr.aria-label]="label() || null"
+    (input)="setValue(+$any($event.target).value)"
+    (change)="commit()" />
+}
+
+@if (tickMarks().length) {
+  <div class="hk-slider-ticks" aria-hidden="true">
+    @for (tick of tickMarks(); track $index) {
+      <span class="hk-slider-tick" [style.left.%]="tick"></span>
+    }
+  </div>
+}

@@ -1,26 +1,28 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { HkTooltipDirective } from 'hellskitchen-ui';
 
-/** A directive in the real library; here the four placements it supports. */
+/** The hkTooltip directive in the four placements it supports. */
 @Component({
   selector: 'app-tooltip-demo',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [HkTooltipDirective],
   template: `
     <div class="grid w-full max-w-xs place-items-center gap-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] p-8">
       <div class="grid grid-cols-3 gap-2">
         <span></span>
-        <button type="button" class="tip" (mouseenter)="show('top')" (mouseleave)="hide()"
-          (focus)="show('top')" (blur)="hide()">top</button>
+        <button type="button" class="tip" hkTooltip="Tooltip on the top" hkTooltipPlacement="top"
+          (mouseenter)="show('top')" (mouseleave)="hide()" (focus)="show('top')" (blur)="hide()">top</button>
         <span></span>
 
-        <button type="button" class="tip" (mouseenter)="show('left')" (mouseleave)="hide()"
-          (focus)="show('left')" (blur)="hide()">left</button>
+        <button type="button" class="tip" hkTooltip="Tooltip on the left" hkTooltipPlacement="left"
+          (mouseenter)="show('left')" (mouseleave)="hide()" (focus)="show('left')" (blur)="hide()">left</button>
         <span class="grid place-items-center text-[0.72rem] text-slate-600 dark:text-gray-400">hover</span>
-        <button type="button" class="tip" (mouseenter)="show('right')" (mouseleave)="hide()"
-          (focus)="show('right')" (blur)="hide()">right</button>
+        <button type="button" class="tip" hkTooltip="Tooltip on the right" hkTooltipPlacement="right"
+          (mouseenter)="show('right')" (mouseleave)="hide()" (focus)="show('right')" (blur)="hide()">right</button>
 
         <span></span>
-        <button type="button" class="tip" (mouseenter)="show('bottom')" (mouseleave)="hide()"
-          (focus)="show('bottom')" (blur)="hide()">bottom</button>
+        <button type="button" class="tip" hkTooltip="Tooltip on the bottom" hkTooltipPlacement="bottom"
+          (mouseenter)="show('bottom')" (mouseleave)="hide()" (focus)="show('bottom')" (blur)="hide()">bottom</button>
         <span></span>
       </div>
 

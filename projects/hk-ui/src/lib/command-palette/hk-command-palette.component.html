@@ -1,0 +1,38 @@
+@if (open()) {
+  <div class="hk-cmd">
+    <div class="hk-cmd-head">
+      <span class="hk-cmd-glyph" aria-hidden="true">⌘</span>
+      <input #field class="hk-cmd-field" type="text" role="combobox" aria-label="Command"
+        aria-autocomplete="list" aria-expanded="true"
+        [attr.aria-controls]="baseId + '-list'"
+        [attr.aria-activedescendant]="activeId()"
+        [placeholder]="placeholder()"
+        [value]="query()" (input)="onQuery($any($event.target).value)" />
+      <kbd class="hk-cmd-kbd">ESC</kbd>
+    </div>
+
+    <ul class="hk-cmd-list" role="listbox" [id]="baseId + '-list'" aria-label="Commands">
+      @for (group of grouped(); track group.name) {
+        <li class="hk-cmd-group" role="presentation">
+          <span role="heading" aria-level="3">{{ group.name }}</span>
+        </li>
+        @for (command of group.items; track command.label) {
+          <li role="option" class="hk-cmd-option"
+            [id]="baseId + '-option-' + indexOf(command)"
+            [class.is-active]="indexOf(command) === cursor()"
+            [attr.aria-selected]="indexOf(command) === cursor()"
+            (click)="choose(command)" (mouseenter)="cursor.set(indexOf(command))">
+            <span>{{ command.label }}</span>
+            @if (command.hint) {
+              <kbd class="hk-cmd-kbd is-hint">{{ command.hint }}</kbd>
+            }
+          </li>
+        }
+      } @empty {
+        <li class="hk-cmd-empty" role="presentation">Nothing matches “{{ query() }}”</li>
+      }
+    </ul>
+
+    <ng-content />
+  </div>
+}

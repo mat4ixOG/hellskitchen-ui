@@ -23,55 +23,45 @@
     }
   </div>
 
-  <!-- Stage: both states render into the same box. -->
-  <div class="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 p-4"
-    [attr.aria-busy]="loading()">
+  <!-- Stage: both states render into the same box. Each hk-skeleton swaps its
+       placeholders for the real content when loading ends. -->
+  <div class="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 p-4">
 
     @switch (preset()) {
 
       @case ('profile') {
         <div class="flex items-center gap-3">
-          @if (loading()) {
-            <span [class]="skinClass()" class="h-11 w-11 shrink-0 rounded-full"></span>
-          } @else {
+          <hk-skeleton class="shrink-0" [loading]="loading()" [motion]="motion()">
+            <hk-skeleton-circle size="2.75rem" />
             <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-red-600 to-red-900 text-sm font-bold text-white">DB</span>
-          }
-          <div class="min-w-0 flex-1">
-            @if (loading()) {
-              <span [class]="skinClass()" class="block h-3.5 w-32 rounded"></span>
-              <span [class]="skinClass()" class="mt-2 block h-3 w-24 rounded"></span>
-            } @else {
-              <p class="h-3.5 truncate text-sm font-semibold leading-none text-slate-900 dark:text-white">Debashish</p>
-              <p class="mt-2 h-3 truncate text-xs leading-none text-slate-500 dark:text-gray-500">Platform · on call</p>
-            }
-          </div>
+          </hk-skeleton>
+          <hk-skeleton class="min-w-0 flex-1" [loading]="loading()" [motion]="motion()">
+            <hk-skeleton-line width="8rem" height="0.875rem" radius="0.25rem" />
+            <hk-skeleton-line class="mt-2" width="6rem" height="0.75rem" radius="0.25rem" />
+            <p class="h-3.5 truncate text-sm font-semibold leading-none text-slate-900 dark:text-white">Debashish</p>
+            <p class="mt-2 h-3 truncate text-xs leading-none text-slate-500 dark:text-gray-500">Platform · on call</p>
+          </hk-skeleton>
         </div>
-        <div class="mt-4 space-y-2">
-          @for (line of [0, 1, 2]; track line) {
-            @if (loading()) {
-              <span [class]="skinClass()" class="block h-3 rounded"
-                [style.width]="line === 2 ? '62%' : line === 1 ? '92%' : '100%'"></span>
-            } @else {
-              <p class="h-3 truncate text-xs leading-none text-slate-600 dark:text-gray-400"
-                [style.width]="line === 2 ? '62%' : line === 1 ? '92%' : '100%'">
-                {{ line === 0 ? 'Shipped the new data grid this week.' : line === 1 ? 'Virtual mode holds 10k rows cleanly.' : 'Filters no longer clip.' }}
-              </p>
-            }
-          }
-        </div>
+        <hk-skeleton class="mt-4" [loading]="loading()" [motion]="motion()">
+          <hk-skeleton-line height="0.75rem" radius="0.25rem" />
+          <hk-skeleton-line class="mt-2" width="92%" height="0.75rem" radius="0.25rem" />
+          <hk-skeleton-line class="mt-2" width="62%" height="0.75rem" radius="0.25rem" />
+          <p class="h-3 truncate text-xs leading-none text-slate-600 dark:text-gray-400" style="width: 100%">Shipped the new data grid this week.</p>
+          <p class="mt-2 h-3 truncate text-xs leading-none text-slate-600 dark:text-gray-400" style="width: 92%">Virtual mode holds 10k rows cleanly.</p>
+          <p class="mt-2 h-3 truncate text-xs leading-none text-slate-600 dark:text-gray-400" style="width: 62%">Filters no longer clip.</p>
+        </hk-skeleton>
       }
 
       @case ('article') {
-        @if (loading()) {
-          <span [class]="skinClass()" class="block h-5 w-3/4 rounded"></span>
-          <span [class]="skinClass()" class="mt-3 block h-3 w-28 rounded"></span>
-          <div class="mt-4 space-y-2">
-            @for (line of [0, 1, 2, 3, 4]; track line) {
-              <span [class]="skinClass()" class="block h-3 rounded"
-                [style.width]="line === 4 ? '48%' : line % 2 ? '96%' : '100%'"></span>
-            }
-          </div>
-        } @else {
+        <hk-skeleton [loading]="loading()" [motion]="motion()">
+          <hk-skeleton-line width="75%" height="1.25rem" radius="0.25rem" />
+          <hk-skeleton-line class="mt-3" width="7rem" height="0.75rem" radius="0.25rem" />
+          <hk-skeleton-line class="mt-4" height="0.75rem" radius="0.25rem" />
+          <hk-skeleton-line class="mt-2" width="96%" height="0.75rem" radius="0.25rem" />
+          <hk-skeleton-line class="mt-2" height="0.75rem" radius="0.25rem" />
+          <hk-skeleton-line class="mt-2" width="96%" height="0.75rem" radius="0.25rem" />
+          <hk-skeleton-line class="mt-2" width="48%" height="0.75rem" radius="0.25rem" />
+
           <h3 class="h-5 truncate text-base font-bold leading-none text-slate-900 dark:text-white">Building a grid that does not stutter</h3>
           <p class="mt-3 h-3 text-xs leading-none text-slate-500 dark:text-gray-500">27 Aug 2026 · 6 min</p>
           <p class="mt-4 text-xs leading-[1.45] text-slate-600 dark:text-gray-400">
@@ -79,57 +69,54 @@
             does no parsing at all, which is most of why ten thousand rows still scroll at
             frame rate on a laptop.
           </p>
-        }
+        </hk-skeleton>
       }
 
       @case ('table') {
         <div class="space-y-2.5">
           <div class="flex gap-3 border-b border-slate-200 dark:border-white/10 pb-2.5">
             @for (width of ['40%', '25%', '20%']; track width) {
-              @if (loading()) {
-                <span [class]="skinClass()" class="block h-3 rounded" [style.width]="width"></span>
-              } @else {
-                <span class="h-3 text-[0.7rem] font-semibold uppercase leading-none tracking-wider text-slate-500 dark:text-gray-500"
-                  [style.width]="width">{{ width === '40%' ? 'Service' : width === '25%' ? 'Region' : 'Units' }}</span>
-              }
+              <hk-skeleton class="block" [style.width]="width" [loading]="loading()" [motion]="motion()">
+                <hk-skeleton-line height="0.75rem" radius="0.25rem" />
+                <span class="block h-3 text-[0.7rem] font-semibold uppercase leading-none tracking-wider text-slate-500 dark:text-gray-500">{{ width === '40%' ? 'Service' : width === '25%' ? 'Region' : 'Units' }}</span>
+              </hk-skeleton>
             }
           </div>
           @for (row of rows; track row) {
             <div class="flex gap-3">
-              @if (loading()) {
-                <span [class]="skinClass()" class="block h-3 rounded" style="width: 40%"></span>
-                <span [class]="skinClass()" class="block h-3 rounded" style="width: 25%"></span>
-                <span [class]="skinClass()" class="block h-3 rounded" style="width: 20%"></span>
-              } @else {
-                <span class="h-3 truncate text-xs leading-none text-slate-700 dark:text-gray-300" style="width: 40%">billing-api-0{{ row + 1 }}</span>
-                <span class="h-3 truncate text-xs leading-none text-slate-600 dark:text-gray-400" style="width: 25%">EMEA</span>
-                <span class="h-3 truncate text-xs leading-none text-slate-600 dark:text-gray-400" style="width: 20%">{{ (row + 1) * 24 }}</span>
-              }
+              <hk-skeleton style="width: 40%" [loading]="loading()" [motion]="motion()">
+                <hk-skeleton-line height="0.75rem" radius="0.25rem" />
+                <span class="block h-3 truncate text-xs leading-none text-slate-700 dark:text-gray-300">billing-api-0{{ row + 1 }}</span>
+              </hk-skeleton>
+              <hk-skeleton style="width: 25%" [loading]="loading()" [motion]="motion()">
+                <hk-skeleton-line height="0.75rem" radius="0.25rem" />
+                <span class="block h-3 truncate text-xs leading-none text-slate-600 dark:text-gray-400">EMEA</span>
+              </hk-skeleton>
+              <hk-skeleton style="width: 20%" [loading]="loading()" [motion]="motion()">
+                <hk-skeleton-line height="0.75rem" radius="0.25rem" />
+                <span class="block h-3 truncate text-xs leading-none text-slate-600 dark:text-gray-400">{{ (row + 1) * 24 }}</span>
+              </hk-skeleton>
             </div>
           }
         </div>
       }
 
       @case ('media') {
-        @if (loading()) {
-          <span [class]="skinClass()" class="block aspect-video w-full rounded-xl"></span>
-        } @else {
+        <hk-skeleton [loading]="loading()" [motion]="motion()">
+          <hk-skeleton-line class="aspect-video" height="100%" radius="0.75rem" />
           <span class="block aspect-video w-full rounded-xl bg-gradient-to-br from-red-500 via-red-700 to-red-900"></span>
-        }
+        </hk-skeleton>
         <div class="mt-3 flex items-center gap-3">
-          @if (loading()) {
-            <span [class]="skinClass()" class="h-8 w-8 shrink-0 rounded-full"></span>
-            <span class="flex-1">
-              <span [class]="skinClass()" class="block h-3 w-2/3 rounded"></span>
-              <span [class]="skinClass()" class="mt-2 block h-2.5 w-1/3 rounded"></span>
-            </span>
-          } @else {
+          <hk-skeleton class="shrink-0" [loading]="loading()" [motion]="motion()">
+            <hk-skeleton-circle size="2rem" />
             <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-200 dark:bg-white/10 text-[0.65rem] font-bold text-slate-700 dark:text-gray-300">HK</span>
-            <span class="flex-1">
-              <span class="block h-3 truncate text-xs font-semibold leading-none text-slate-900 dark:text-white">Grid internals, end to end</span>
-              <span class="mt-2 block h-2.5 text-[0.7rem] leading-none text-slate-500 dark:text-gray-500">14:22</span>
-            </span>
-          }
+          </hk-skeleton>
+          <hk-skeleton class="flex-1" [loading]="loading()" [motion]="motion()">
+            <hk-skeleton-line width="66.666%" height="0.75rem" radius="0.25rem" />
+            <hk-skeleton-line class="mt-2" width="33.333%" height="0.625rem" radius="0.25rem" />
+            <span class="block h-3 truncate text-xs font-semibold leading-none text-slate-900 dark:text-white">Grid internals, end to end</span>
+            <span class="mt-2 block h-2.5 text-[0.7rem] leading-none text-slate-500 dark:text-gray-500">14:22</span>
+          </hk-skeleton>
         </div>
       }
     }

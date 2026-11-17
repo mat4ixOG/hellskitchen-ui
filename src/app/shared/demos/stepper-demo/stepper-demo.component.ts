@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { HkStepComponent, HkStepperComponent } from 'hellskitchen-ui';
 
 export type StepperVariant = 'rail' | 'panels' | 'progress';
 
@@ -11,7 +12,7 @@ export type StepperVariant = 'rail' | 'panels' | 'progress';
  */
 @Component({
   selector: 'app-stepper-demo',
-  imports: [],
+  imports: [HkStepperComponent, HkStepComponent],
   templateUrl: './stepper-demo.component.html',
   styleUrl: './stepper-demo.component.css'
 })
@@ -36,22 +37,5 @@ export class StepperDemoComponent {
     return active
       ? `${base} border-red-300 bg-red-50 text-red-700 dark:border-red-700/60 dark:bg-red-950/40 dark:text-red-300`
       : `${base} border-slate-200 text-slate-600 hover:text-slate-900 dark:border-white/10 dark:text-gray-400 dark:hover:text-white`;
-  }
-
-  go(index: number): void {
-    this.step.set(index);
-  }
-
-  next(): void {
-    this.step.update((s) => Math.min(s + 1, this.steps.length - 1));
-  }
-
-  prev(): void {
-    this.step.update((s) => Math.max(s - 1, 0));
-  }
-
-  /** Rail stops at the last marker rather than the container edge. */
-  railWidth(): number {
-    return (this.step() / (this.steps.length - 1)) * 88;
   }
 }

@@ -1,8 +1,10 @@
 # hellskitchen-ui — Angular UI component library
 
-Themeable **Angular components** for Angular 19, 20, 21 and 22: a button, a real
-**data table** with sorting, filtering, grouped headers, virtual scroll and CSV
-export, **line and bar charts**, and eight **animated WebGL backgrounds**.
+Themeable **Angular components** for Angular 19, 20, 21 and 22 — all 69
+components from the documentation site: form controls, overlays, navigation, a
+real **data table** with sorting, filtering, grouped headers, virtual scroll and
+CSV export, **line and bar charts**, a tree, layout and feedback components, and
+eight **animated WebGL backgrounds**.
 Standalone, signal-based, and styled with plain CSS — no Tailwind, no icon font,
 no global stylesheet to import.
 
@@ -14,8 +16,8 @@ npm i hellskitchen-ui
 
 ## Angular version support
 
-`@angular/core` and `@angular/common` are peer dependencies, so you keep the
-Angular version you already have.
+`@angular/core`, `@angular/common` and `@angular/forms` are peer
+dependencies, so you keep the Angular version you already have.
 
 | Angular | Supported |
 | --- | --- |
@@ -31,16 +33,20 @@ under **SSR** — nothing touches `window`, `document` or a canvas before
 
 ## Components
 
-This package ships four families. The [documentation site][docs] catalogues many
-more components — those are **reference implementations you can copy**, not
-exports of this package. Only what is listed here is importable.
+Every component on the [documentation site][docs] is exported from this
+package — each docs page shows its import line and API.
 
-| Family | Exports |
+| Category | Components |
 | --- | --- |
-| Button | `HkButtonComponent` — six variants, five tones, badges, liquid-glass finish |
-| Table | `HkTableComponent` and friends — grouped headers, filters, sorting, virtual scroll |
-| Charts | `HkLineChartComponent`, `HkBarChartComponent` |
-| Backgrounds | `HkAuroraComponent`, `HkParticleFieldComponent`, `HkBeamsComponent`, `HkWavesComponent`, `HkDotMatrixComponent`, `HkGridMotionComponent`, `HkDitherComponent`, `HkSpotlightComponent` |
+| Forms | Button, Switch, Checkbox, Radio group, Input, Textarea, Password, Pin input, Slider, Rating, Select, Multi select, Combobox, Date picker, File drop, Form field, Signup form |
+| Overlay | Dialog, Drawer, Popover, Tooltip, Confirm, Context menu |
+| Navigation | Navbar, Tabs, Stepper, Breadcrumb, Pagination, Menu, Sidebar nav, Command palette |
+| Feedback | Toast, Accordion, Alert, Progress, Skeleton, Spinner, Empty state |
+| Layout | Card, Divider, Split pane, Scroll area, Stack, App shell, Carousel |
+| Data | Table, Tree, Tag, Badge, Avatar, Timeline, Stat, Line chart, Bar chart |
+| Backgrounds | Aurora, Particle field, Beams, Waves, Dot matrix, Grid motion, Dither, Spotlight |
+| AI | Chatbot |
+| Utility | Reveal, Count up, Clipboard, Hotkey, Theme, Intersect |
 
 ## Usage
 

@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-
-type Variant = 'ring' | 'dots' | 'bars' | 'pulse' | 'orbit' | 'comet' | 'morph';
+import { HkSpinnerComponent, HkSpinnerVariant } from 'hellskitchen-ui';
 
 /**
  * Spinners are sized off the current font size rather than a prop, so one
@@ -9,15 +8,14 @@ type Variant = 'ring' | 'dots' | 'bars' | 'pulse' | 'orbit' | 'comet' | 'morph';
 @Component({
   selector: 'app-spinner-demo',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [HkSpinnerComponent],
   templateUrl: './spinner-demo.component.html',
   styleUrl: './spinner-demo.component.css'
 })
 export class SpinnerDemoComponent {
-  readonly variants: Variant[] = ['ring', 'dots', 'bars', 'pulse', 'orbit', 'comet', 'morph'];
-  readonly bars = [0, 1, 2, 3];
-  readonly dots = [0, 1, 2];
+  readonly variants: HkSpinnerVariant[] = ['ring', 'dots', 'bars', 'pulse', 'orbit', 'comet', 'morph'];
 
-  readonly variant = signal<Variant>('ring');
+  readonly variant = signal<HkSpinnerVariant>('ring');
   readonly scale = signal(1);
   readonly busy = signal(false);
 

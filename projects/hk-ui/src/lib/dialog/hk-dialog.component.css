@@ -1,0 +1,93 @@
+@layer components {
+  :host {
+    --hk-dialog-bg: #ffffff;
+    --hk-dialog-backdrop: rgb(15 23 42 / 0.5);
+    --hk-dialog-width: 22rem;
+    --hk-dialog-border: #e2e8f0;
+    --hk-dialog-ink: #334155;
+    --hk-dialog-heading: #0f172a;
+    --hk-dialog-muted: #475569;
+    display: contents;
+  }
+
+  :host-context(.dark) {
+    --hk-dialog-bg: #0a0a0a;
+    --hk-dialog-border: rgb(255 255 255 / 0.1);
+    --hk-dialog-ink: #d1d5db;
+    --hk-dialog-heading: #ffffff;
+    --hk-dialog-muted: #9ca3af;
+  }
+
+  .hk-dialog {
+    box-sizing: border-box;
+    width: var(--hk-dialog-width);
+    max-width: 90vw;
+    padding: 0;
+    border: 1px solid var(--hk-dialog-border);
+    border-radius: 1rem;
+    background: var(--hk-dialog-bg);
+    color: var(--hk-dialog-ink);
+    text-align: left;
+  }
+  .hk-dialog[data-size='sm'] { width: 18rem; }
+  .hk-dialog[data-size='lg'] { width: 32rem; }
+
+  .hk-dialog::backdrop {
+    background: var(--hk-dialog-backdrop);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .hk-dialog-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--hk-dialog-border);
+  }
+
+  .hk-dialog-content { padding: 1rem 1.25rem; }
+  .hk-dialog-content:empty { display: none; }
+
+  .hk-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--hk-dialog-border);
+  }
+  .hk-dialog-footer:empty { display: none; }
+
+  /* Projected nodes carry the consumer's scope, so reach them from the host. */
+  :host ::ng-deep .hk-dialog-title {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 700;
+    color: var(--hk-dialog-heading);
+  }
+
+  :host ::ng-deep .hk-dialog-body {
+    margin: 0.25rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--hk-dialog-muted);
+  }
+
+  :host ::ng-deep .hk-dialog-action {
+    padding: 0.375rem 0.75rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    font: inherit;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--hk-dialog-muted);
+    cursor: pointer;
+  }
+  :host ::ng-deep .hk-dialog-action:hover { color: var(--hk-dialog-heading); }
+
+  /* The last action is the primary one. */
+  :host ::ng-deep .hk-dialog-action:last-child {
+    background: #b91c1c;
+    color: #ffffff;
+    font-weight: 600;
+  }
+}

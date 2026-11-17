@@ -1,0 +1,37 @@
+<ul class="hk-tree" role="tree" (keydown)="onKeydown($event)">
+  <ng-container *ngTemplateOutlet="branch; context: { $implicit: nodes(), level: 1 }" />
+</ul>
+
+<ng-template #branch let-list let-level="level">
+  @for (node of list; track idOf(node)) {
+    <li role="treeitem"
+      [attr.data-id]="idOf(node)"
+      [attr.aria-level]="level"
+      [attr.aria-expanded]="isBranch(node) ? isOpen(node) : null"
+      [attr.aria-checked]="ariaChecked(node)"
+      [attr.aria-busy]="isLoading(node) ? 'true' : null"
+      [attr.tabindex]="tabStop() === idOf(node) ? 0 : -1"
+      (focus)="focused.set(idOf(node))"
+      (click)="$event.stopPropagation(); focused.set(idOf(node))">
+      <div class="hk-tree-row">
+        @if (isBranch(node)) {
+          <button type="button" tabindex="-1" class="hk-tree-toggle" [class.is-open]="isOpen(node)"
+            (click)="toggle(node)" [attr.aria-label]="'Toggle ' + node.label">›</button>
+        } @else {
+          <span class="hk-tree-spacer"></span>
+        }
+        <button type="button" tabindex="-1" class="hk-tree-check" [attr.data-state]="state(node)"
+          (click)="check(node)" [attr.aria-label]="'Check ' + node.label">
+          {{ state(node) === 'all' ? '✓' : state(node) === 'some' ? '–' : '' }}
+        </button>
+        <span class="hk-tree-label" [class.is-nested]="level > 1">{{ node.label }}</span>
+      </div>
+
+      @if (isOpen(node) && childrenOf(node)?.length) {
+        <ul role="group" class="hk-tree-group">
+          <ng-container *ngTemplateOutlet="branch; context: { $implicit: childrenOf(node), level: level + 1 }" />
+        </ul>
+      }
+    </li>
+  }
+</ng-template>
