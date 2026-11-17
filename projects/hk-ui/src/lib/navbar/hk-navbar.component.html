@@ -1,0 +1,86 @@
+<ng-template #icon let-path>
+  <svg class="hk-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="path" /></svg>
+</ng-template>
+
+<nav class="hk-nav" [attr.data-variant]="variant()" aria-label="Primary" (keydown)="onKey($event)"
+  (pointerleave)="hovered.set(null)">
+  @if (variant() !== 'dock') {
+    <div class="hk-nav-row">
+      <ng-content select="[hkNavbarStart]" />
+
+      <div class="hk-nav-strip" [attr.data-motion]="motion()" data-hk-nav-group>
+        @if (items().length) {
+          <span class="hk-nav-indicator" aria-hidden="true"
+            [style.width.%]="width()"
+            [style.transform]="'translateX(' + offset() + '%)'"></span>
+        }
+
+        @for (item of items(); track item.id) {
+          <button type="button" class="hk-nav-item" data-hk-nav-item (click)="select(item.id)"
+            [class.is-active]="active() === item.id"
+            [attr.aria-current]="active() === item.id ? 'page' : null">
+            @if (item.icon) { <ng-container *ngTemplateOutlet="icon; context: { $implicit: item.icon }" /> }
+            <span class="hk-nav-label">{{ item.label }}</span>
+            @if (item.badge) {
+              <span class="hk-nav-badge" [attr.aria-label]="item.badge + ' new'">{{ item.badge }}</span>
+            }
+          </button>
+        }
+      </div>
+
+      <div class="hk-nav-actions">
+        <ng-content select="[hkNavbarEnd]" />
+
+        @if (variant() === 'bar') {
+          <!-- Three bars that fold into an X, so the control says what it will do next. -->
+          <button type="button" class="hk-nav-burger" (click)="toggleMobile()"
+            [attr.aria-expanded]="mobileOpen()" aria-label="Menu">
+            <span class="hk-nav-burger-bars" [class.is-open]="mobileOpen()" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </span>
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (variant() === 'bar') {
+      <!-- Always in the DOM so it can animate its own height. -->
+      <div class="hk-nav-sheet" [class.is-open]="mobileOpen()">
+        <div class="hk-nav-sheet-inner">
+          @for (item of items(); track item.id) {
+            <button type="button" class="hk-nav-sheet-item" (click)="select(item.id)"
+              [class.is-active]="active() === item.id"
+              [attr.aria-current]="active() === item.id ? 'page' : null"
+              [attr.tabindex]="mobileOpen() ? null : -1">
+              @if (item.icon) { <ng-container *ngTemplateOutlet="icon; context: { $implicit: item.icon }" /> }
+              {{ item.label }}
+              @if (item.badge) {
+                <span class="hk-nav-badge is-end" [attr.aria-label]="item.badge + ' new'">{{ item.badge }}</span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="hk-nav-dock-row" data-hk-nav-group>
+      @for (item of items(); track item.id) {
+        <button type="button" class="hk-nav-dock-item" data-hk-nav-item (click)="select(item.id)"
+          (pointerenter)="hovered.set(item.id)"
+          [class.is-active]="active() === item.id"
+          [style.--lift]="magnify(item.id)"
+          [attr.aria-current]="active() === item.id ? 'page' : null"
+          [attr.aria-label]="item.label">
+          <span class="hk-nav-dock-tip" aria-hidden="true">{{ item.label }}</span>
+          <span class="hk-nav-dock-tile">
+            @if (item.icon) { <ng-container *ngTemplateOutlet="icon; context: { $implicit: item.icon }" /> }
+            @if (item.badge) {
+              <span class="hk-nav-badge is-corner" [attr.aria-label]="item.badge + ' new'">{{ item.badge }}</span>
+            }
+          </span>
+          <span class="hk-nav-dock-dot" aria-hidden="true"></span>
+        </button>
+      }
+    </div>
+  }
+</nav>

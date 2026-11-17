@@ -1,0 +1,36 @@
+@for (item of toast.toasts(); track item.id) {
+  <div class="hk-toast" [attr.data-tone]="item.tone" [attr.role]="item.tone === 'danger' ? 'alert' : 'status'">
+    <svg class="hk-toast-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      @switch (item.tone) {
+        @case ('success') {
+          <circle cx="12" cy="12" r="9" /><path d="M8 12.5l2.5 2.5L16 9.5" />
+        }
+        @case ('warn') {
+          <path d="M12 3.5L2.5 20h19z" /><path d="M12 10v4.5M12 17.5v.01" />
+        }
+        @case ('danger') {
+          <circle cx="12" cy="12" r="9" /><path d="M9 9l6 6M15 9l-6 6" />
+        }
+        @default {
+          <circle cx="12" cy="12" r="9" /><path d="M12 11v5.5M12 7.5v.01" />
+        }
+      }
+    </svg>
+    <div class="hk-toast-text">
+      <p class="hk-toast-title">{{ item.title }}</p>
+      @if (item.body) {
+        <p class="hk-toast-body">{{ item.body }}</p>
+      }
+      @if (item.action; as action) {
+        <button type="button" class="hk-toast-action" (click)="action.run(); toast.dismiss(item.id)">
+          {{ action.label }}
+        </button>
+      }
+    </div>
+    <button type="button" class="hk-toast-dismiss" (click)="toast.dismiss(item.id)" aria-label="Dismiss">
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button>
+  </div>
+}

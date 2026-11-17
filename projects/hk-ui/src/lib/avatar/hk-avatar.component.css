@@ -1,0 +1,59 @@
+@layer components {
+  :host {
+    --hk-avatar-size: 2.75rem;
+    --hk-avatar-ring: #ffffff;
+    --hk-avatar-bg: linear-gradient(135deg, #dc2626, #7f1d1d);
+    --hk-avatar-ink: #0f172a;
+    --hk-avatar-font: 0.75rem;
+
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    border-radius: 999px;
+  }
+
+  :host-context(.dark) { --hk-avatar-ring: #000000; --hk-avatar-ink: #ffffff; }
+
+  :host([data-size='sm']) { --hk-avatar-size: 2.25rem; --hk-avatar-font: 0.72rem; }
+  :host([data-size='lg']) { --hk-avatar-size: 3.5rem; --hk-avatar-font: 0.875rem; }
+
+  .hk-avatar-face {
+    display: grid;
+    place-items: center;
+    width: var(--hk-avatar-size);
+    height: var(--hk-avatar-size);
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--hk-avatar-bg);
+    color: var(--hk-avatar-ink);
+    font-size: var(--hk-avatar-font);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .hk-avatar-face img { width: 100%; height: 100%; object-fit: cover; }
+
+  .hk-avatar-presence {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 999px;
+    background: #10b981;
+    box-shadow: 0 0 0 2px var(--hk-avatar-ring);
+  }
+
+  /* Inside a stack: overlap, and a ring to separate each face from the next. */
+  :host(.is-stacked) { margin-left: -0.5rem; box-shadow: 0 0 0 2px var(--hk-avatar-ring); }
+  :host(.is-stacked:first-child) { margin-left: 0; }
+
+  .hk-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

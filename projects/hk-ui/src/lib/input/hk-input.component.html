@@ -1,0 +1,46 @@
+@if (label() && !grouped) {
+  <label class="hk-input-label" [for]="inputId">{{ label() }}</label>
+}
+
+<span class="hk-input-box" [class.is-error]="!!error()" [class.is-disabled]="disabled()">
+  @if (addonBefore()) {
+    <span class="hk-input-addon is-before">{{ addonBefore() }}</span>
+  }
+  @if (prefix()) {
+    <span class="hk-input-affix is-prefix">{{ prefix() }}</span>
+  }
+
+  <input
+    class="hk-input-control"
+    [class.has-prefix]="!!prefix()"
+    [class.has-trail]="!!suffix() || showClear()"
+    [id]="inputId"
+    [type]="type()"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    [readOnly]="readonly()"
+    [disabled]="disabled()"
+    [attr.aria-label]="grouped && label() ? label() : null"
+    [attr.aria-invalid]="error() ? 'true' : null"
+    [attr.aria-describedby]="hasMessage() ? messageId : null"
+    (input)="onInput($any($event.target).value)"
+    (keydown.escape)="onEscape()" />
+
+  @if (suffix()) {
+    <span class="hk-input-affix is-suffix">{{ suffix() }}</span>
+  }
+  @if (showClear()) {
+    <button type="button" class="hk-input-clear" aria-label="Clear" (click)="clear()">&times;</button>
+  }
+  @if (addonAfter()) {
+    <span class="hk-input-addon is-after">{{ addonAfter() }}</span>
+  }
+</span>
+
+@if (!grouped) {
+  @if (error()) {
+    <p class="hk-input-message is-error" [id]="messageId">{{ error() }}</p>
+  } @else if (hint()) {
+    <p class="hk-input-message" [id]="messageId">{{ hint() }}</p>
+  }
+}

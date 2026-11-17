@@ -1,0 +1,160 @@
+@layer components {
+  :host {
+    --hk-side-width: var(--hk-nav-width, 13rem);
+    --hk-side-rail: var(--hk-nav-rail, 3.25rem);
+    --hk-side-active: var(--hk-nav-active-bg, #fef2f2);
+    --hk-side-surface: #ffffff;
+    --hk-side-edge: #e2e8f0;
+    --hk-side-ink: #475569;
+    --hk-side-ink-strong: #0f172a;
+    --hk-side-ink-hover: #1e293b;
+    --hk-side-wash: #f1f5f9;
+    --hk-side-accent: var(--hk-accent, #dc2626);
+
+    position: relative;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  :host-context(.dark) {
+    --hk-side-active: var(--hk-nav-active-bg, rgb(69 10 10 / 0.4));
+    --hk-side-surface: #0a0a0a;
+    --hk-side-edge: rgb(255 255 255 / 0.1);
+    --hk-side-ink: #9ca3af;
+    --hk-side-ink-strong: #ffffff;
+    --hk-side-ink-hover: #e5e7eb;
+    --hk-side-wash: rgb(255 255 255 / 0.05);
+    --hk-side-accent: #f87171;
+  }
+
+  .hk-side {
+    box-sizing: border-box;
+    width: var(--hk-side-width);
+    height: 100%;
+    padding: 0.5rem;
+    overflow: hidden;
+    border: 1px solid var(--hk-side-edge);
+    border-radius: 1rem;
+    background: var(--hk-side-surface);
+    transition: width 300ms ease;
+  }
+
+  :host(.is-collapsed) .hk-side {
+    width: var(--hk-side-rail);
+  }
+
+  /* Below the breakpoint the expanded rail floats over the content, which
+     keeps only the collapsed rail's footprint. */
+  :host(.is-overlay) {
+    width: var(--hk-side-rail);
+  }
+
+  :host(.is-overlay) .hk-side {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    box-shadow: 0 25px 50px -12px rgb(15 23 42 / 0.25);
+  }
+
+  button {
+    font: inherit;
+    margin: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .hk-side-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    color: var(--hk-side-ink);
+    text-align: left;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  .hk-side-row:hover {
+    background: var(--hk-side-wash);
+  }
+
+  .hk-side-row.is-active {
+    background: var(--hk-side-active);
+    color: var(--hk-side-ink-strong);
+  }
+
+  .hk-side-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .is-active .hk-side-icon {
+    color: var(--hk-side-accent);
+  }
+
+  .hk-side-label {
+    flex: 1 1 0%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hk-side-caret {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--hk-side-ink);
+    transition: transform 150ms ease;
+  }
+
+  .hk-side-caret.is-open {
+    transform: rotate(90deg);
+  }
+
+  .hk-side-children {
+    margin: 0 0 0.25rem 1.5rem;
+    padding: 0 0 0 0.75rem;
+    list-style: none;
+    border-left: 1px solid var(--hk-side-edge);
+  }
+
+  .hk-side-child {
+    width: 100%;
+    padding: 0.25rem 0;
+    color: var(--hk-side-ink);
+    text-align: left;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .hk-side-child:hover {
+    color: var(--hk-side-ink-hover);
+  }
+
+  .hk-side-child.is-active {
+    color: var(--hk-side-accent);
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--hk-accent, #dc2626);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hk-side,
+    .hk-side-caret {
+      transition: none;
+    }
+  }
+}

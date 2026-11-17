@@ -29,57 +29,20 @@
     </label>
   </div>
 
-  <!-- Calendar -->
-  <div class="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-neutral-950">
-    <div class="mb-3 flex items-center justify-between">
-      <button type="button" class="px-2 text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
-        (click)="shift(-1)" aria-label="Previous month">‹</button>
-      <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ label() }}</span>
-      <button type="button" class="px-2 text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
-        (click)="shift(1)" aria-label="Next month">›</button>
-    </div>
+  <!-- Calendar: the library component, driven by the controls above. -->
+  <hk-date-picker
+    [(value)]="value"
+    [(rangeEnd)]="rangeEnd"
+    [mode]="mode()"
+    [format]="format()"
+    [showTime]="showTime()"
+    (dateChange)="emitted.set($event)" />
 
-    <div class="grid grid-cols-7 gap-0.5 text-center text-[0.72rem] text-slate-600 dark:text-gray-400">
-      @for (day of dayNames; track $index) { <span class="py-1">{{ day }}</span> }
-    </div>
-
-    <div class="grid grid-cols-7 gap-0.5">
-      @for (day of days(); track $index) {
-        @if (day === 0) {
-          <span></span>
-        } @else {
-          <button type="button" (click)="pick(day)"
-            class="aspect-square rounded-lg text-xs transition-colors"
-            [class]="tone(day)"
-            [attr.aria-pressed]="isSelected(day)">{{ day }}</button>
-        }
-      }
-    </div>
-
-    @if (showTime()) {
-      <div class="mt-3 flex items-center gap-2 border-t border-slate-200/60 pt-3 dark:border-white/5">
-        <span class="text-xs text-slate-600 dark:text-gray-400">Time</span>
-        <input type="number" min="0" max="23" [value]="hour()" (input)="setHour($any($event.target).value)"
-          aria-label="Hour"
-          class="w-12 rounded-lg border border-slate-200 bg-white px-2 py-1 text-center text-xs text-slate-900 outline-none focus:border-red-500 dark:border-white/10 dark:bg-neutral-950 dark:text-white dark:focus:border-red-600/70" />
-        <span class="text-slate-400 dark:text-gray-500">:</span>
-        <input type="number" min="0" max="59" [value]="minute()" (input)="setMinute($any($event.target).value)"
-          aria-label="Minute"
-          class="w-12 rounded-lg border border-slate-200 bg-white px-2 py-1 text-center text-xs text-slate-900 outline-none focus:border-red-500 dark:border-white/10 dark:bg-neutral-950 dark:text-white dark:focus:border-red-600/70" />
-        <button type="button" (click)="now()"
-          class="ml-auto rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 transition hover:text-slate-900 dark:border-white/10 dark:text-gray-400 dark:hover:text-white">
-          Now
-        </button>
-      </div>
-    }
-
-    <!-- Output: whatever the caller would actually receive. -->
-    <div class="mt-3 border-t border-slate-200/60 pt-3 dark:border-white/5">
-      <p class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">
-        (dateChange) emits
-      </p>
-      <p class="mt-1 break-all font-mono text-xs text-red-600 dark:text-red-400">{{ output() }}</p>
-      <p class="mt-1.5 text-xs text-slate-600 dark:text-gray-400">{{ hint() }}</p>
-    </div>
+  <!-- Output: whatever the caller would actually receive. -->
+  <div class="mt-3 rounded-xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-neutral-950">
+    <p class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-500">
+      (dateChange) emits
+    </p>
+    <p class="mt-1 break-all font-mono text-xs text-red-600 dark:text-red-400">{{ output() }}</p>
   </div>
 </div>

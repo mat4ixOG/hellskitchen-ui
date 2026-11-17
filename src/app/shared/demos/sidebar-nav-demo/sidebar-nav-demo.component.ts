@@ -1,43 +1,17 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { HkSidebarNavComponent, HkSidebarNavSection } from 'hellskitchen-ui';
 
 /** Collapsible rail with expandable sections and an active marker. */
 @Component({
   selector: 'app-sidebar-nav-demo',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [HkSidebarNavComponent],
   template: `
     <div class="flex w-full max-w-md gap-3">
-      <nav class="overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 p-2 transition-[width] duration-300"
-        [style.width]="wide() ? '13rem' : '3.25rem'" aria-label="Demo sections">
-        @for (section of sections; track section.label) {
-          <div>
-            <button type="button" (click)="pick(section.label)"
-              class="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left text-sm transition-colors"
-              [class]="active() === section.label ? 'bg-red-50 dark:bg-red-950/40 text-slate-900 dark:text-white' : 'text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-white/5'">
-              <i [class]="section.icon + ' shrink-0 text-sm'"
-                [class.text-red-600 dark:text-red-400]="active() === section.label"></i>
-              @if (wide()) { <span class="flex-1 truncate">{{ section.label }}</span> }
-              @if (wide() && section.children) {
-                <span class="text-xs text-slate-600 dark:text-gray-400 transition-transform" [class.rotate-90]="open() === section.label">›</span>
-              }
-            </button>
-
-            @if (wide() && section.children && open() === section.label) {
-              <ul class="mb-1 ml-6 border-l border-slate-200 dark:border-white/10 pl-3">
-                @for (child of section.children; track child) {
-                  <li>
-                    <button type="button" class="w-full py-1 text-left text-xs text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200">
-                      {{ child }}
-                    </button>
-                  </li>
-                }
-              </ul>
-            }
-          </div>
-        }
-      </nav>
+      <hk-sidebar-nav [sections]="sections" [collapsed]="!wide()" (collapsedChange)="wide.set(!$event)" [(active)]="active" />
 
       <div class="flex-1 self-start rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] p-4">
-        <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ active() }}</p>
+        <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ activeLabel() }}</p>
         <p class="mt-1 text-xs text-slate-600 dark:text-gray-400">The rail keeps its icons when collapsed, so muscle memory survives.</p>
         <button type="button" (click)="wide.set(!wide())"
           class="mt-3 rounded-lg border border-slate-200 dark:border-white/10 px-2.5 py-1.5 text-xs text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white">
@@ -48,19 +22,44 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
   `
 })
 export class SidebarNavDemoComponent {
-  readonly sections = [
-    { label: 'Overview', icon: 'pi pi-home' },
-    { label: 'Services', icon: 'pi pi-server', children: ['billing-api', 'auth-gateway', 'edge-cache'] },
-    { label: 'Deploys', icon: 'pi pi-upload', children: ['History', 'Schedules'] },
-    { label: 'Settings', icon: 'pi pi-cog' }
+  /** Icons are SVG path data (24×24, stroked). */
+  readonly sections: HkSidebarNavSection[] = [
+    { id: 'overview', label: 'Overview', icon: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
+    {
+      id: 'services',
+      label: 'Services',
+      icon: 'M4 3h16v7H4zM4 14h16v7H4zM8 6.5h.01M8 17.5h.01',
+      children: [
+        { id: 'billing-api', label: 'billing-api' },
+        { id: 'auth-gateway', label: 'auth-gateway' },
+        { id: 'edge-cache', label: 'edge-cache' }
+      ]
+    },
+    {
+      id: 'deploys',
+      label: 'Deploys',
+      icon: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12',
+      children: [
+        { id: 'history', label: 'History' },
+        { id: 'schedules', label: 'Schedules' }
+      ]
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1'
+    }
   ];
 
   readonly wide = signal(true);
-  readonly active = signal('Services');
-  readonly open = signal<string | null>('Services');
+  readonly active = signal('services');
 
-  pick(label: string): void {
-    this.active.set(label);
-    this.open.set(this.open() === label ? null : label);
-  }
+  readonly activeLabel = computed(() => {
+    for (const section of this.sections) {
+      if (section.id === this.active()) return section.label;
+      const child = section.children?.find((item) => item.id === this.active());
+      if (child) return child.label;
+    }
+    return '';
+  });
 }

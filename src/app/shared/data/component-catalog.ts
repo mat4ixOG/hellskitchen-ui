@@ -51,11 +51,10 @@ export interface ComponentEntry {
   /**
    * Whether `npm i hellskitchen-ui` gets you this one.
    *
-   * The catalogue is bigger than the package: most entries are patterns built
-   * and documented on this site, with the source to copy, not exports you can
-   * import. Saying so per entry is the difference between a reference and a
-   * promise the install cannot keep — `component-catalog.spec.ts` holds this
-   * flag to the library's real public API so it cannot drift.
+   * Every entry currently ships. The flag stays so a future entry can be
+   * documented before it is exported without the page promising an install
+   * that cannot work — `component-catalog.spec.ts` holds this flag to the
+   * library's real public API so it cannot drift.
    */
   packaged: boolean;
   /** One line for the catalogue card. */
@@ -103,14 +102,16 @@ export const COMPONENTS: ComponentEntry[] = [
     selector: 'hk-switch',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.1,
     tagline: 'Two-way bound toggle with a spring-eased thumb.',
     description:
-      'A checkbox that reads as an on/off control. Model-bound through a signal, so no ControlValueAccessor boilerplate unless you want reactive forms — in which case it implements one too.',
+      'A checkbox that reads as an on/off control. Model-bound through a signal, so [(checked)] is all the wiring it needs — no ControlValueAccessor boilerplate.',
     tags: ['toggle', 'checkbox', 'boolean'],
-    usage: `@Component({
-  imports: [HkSwitch],
+    usage: `import { HkSwitchComponent } from 'hellskitchen-ui';
+
+@Component({
+  imports: [HkSwitchComponent],
   template: \`
     <hk-switch
       [(checked)]="notify"
@@ -128,9 +129,9 @@ export class SettingsComponent {
       { kind: 'input', name: 'checked', type: 'boolean', default: 'false', description: 'Model value. Supports two-way binding via [(checked)].' },
       { kind: 'input', name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Track and thumb scale.' },
       { kind: 'input', name: 'accent', type: 'string', default: "'crimson'", description: 'Named accent, or any CSS colour.' },
-      { kind: 'input', name: 'label', type: 'string', default: "''", description: 'Accessible label. Rendered visually unless labelHidden is set.' },
+      { kind: 'input', name: 'label', type: 'string', default: "''", description: 'Accessible label, applied as the switch’s aria-label.' },
       { kind: 'input', name: 'disabled', type: 'boolean', default: 'false', description: 'Blocks interaction and dims the track.' },
-      { kind: 'output', name: 'changed', type: 'EventEmitter<boolean>', default: '—', description: 'Fires after the value settles.' }
+      { kind: 'output', name: 'changed', type: 'EventEmitter<boolean>', default: '—', description: 'Fires with the new value after a toggle.' }
     ],
     tokens: [
       { name: '--hk-switch-track', default: '#262626', description: 'Track colour when off.' },
@@ -153,23 +154,26 @@ export class SettingsComponent {
     selector: 'hk-rating',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.8,
     tagline: 'Any icon, any count, half steps, keyboard driven.',
     description:
-      'A radio group wearing stars. The icon is yours — pass any icon class or template, and the count is arbitrary.',
+      'A radio group wearing stars. A built-in SVG star by default, or pass any icon class — and the count is arbitrary.',
     tags: ['stars', 'score', 'input'],
-    usage: `<hk-rating
+    usage: `import { HkRatingComponent } from 'hellskitchen-ui';
+
+<hk-rating
   [(value)]="score"
   [count]="5"
-  [half]="true"
-  icon="pi pi-star-fill"
-  accent="crimson" />`,
+  [half]="true" />
+
+<!-- Your own icon set instead of the built-in star -->
+<hk-rating [(value)]="score" icon="pi pi-star-fill" />`,
     api: [
       { kind: 'input', name: 'value', type: 'number', default: '0', description: 'Current score. Two-way bindable.' },
       { kind: 'input', name: 'count', type: 'number', default: '5', description: 'How many icons to render.' },
       { kind: 'input', name: 'half', type: 'boolean', default: 'false', description: 'Allows half-step selection.' },
-      { kind: 'input', name: 'icon', type: 'string', default: "'pi pi-star-fill'", description: 'Icon class for each item.' },
+      { kind: 'input', name: 'icon', type: 'string', default: "''", description: 'Icon class for each item. Empty renders the built-in SVG star.' },
       { kind: 'input', name: 'readonly', type: 'boolean', default: 'false', description: 'Display only — skips focus and pointer handling.' },
       { kind: 'output', name: 'valueChange', type: 'EventEmitter<number>', default: '—', description: 'Emits on selection.' }
     ],
@@ -189,13 +193,15 @@ export class SettingsComponent {
     selector: 'hk-input',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.4,
     tagline: 'Prefix, suffix, hint, error — and attached buttons.',
     description:
       'A text field that owns its own chrome: prefix and suffix slots, a hint line that becomes the error line, and a clear button that appears once there is something to clear. Grouped with a button or an addon it stays one control with one border — the wrapper owns the border and the focus ring, so focus lights the whole group rather than a box inside a box.',
     tags: ['text', 'field'],
-    usage: `<hk-input
+    usage: `import { HkInputComponent, HkInputGroupComponent, HkInputAddonDirective } from 'hellskitchen-ui';
+
+<hk-input
   [(value)]="slug"
   label="Workspace URL"
   prefix="hk.dev/"
@@ -208,19 +214,20 @@ export class SettingsComponent {
      than a box inside a box. -->
 <hk-input-group>
   <hk-input [(value)]="email" type="email" placeholder="you@team.com" />
-  <button hkButton hkInputAddon [disabled]="!email()">Send</button>
+  <button type="button" hkInputAddon [disabled]="!email()" (click)="invite()">Send</button>
 </hk-input-group>
 
 <!-- Addons on both sides -->
 <hk-input-group>
-  <button hkButton hkInputAddon (pressed)="step(-1)" aria-label="Fewer">−</button>
-  <hk-input [(value)]="seats" type="number" />
-  <button hkButton hkInputAddon (pressed)="step(1)" aria-label="More">+</button>
+  <button type="button" hkInputAddon (click)="step(-1)" aria-label="Fewer">−</button>
+  <hk-input [(value)]="seats" type="number" label="Seats" />
+  <button type="button" hkInputAddon (click)="step(1)" aria-label="More">+</button>
 </hk-input-group>`,
     api: [
       { kind: 'input', name: 'value', type: 'string', default: '\'\'', description: 'Model value. Two-way bindable via [(value)].' },
-      { kind: 'input', name: 'label', type: 'string', default: '\'\'', description: 'Visible label, wired to the control with a generated id.' },
-      { kind: 'input', name: 'type', type: '\'text\' | \'email\' | \'password\' | \'number\' | \'search\'', default: '\'text\'', description: 'Native input type.' },
+      { kind: 'input', name: 'label', type: 'string', default: '\'\'', description: 'Visible label, wired to the control with a generated id. Inside an hk-input-group it becomes the field’s aria-label instead.' },
+      { kind: 'input', name: 'type', type: 'HkInputType', default: '\'text\'', description: 'Native input type: \'text\' | \'email\' | \'password\' | \'number\' | \'search\'.' },
+      { kind: 'input', name: 'placeholder', type: 'string', default: '\'\'', description: 'Native placeholder.' },
       { kind: 'input', name: 'prefix', type: 'string', default: '\'\'', description: 'Static text before the field — a scheme, a currency, a unit.' },
       { kind: 'input', name: 'suffix', type: 'string', default: '\'\'', description: 'Static text after the field.' },
       { kind: 'input', name: 'hint', type: 'string', default: '\'\'', description: 'Helper line under the field. Replaced by error when that is set.' },
@@ -228,9 +235,10 @@ export class SettingsComponent {
       { kind: 'input', name: 'addonBefore', type: 'string', default: "''", description: 'Static addon panel before the field, on its own ground — a scheme, a currency, a unit. Unlike prefix, it is separated by a rule.' },
       { kind: 'input', name: 'addonAfter', type: 'string', default: "''", description: 'Static addon panel after the field.' },
       { kind: 'input', name: 'clearable', type: 'boolean', default: 'false', description: 'Shows a clear button once the field is non-empty.' },
+      { kind: 'input', name: 'readonly', type: 'boolean', default: 'false', description: 'Native readonly — selectable and copyable, not editable.' },
       { kind: 'input', name: 'disabled', type: 'boolean', default: 'false', description: 'Blocks interaction and dims the control.' },
       { kind: 'output', name: 'valueChange', type: 'EventEmitter<string>', default: '—', description: 'Emits on every keystroke.' },
-      { kind: 'output', name: 'cleared', type: 'EventEmitter<void>', default: '—', description: 'Emits when the clear button is used.' },
+      { kind: 'output', name: 'cleared', type: 'EventEmitter<void>', default: '—', description: 'Emits when the clear button (or Escape) empties the field.' },
     ],
     tokens: [
       { name: '--hk-input-bg', default: '#ffffff', description: 'Field background.' },
@@ -253,21 +261,28 @@ export class SettingsComponent {
     selector: 'hk-textarea',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.6,
     tagline: 'Auto-growing textarea with a character counter.',
     description:
-      'A textarea that grows with its content up to a ceiling, then scrolls — so a one-line note does not reserve six lines of empty space.',
+      'A textarea that grows with its content up to a ceiling, then scrolls — so a one-line note does not reserve six lines of empty space. Anything projected inside renders in the footer, opposite the counter.',
     tags: ['text', 'multiline'],
-    usage: `<hk-textarea
+    usage: `import { HkTextareaComponent } from 'hellskitchen-ui';
+
+<hk-textarea
   [(value)]="note"
   label="What shipped?"
+  placeholder="What shipped this week?"
   [rows]="2"
   [maxRows]="8"
   [maxlength]="280"
-  [counter]="true" />`,
+  [counter]="true">
+  Markdown supported
+</hk-textarea>`,
     api: [
       { kind: 'input', name: 'value', type: 'string', default: '\'\'', description: 'Model value. Two-way bindable.' },
+      { kind: 'input', name: 'label', type: 'string', default: '\'\'', description: 'Accessible name, applied as the field’s aria-label.' },
+      { kind: 'input', name: 'placeholder', type: 'string', default: '\'\'', description: 'Native placeholder.' },
       { kind: 'input', name: 'rows', type: 'number', default: '2', description: 'Starting height in rows.' },
       { kind: 'input', name: 'maxRows', type: 'number', default: '10', description: 'Height ceiling. Past it the field scrolls instead of growing.' },
       { kind: 'input', name: 'autoGrow', type: 'boolean', default: 'true', description: 'Resizes to fit the content on every input.' },
@@ -293,13 +308,15 @@ export class SettingsComponent {
     selector: 'hk-select',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 4.2,
-    tagline: 'Virtualised single and multi select with typeahead.',
+    tagline: 'Single and multi select with typeahead.',
     description:
-      'Single or multi select with typeahead filtering. The listbox is virtualised, so a few thousand options cost the same as a dozen.',
+      'Single or multi select with typeahead filtering. The trigger is a combobox and the panel a listbox, with the active option tracked by aria-activedescendant.',
     tags: ['dropdown', 'picker'],
-    usage: `<hk-select
+    usage: `import { HkSelectComponent } from 'hellskitchen-ui';
+
+<hk-select
   [(value)]="regions"
   [options]="allRegions"
   [multiple]="true"
@@ -307,19 +324,18 @@ export class SettingsComponent {
   placeholder="Choose regions" />`,
     api: [
       { kind: 'input', name: 'value', type: 'unknown | unknown[]', default: 'null', description: 'Selected value, or array when [multiple]. Two-way bindable.' },
-      { kind: 'input', name: 'options', type: 'HkOption[] | string[]', default: '[]', description: 'Choices. Plain strings are accepted as shorthand.' },
-      { kind: 'input', name: 'multiple', type: 'boolean', default: 'false', description: 'Allows more than one selection and renders chips.' },
+      { kind: 'input', name: 'options', type: 'HkSelectChoice[] | string[]', default: '[]', description: 'Choices ({ label, value }). Plain strings are accepted as shorthand.' },
+      { kind: 'input', name: 'multiple', type: 'boolean', default: 'false', description: 'Allows more than one selection; the trigger lists every chosen label.' },
       { kind: 'input', name: 'filterable', type: 'boolean', default: 'false', description: 'Adds the typeahead box to the panel.' },
       { kind: 'input', name: 'placeholder', type: 'string', default: '\'Select\'', description: 'Shown when nothing is chosen.' },
-      { kind: 'input', name: 'virtualScroll', type: 'boolean', default: 'true', description: 'Windows the listbox. Turn off only for very short lists.' },
       { kind: 'input', name: 'disabled', type: 'boolean', default: 'false', description: 'Blocks opening the panel.' },
       { kind: 'output', name: 'valueChange', type: 'EventEmitter<unknown>', default: '—', description: 'Emits on selection.' },
       { kind: 'output', name: 'opened / closed', type: 'EventEmitter<void>', default: '—', description: 'Panel lifecycle, for lazy option loading.' },
     ],
     tokens: [
-      { name: '--hk-select-panel-bg', default: '#ffffff', description: 'Dropdown background.' },
-      { name: '--hk-select-option-hover', default: 'rgb(15 23 42 / 0.04)', description: 'Hovered and active option wash.' },
-      { name: '--hk-select-max-height', default: '14rem', description: 'Panel height before it scrolls.' },
+      { name: '--hk-select-panel-bg', default: '#ffffff', description: 'Trigger and dropdown background.' },
+      { name: '--hk-select-option-hover', default: '#f1f5f9', description: 'Hovered and active option wash.' },
+      { name: '--hk-select-max-height', default: '11rem', description: 'Panel height before it scrolls.' },
     ],
     keyboard: [
       { keys: 'Space / Enter', action: 'Opens the panel, or picks the active option' },
@@ -331,7 +347,6 @@ export class SettingsComponent {
     a11y: [
       'Implements the listbox pattern: the trigger is a combobox, the panel a listbox, and aria-activedescendant tracks the active option without moving DOM focus.',
       'Selected state is exposed through aria-selected, never through colour alone.',
-      'The panel is positioned from the trigger rect, so a scroll container cannot clip it.',
     ],
   },
   {
@@ -340,14 +355,16 @@ export class SettingsComponent {
     selector: 'hk-multi-select',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 3.2,
     tagline: 'Chips, grouped options, filter-aware select-all.',
     description:
       'A select that holds many values without growing without bound. Past maxChips the rest collapse into a "+n more" control, so a field with forty selections is the same height as one with two. Select-all acts on the filtered rows rather than the whole list, and reports that as an indeterminate state — the one detail a multi-select usually gets wrong.',
     tags: ['select', 'multiple', 'chips', 'tags', 'filter'],
-    usage: `@Component({
-  imports: [HkMultiSelect],
+    usage: `import { HkMultiSelectComponent } from 'hellskitchen-ui';
+
+@Component({
+  imports: [HkMultiSelectComponent],
   template: \`
     <hk-multi-select
       [(value)]="regions"
@@ -367,10 +384,10 @@ export class RegionPicker {
 }`,
     api: [
       { kind: 'input', name: 'value', type: 'string[]', default: '[]', description: 'Selected values. Supports two-way binding via [(value)].' },
-      { kind: 'input', name: 'options', type: 'T[]', default: '[]', description: 'Source rows. Objects or plain strings.' },
+      { kind: 'input', name: 'options', type: 'unknown[]', default: '[]', description: 'Source rows. Objects or plain strings.' },
       { kind: 'input', name: 'optionLabel', type: 'string', default: "'label'", description: 'Key read for the visible text when options are objects.' },
       { kind: 'input', name: 'optionValue', type: 'string', default: "'value'", description: 'Key read for the emitted value.' },
-      { kind: 'input', name: 'groupBy', type: 'string | null', default: 'null', description: 'Key to bucket options under sticky group headers.' },
+      { kind: 'input', name: 'groupBy', type: 'string | null', default: 'null', description: 'Key to bucket options under group headers.' },
       { kind: 'input', name: 'maxChips', type: 'number', default: '3', description: 'Chips rendered before the rest collapse into "+n more".' },
       { kind: 'input', name: 'selectAll', type: 'boolean', default: 'true', description: 'Shows the select-all row. Acts on the filtered rows only.' },
       { kind: 'input', name: 'filter', type: 'boolean', default: 'true', description: 'Shows the type-ahead filter above the list.' },
@@ -378,7 +395,7 @@ export class RegionPicker {
       { kind: 'input', name: 'placeholder', type: 'string', default: "'Select…'", description: 'Shown while nothing is selected.' },
       { kind: 'input', name: 'disabled', type: 'boolean', default: 'false', description: 'Blocks interaction and dims the trigger.' },
       { kind: 'output', name: 'changed', type: 'EventEmitter<string[]>', default: '—', description: 'Fires on every add, remove and clear.' },
-      { kind: 'output', name: 'filtered', type: 'EventEmitter<string>', default: '—', description: 'Filter text, debounced. For server-side search.' },
+      { kind: 'output', name: 'filtered', type: 'EventEmitter<string>', default: '—', description: 'Filter text, debounced by 250ms. For server-side search.' },
       { kind: 'method', name: 'clear()', type: '() => void', default: '—', description: 'Empties the selection without closing the panel.' }
     ],
     tokens: [
@@ -406,13 +423,15 @@ export class RegionPicker {
     selector: 'hk-combobox',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 4.8,
     tagline: 'Async-filterable select that accepts free text.',
     description:
-      'A select that also accepts what you typed. Matching is fuzzy, and anything with no match becomes a new value on Enter.',
+      'A select that also accepts what you typed. Suggestions match on any part of the text, and anything with no match becomes a new value on Enter.',
     tags: ['autocomplete', 'search'],
-    usage: `<hk-combobox
+    usage: `import { HkComboboxComponent } from 'hellskitchen-ui';
+
+<hk-combobox
   [(value)]="labels"
   [options]="knownLabels"
   [allowCustom]="true"
@@ -423,8 +442,9 @@ export class RegionPicker {
       { kind: 'input', name: 'allowCustom', type: 'boolean', default: 'true', description: 'Enter commits free text that matches nothing.' },
       { kind: 'input', name: 'maxItems', type: 'number | null', default: 'null', description: 'Caps how many values can be chosen.' },
       { kind: 'input', name: 'loading', type: 'boolean', default: 'false', description: 'Shows the async state while suggestions are fetched.' },
+      { kind: 'input', name: 'placeholder', type: 'string', default: "'Add a label…'", description: 'Shown in the empty text field.' },
       { kind: 'output', name: 'valueChange', type: 'EventEmitter<string[]>', default: '—', description: 'Emits on add and on remove.' },
-      { kind: 'output', name: 'search', type: 'EventEmitter<string>', default: '—', description: 'Debounced query, for server-side suggestions.' },
+      { kind: 'output', name: 'search', type: 'EventEmitter<string>', default: '—', description: 'Query debounced by 250ms, for server-side suggestions.' },
     ],
     tokens: [
       { name: '--hk-combobox-chip-bg', default: 'rgb(220 38 38 / 0.10)', description: 'Chip fill for a chosen value.' },
@@ -448,13 +468,15 @@ export class RegionPicker {
     selector: 'hk-checkbox',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.5,
     tagline: 'Tri-state checkbox with an animated tick.',
     description:
       'A checkbox with a real third state. A parent bound to a group reports indeterminate when its children disagree, which is the case most implementations skip.',
     tags: ['boolean', 'indeterminate'],
-    usage: `<hk-checkbox
+    usage: `import { HkCheckboxComponent } from 'hellskitchen-ui';
+
+<hk-checkbox
   [(checked)]="all"
   [indeterminate]="some()"
   label="Notify me about"
@@ -462,7 +484,7 @@ export class RegionPicker {
     api: [
       { kind: 'input', name: 'checked', type: 'boolean', default: 'false', description: 'Model value. Two-way bindable.' },
       { kind: 'input', name: 'indeterminate', type: 'boolean', default: 'false', description: 'Renders the mixed state. Independent of checked.' },
-      { kind: 'input', name: 'label', type: 'string', default: '\'\'', description: 'Accessible label, rendered unless labelHidden is set.' },
+      { kind: 'input', name: 'label', type: 'string', default: '\'\'', description: 'Visible label, and the accessible name. Inherits colour and weight from the host.' },
       { kind: 'input', name: 'disabled', type: 'boolean', default: 'false', description: 'Blocks interaction and dims the box.' },
       { kind: 'output', name: 'changed', type: 'EventEmitter<boolean>', default: '—', description: 'Emits the new value on toggle.' },
     ],
@@ -486,13 +508,15 @@ export class RegionPicker {
     selector: 'hk-radio-group',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.9,
     tagline: 'Roving-tabindex radio set, horizontal or stacked.',
     description:
       'A radio set with roving tabindex: one tab stop for the group, arrows to move within it. That is the ARIA pattern, and it is what keyboard users expect.',
     tags: ['choice'],
-    usage: `<hk-radio-group
+    usage: `import { HkRadioGroupComponent, HkRadioOption } from 'hellskitchen-ui';
+
+<hk-radio-group
   [(value)]="strategy"
   [options]="strategies"
   label="Deploy strategy"
@@ -500,7 +524,7 @@ export class RegionPicker {
     api: [
       { kind: 'input', name: 'value', type: 'unknown', default: 'null', description: 'Selected value. Two-way bindable.' },
       { kind: 'input', name: 'options', type: 'HkRadioOption[]', default: '[]', description: 'Choices. Each may carry a label and a hint line.' },
-      { kind: 'input', name: 'orientation', type: '\'vertical\' | \'horizontal\'', default: '\'vertical\'', description: 'Layout direction; also picks which arrow keys move.' },
+      { kind: 'input', name: 'orientation', type: 'HkRadioOrientation', default: '\'vertical\'', description: 'Layout direction: \'vertical\' | \'horizontal\'. Both arrow axes move in either layout.' },
       { kind: 'input', name: 'label', type: 'string', default: '\'\'', description: 'Group label, exposed on the radiogroup.' },
       { kind: 'output', name: 'valueChange', type: 'EventEmitter<unknown>', default: '—', description: 'Emits on selection.' },
     ],
@@ -524,13 +548,15 @@ export class RegionPicker {
     selector: 'hk-slider',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.8,
     tagline: 'Single or range slider with ticks and live value bubble.',
     description:
       'One thumb or two. In range mode the thumbs clamp against each other rather than swapping, which is what makes a range feel solid instead of glitchy.',
     tags: ['range', 'number'],
-    usage: `<hk-slider
+    usage: `import { HkSliderComponent, HkSliderRange } from 'hellskitchen-ui';
+
+<hk-slider
   [(value)]="memory"
   [min]="1" [max]="64" [step]="1"
   label="Memory limit"
@@ -542,18 +568,18 @@ export class RegionPicker {
   label="Autoscale range" />`,
     api: [
       { kind: 'input', name: 'value', type: 'number', default: '0', description: 'Single-thumb value. Two-way bindable.' },
-      { kind: 'input', name: 'range', type: '[number, number] | null', default: 'null', description: 'Two-thumb value. Takes over from value when set.' },
+      { kind: 'input', name: 'range', type: 'HkSliderRange | null', default: 'null', description: 'Two-thumb value ([number, number]). Takes over from value when set. Two-way bindable.' },
       { kind: 'input', name: 'min / max', type: 'number', default: '0 / 100', description: 'Bounds.' },
       { kind: 'input', name: 'step', type: 'number', default: '1', description: 'Increment for pointer and keyboard.' },
       { kind: 'input', name: 'ticks', type: 'boolean', default: 'false', description: 'Draws a mark at each step.' },
+      { kind: 'input', name: 'label', type: 'string', default: '\'\'', description: 'Shown above the track and used as the accessible name (prefixed "Minimum" / "Maximum" per thumb in range mode).' },
       { kind: 'input', name: 'suffix', type: 'string', default: '\'\'', description: 'Unit appended to the displayed value.' },
-      { kind: 'output', name: 'valueChange / rangeChange', type: 'EventEmitter<…>', default: '—', description: 'Emits while dragging.' },
-      { kind: 'output', name: 'committed', type: 'EventEmitter<…>', default: '—', description: 'Emits once on release — use this to persist.' },
+      { kind: 'output', name: 'valueChange / rangeChange', type: 'EventEmitter<number> / EventEmitter<HkSliderRange | null>', default: '—', description: 'Emits while dragging.' },
+      { kind: 'output', name: 'committed', type: 'EventEmitter<number | HkSliderRange>', default: '—', description: 'Emits once on release — use this to persist.' },
     ],
     tokens: [
       { name: '--hk-slider-track', default: 'rgb(15 23 42 / 0.10)', description: 'Unfilled track.' },
       { name: '--hk-slider-fill', default: 'linear-gradient(90deg, #dc2626, #991b1b)', description: 'Filled portion.' },
-      { name: '--hk-slider-thumb', default: '#ffffff', description: 'Thumb colour.' },
     ],
     keyboard: [
       { keys: '← / ↓', action: 'Decrease by one step' },
@@ -573,13 +599,15 @@ export class RegionPicker {
     selector: 'hk-date-picker',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 6.1,
     tagline: 'Single, multiple or range — with time and an output format.',
     description:
-      'A calendar that gets the boring parts right: correct leading blanks per month, a configurable first day of the week, and range selection that survives picking the end before the start. `mode` changes what a click means — one day, several, or a span — while the grid, the keyboard map and the month arithmetic stay identical. Time folds into every selected date rather than sitting beside it, so a timestamp is a real instant and not a date at midnight.',
+      'A calendar that gets the boring parts right: correct leading blanks per month, a configurable first day of the week, and range selection that survives picking the end before the start. `mode` changes what a click means — one day, several, or a span — while the grid and the month arithmetic stay identical. Time folds into every selected date rather than sitting beside it, so a timestamp is a real instant and not a date at midnight.',
     tags: ['calendar', 'date'],
-    usage: `<!-- A range of nights -->
+    usage: `import { HkDatePickerComponent, type HkDatePickerOutput } from 'hellskitchen-ui';
+
+<!-- A range of nights -->
 <hk-date-picker
   [(value)]="checkIn"
   [(rangeEnd)]="checkOut"
@@ -588,7 +616,11 @@ export class RegionPicker {
   firstDay="monday" />
 
 <!-- Several separate days, emitted as epoch milliseconds -->
-<hk-date-picker [(value)]="blackouts" mode="multiple" format="timestamp" />
+<hk-date-picker
+  [(value)]="blackouts"
+  mode="multiple"
+  format="timestamp"
+  (dateChange)="save($event)" />
 
 <!-- One instant: the time control folds into the emitted date, so this is
      not a date at midnight -->
@@ -599,16 +631,17 @@ export class RegionPicker {
   hourFormat="24"
   format="iso" />`,
     api: [
-      { kind: 'input', name: 'value', type: 'Date | null', default: 'null', description: 'Selected date, or range start. Two-way bindable.' },
+      { kind: 'input', name: 'value', type: 'Date | Date[] | null', default: 'null', description: 'Selected date, or range start; a Date[] in multiple mode. Two-way bindable.' },
       { kind: 'input', name: 'rangeEnd', type: 'Date | null', default: 'null', description: 'Range end. Two-way bindable, and only used in range mode.' },
-      { kind: 'input', name: 'mode', type: "'single' | 'multiple' | 'range'", default: "'single'", description: 'What a click means. The grid, the keyboard map and the month arithmetic are identical in all three.' },
+      { kind: 'input', name: 'mode', type: "'single' | 'multiple' | 'range'", default: "'single'", description: 'What a click means. The grid and the month arithmetic are identical in all three.' },
       { kind: 'input', name: 'showTime', type: 'boolean', default: 'false', description: 'Adds hour and minute controls, folded into every selected date — so a timestamp is a real instant, not a date at midnight.' },
       { kind: 'input', name: 'hourFormat', type: "'12' | '24'", default: "'24'", description: 'Clock used by the time controls.' },
-      { kind: 'input', name: 'format', type: "'dd/MM/yyyy' | 'yyyy-MM-dd' | 'iso' | 'timestamp' | string", default: "'dd/MM/yyyy'", description: 'Shape of the emitted value. A custom pattern is accepted; `timestamp` emits epoch milliseconds and `iso` emits ISO 8601.' },
+      { kind: 'input', name: 'format', type: "'dd/MM/yyyy' | 'yyyy-MM-dd' | 'iso' | 'timestamp' | string", default: "'dd/MM/yyyy'", description: 'Shape of the (dateChange) value. A custom pattern of yyyy, MM, dd, HH and mm is accepted; `timestamp` emits epoch milliseconds and `iso` emits ISO 8601.' },
       { kind: 'input', name: 'min / max', type: 'Date | null', default: 'null', description: 'Selectable bounds; outside days are disabled, not hidden.' },
       { kind: 'input', name: 'firstDay', type: '\'sunday\' | \'monday\'', default: '\'monday\'', description: 'Which column the week starts in.' },
       { kind: 'input', name: 'locale', type: 'string', default: '\'en-US\'', description: 'Drives month and weekday names.' },
-      { kind: 'output', name: 'valueChange / rangeEndChange', type: 'EventEmitter<Date | null>', default: '—', description: 'Emits on pick.' },
+      { kind: 'output', name: 'valueChange / rangeEndChange', type: 'EventEmitter<Date | Date[] | null>', default: '—', description: 'Emits on pick.' },
+      { kind: 'output', name: 'dateChange', type: 'EventEmitter<HkDatePickerOutput>', default: '—', description: 'The selection rendered in `format`: one value in single mode, an array otherwise. Emits on every change, including the first render.' },
     ],
     tokens: [
       { name: '--hk-date-selected', default: '#dc2626', description: 'Selected day fill.' },
@@ -616,14 +649,11 @@ export class RegionPicker {
       { name: '--hk-date-today-ring', default: '#94a3b8', description: 'Outline on today.' },
     ],
     keyboard: [
-      { keys: '← / →', action: 'Previous / next day' },
-      { keys: '↑ / ↓', action: 'Same weekday, previous / next week' },
-      { keys: 'Page Up / Page Down', action: 'Previous / next month' },
-      { keys: 'Enter', action: 'Selects the focused day' },
-      { keys: 'Escape', action: 'Closes without selecting' },
+      { keys: 'Tab', action: 'Moves through the month controls and the days' },
+      { keys: 'Enter / Space', action: 'Selects the focused day' },
     ],
     a11y: [
-      'The grid is a real table with column headers, so a screen reader can say "Tuesday 14".',
+      'Every day is a button labelled with its full date, so a screen reader says "Monday, September 14, 2026" rather than "14".',
       'Date-only values are anchored to local midnight — the same fix the table filter needed, since a UTC-parsed date lands on the previous day west of UTC.',
       'Disabled days are announced as disabled rather than silently ignoring the click.',
     ],
@@ -634,17 +664,20 @@ export class RegionPicker {
     selector: 'hk-file-drop',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 3.2,
     tagline: 'Drag-and-drop upload zone with per-file progress.',
     description:
       'A drop zone with a real browse fallback and per-file progress. Dragging is a convenience, never the only way in. The progress bar is an indicator, not a receipt: at 100% it has nothing left to say, so it clears and the row settles into a plain "Uploaded" — a list of finished uploads should read as a list, not as a wall of full bars.',
     tags: ['upload', 'files'],
-    usage: `<hk-file-drop
+    usage: `import { HkFileDropComponent, type HkFileDropRejection } from 'hellskitchen-ui';
+
+<hk-file-drop
   [accept]="['image/*', '.pdf']"
   [maxSize]="5 * 1024 * 1024"
   [multiple]="true"
-  (files)="upload($event)" />
+  (files)="upload($event)"
+  (rejected)="explain($event)" />
 
 <!-- The bar is a progress indicator, not a receipt: at 100% it has
      nothing left to say, so it leaves and the row reads "Uploaded".
@@ -657,20 +690,20 @@ export class RegionPicker {
       { kind: 'input', name: 'disabled', type: 'boolean', default: 'false', description: 'Ignores drops and disables the browse button.' },
       { kind: 'input', name: 'keepProgress', type: 'boolean', default: 'false', description: 'Holds the bar at 100% after an upload finishes. Off by default — a completed bar reports nothing the "Uploaded" row does not.' },
       { kind: 'output', name: 'files', type: 'EventEmitter<File[]>', default: '—', description: 'Accepted files, after filtering.' },
-      { kind: 'output', name: 'uploaded', type: 'EventEmitter<File>', default: '—', description: 'Fires per file as it reaches 100%.' },
-      { kind: 'output', name: 'rejected', type: 'EventEmitter<HkRejection[]>', default: '—', description: 'Files that failed, each with a reason.' },
+      { kind: 'output', name: 'uploaded', type: 'EventEmitter<File>', default: '—', description: 'Fires per file as its row reaches 100%. The row progress is simulated by the component; it does not track a real transfer.' },
+      { kind: 'output', name: 'rejected', type: 'EventEmitter<HkFileDropRejection[]>', default: '—', description: "Files that failed, each with a reason: 'type' or 'size'." },
     ],
     tokens: [
-      { name: '--hk-drop-border', default: '#cbd5e1', description: 'Dashed border when idle.' },
-      { name: '--hk-drop-border-active', default: '#dc2626', description: 'Border while a drag is over the zone.' },
-      { name: '--hk-drop-bg-active', default: 'rgb(220 38 38 / 0.06)', description: 'Fill while a drag is over the zone.' },
+      { name: '--hk-drop-border', default: '#e2e8f0', description: 'Dashed border when idle.' },
+      { name: '--hk-drop-border-active', default: '#ef4444', description: 'Border while a drag is over the zone.' },
+      { name: '--hk-drop-bg-active', default: '#fef2f2', description: 'Fill while a drag is over the zone.' },
     ],
     keyboard: [
-      { keys: 'Enter / Space', action: 'Opens the file browser from the zone' },
+      { keys: 'Enter / Space', action: 'Opens the file browser from the Browse control' },
     ],
     a11y: [
       'The browse control is a real file input behind a label, so keyboard and screen-reader users are not asked to drag.',
-      'Progress is announced politely per file rather than on every percent tick.',
+      'Each bar is a progressbar with aria-valuenow, and "Uploaded" is a status announced once per file.',
       'Rejections say why — type or size — instead of failing silently.',
     ],
   },
@@ -680,13 +713,15 @@ export class RegionPicker {
     selector: 'hk-pin-input',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.7,
     tagline: 'One-time-code boxes with paste splitting.',
     description:
       'Separate boxes that behave like one field. Pasting a code fills the whole row, and backspace walks backwards instead of stalling on an empty box. `type` decides what a box will hold at all, and the filter runs on the way in rather than validating afterwards — which is what makes a numeric pin feel like a number pad: a letter never appears and then vanishes, it simply never lands.',
     tags: ['otp', 'code'],
-    usage: `<hk-pin-input
+    usage: `import { HkPinInputComponent } from 'hellskitchen-ui';
+
+<hk-pin-input
   [(value)]="code"
   [length]="6"
   type="numeric"
@@ -694,14 +729,14 @@ export class RegionPicker {
     api: [
       { kind: 'input', name: 'value', type: 'string', default: '\'\'', description: 'Current code. Two-way bindable.' },
       { kind: 'input', name: 'length', type: 'number', default: '6', description: 'How many boxes to render.' },
-      { kind: 'input', name: 'type', type: '\'numeric\' | \'alphanumeric\'', default: '\'numeric\'', description: 'Which characters are accepted.' },
+      { kind: 'input', name: 'type', type: 'HkPinInputType', default: '\'numeric\'', description: 'Which characters are accepted: \'numeric\' | \'alphanumeric\'.' },
       { kind: 'input', name: 'mask', type: 'boolean', default: 'false', description: 'Renders each character as a dot.' },
       { kind: 'output', name: 'valueChange', type: 'EventEmitter<string>', default: '—', description: 'Emits on every change.' },
       { kind: 'output', name: 'completed', type: 'EventEmitter<string>', default: '—', description: 'Emits once every box is filled.' },
     ],
     tokens: [
       { name: '--hk-pin-size', default: '2.25rem', description: 'Box width.' },
-      { name: '--hk-pin-border-filled', default: '#dc2626', description: 'Border once a box has a value.' },
+      { name: '--hk-pin-border-filled', default: '#fca5a5', description: 'Border once a box has a value.' },
     ],
     keyboard: [
       { keys: '0–9 / a–z', action: 'Fills the box and advances' },
@@ -721,34 +756,42 @@ export class RegionPicker {
     selector: 'hk-password',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.4,
     tagline: 'Strength scored from rules, reveal toggle, Caps Lock warning.',
     description:
       'A password field that tells the user what it wants before they get it wrong. Strength is the count of satisfied rules rather than a function of length — twelve lowercase characters are not strong, and saying so does real harm — which also means the meter and the checklist can never disagree. Caps Lock is surfaced as a warning, because it is the most common reason a correct password is rejected and the browser will not mention it.',
     tags: ['password', 'strength', 'security', 'form', 'reveal'],
-    usage: `@Component({
-  imports: [HkPassword, ReactiveFormsModule],
+    usage: `import { HkPasswordComponent, HkPasswordRule, HK_PASSWORD_DEFAULT_RULES } from 'hellskitchen-ui';
+
+@Component({
+  imports: [HkPasswordComponent],
   template: \`
     <hk-password
-      formControlName="password"
+      [(value)]="password"
       label="Password"
+      placeholder="Choose something long"
       [rules]="'default'"
       [meter]="true"
       [generate]="true"
-      [capsLockWarning]="true" />
+      [capsLockWarning]="true"
+      (scored)="score.set($event)" />
   \`
 })
-export class SignupComponent { /* … */ }`,
+export class SignupComponent {
+  password = signal('');
+  score = signal(0);
+}`,
     api: [
-      { kind: 'input', name: 'value', type: 'string', default: "''", description: 'Model value. Supports [(value)], or use it as a form control.' },
+      { kind: 'input', name: 'value', type: 'string', default: "''", description: 'Model value. Two-way bindable via [(value)].' },
+      { kind: 'input', name: 'label', type: 'string', default: "'Password'", description: 'Visible label above the field. Empty hides it.' },
+      { kind: 'input', name: 'placeholder', type: 'string', default: "''", description: 'Native placeholder.' },
       { kind: 'input', name: 'meter', type: 'boolean', default: 'true', description: 'Shows the segmented strength meter.' },
-      { kind: 'input', name: 'rules', type: "'default' | PasswordRule[]", default: "'default'", description: 'The rule set scored and listed. Supply your own to match a policy.' },
+      { kind: 'input', name: 'rules', type: "'default' | HkPasswordRule[]", default: "'default'", description: 'The rule set scored and listed (default: HK_PASSWORD_DEFAULT_RULES). Supply your own to match a policy.' },
       { kind: 'input', name: 'showRules', type: 'boolean', default: 'true', description: 'Lists the rules live, rather than only failing on submit.' },
       { kind: 'input', name: 'toggle', type: 'boolean', default: 'true', description: 'Shows the reveal control.' },
       { kind: 'input', name: 'capsLockWarning', type: 'boolean', default: 'true', description: 'Warns while Caps Lock is on.' },
       { kind: 'input', name: 'generate', type: 'boolean', default: 'false', description: 'Offers a generated password from crypto.getRandomValues.' },
-      { kind: 'input', name: 'minScore', type: 'number', default: '3', description: 'Rules that must pass before the control validates.' },
       { kind: 'output', name: 'scored', type: 'EventEmitter<number>', default: '—', description: 'Fires with the rule count whenever the value changes.' },
       { kind: 'output', name: 'revealedChange', type: 'EventEmitter<boolean>', default: '—', description: 'Fires when the reveal state is toggled.' }
     ],
@@ -776,14 +819,16 @@ export class SignupComponent { /* … */ }`,
     selector: 'hk-signup-form',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 4.6,
     tagline: 'Reactive, cross-validated, SSO first.',
     description:
       'A whole signup flow rather than a field: reactive controls, per-field validators, a cross-field confirm check on the group, and SSO offered above the form instead of buried under it. Errors appear on touched or submitted, never on the first keystroke, and the submit button is never disabled by invalidity — a dead button gives no reason, while a rejected submit surfaces every message at once.',
     tags: ['form', 'signup', 'reactive', 'validation', 'sso', 'auth'],
-    usage: `@Component({
-  imports: [HkSignupForm],
+    usage: `import { HkSignupFormComponent, type HkSignupValue } from 'hellskitchen-ui';
+
+@Component({
+  imports: [HkSignupFormComponent],
   template: \`
     <hk-signup-form
       [providers]="['google', 'github', 'microsoft']"
@@ -797,17 +842,17 @@ export class SignupComponent { /* … */ }`,
 export class SignupPage {
   roles = ['Engineering', 'Design', 'Product'];
   submitting = signal(false);
-  register(value: SignupValue) { /* … */ }
+  register(value: HkSignupValue) { /* … */ }
   handOff(provider: string) { /* … */ }
 }`,
     api: [
-      { kind: 'input', name: 'providers', type: 'SsoProvider[]', default: "['google', 'github']", description: 'SSO buttons to offer, in order. Empty hides the block and its divider.' },
+      { kind: 'input', name: 'providers', type: 'HkSignupProvider[]', default: "['google', 'github']", description: "SSO buttons to offer, in order ('google' | 'github' | 'microsoft' | 'apple'). Empty hides the block and its divider." },
       { kind: 'input', name: 'roles', type: 'string[]', default: '[]', description: 'Options for the role select. Empty drops the field.' },
-      { kind: 'input', name: 'minPasswordScore', type: 'number', default: '4', description: 'Rules the password must satisfy before the form validates.' },
+      { kind: 'input', name: 'minPasswordScore', type: 'number', default: '4', description: 'How many of the five password rules (length 12, upper, lower, number, symbol) must pass before the form validates.' },
       { kind: 'input', name: 'requireTerms', type: 'boolean', default: 'true', description: 'Adds the terms checkbox with a requiredTrue validator.' },
       { kind: 'input', name: 'busy', type: 'boolean', default: 'false', description: 'Drives the submit spinner and blocks a second submit.' },
       { kind: 'input', name: 'error', type: 'string | null', default: 'null', description: 'Server-side failure, rendered above the submit as an alert.' },
-      { kind: 'output', name: 'submitted', type: 'EventEmitter<SignupValue>', default: '—', description: 'Fires only when the form is valid.' },
+      { kind: 'output', name: 'submitted', type: 'EventEmitter<HkSignupValue>', default: '—', description: 'Fires only when the form is valid.' },
       { kind: 'output', name: 'ssoRequested', type: 'EventEmitter<string>', default: '—', description: 'Fires with the provider id; the form is skipped entirely.' },
       { kind: 'method', name: 'reset()', type: '() => void', default: '—', description: 'Clears every control and the submitted flag.' },
       { kind: 'method', name: 'setServerErrors(map)', type: '(map: Record<string, string>) => void', default: '—', description: 'Attaches server messages to named controls, so a taken email lands on the email field.' }
@@ -836,18 +881,21 @@ export class SignupPage {
     selector: 'hk-form-field',
     category: 'Forms',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.4,
     tagline: 'Label, hint and error wiring for any control.',
     description:
-      'The wiring layer: it generates ids, links label, hint and error with aria-describedby, and flips to the error skin — for any control you put inside it.',
+      'The wiring layer: it generates ids, links label, hint and error with aria-describedby, and flips to the error skin — for any control you put inside it and mark with hkControl.',
     tags: ['label', 'validation'],
-    usage: `<hk-form-field
+    usage: `import { HkFormFieldComponent, HkControlDirective } from 'hellskitchen-ui';
+
+<hk-form-field
   label="Work email"
   hint="We only use this for deploy alerts."
   [error]="emailError()"
   [required]="true">
-  <input hkControl type="email" [(ngModel)]="email" />
+  <input hkControl type="email" [value]="email()"
+    (input)="email.set($any($event.target).value)" />
 </hk-form-field>`,
     api: [
       { kind: 'input', name: 'label', type: 'string', default: '\'\'', description: 'Field label. Linked to the projected control by generated id.' },
@@ -874,14 +922,16 @@ export class SignupPage {
     selector: 'hk-navbar',
     category: 'Navigation',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 3.8,
     tagline: 'Pill, app bar or dock — one travelling indicator.',
     description:
       'Three presentations of one navbar. The active indicator is a single element that travels between items rather than a border that reappears on whichever item is current: one element transitioning is what makes the movement readable, and it means the motion style is a swap of which properties animate, not three implementations. Offsets are arithmetic — every item in a strip is one nth wide — so there is no ResizeObserver and nothing to go stale on a re-render.',
     tags: ['navbar', 'nav', 'header', 'menu', 'dock', 'responsive'],
-    usage: `@Component({
-  imports: [HkNavbar],
+    usage: `import { HkNavbarComponent, HkNavbarItem } from 'hellskitchen-ui';
+
+@Component({
+  imports: [HkNavbarComponent],
   template: \`
     <hk-navbar
       variant="pill"
@@ -889,18 +939,23 @@ export class SignupPage {
       [items]="nav"
       [(active)]="section"
       [sticky]="true"
-      (selected)="router.navigate([$event])" />
+      (selected)="router.navigate([$event])">
+      <!-- Optional slots for the pill and bar variants -->
+      <span hkNavbarStart class="brand">…</span>
+      <button hkNavbarEnd>Deploy</button>
+    </hk-navbar>
   \`
 })
 export class ShellComponent {
   section = signal('home');
-  nav = [
-    { id: 'home', label: 'Home', icon: 'pi-home' },
-    { id: 'activity', label: 'Activity', icon: 'pi-chart-line', badge: 4 }
+  // icon is SVG path data for a 24×24 stroked glyph
+  nav: HkNavbarItem[] = [
+    { id: 'home', label: 'Home', icon: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
+    { id: 'activity', label: 'Activity', icon: 'M3 3v18h18M7 14l4-4 3 3 5-6', badge: 4 }
   ];
 }`,
     api: [
-      { kind: 'input', name: 'items', type: 'NavItem[]', default: '[]', description: 'Rows to render. Each takes an id, label, icon and optional badge count.' },
+      { kind: 'input', name: 'items', type: 'HkNavbarItem[]', default: '[]', description: 'Rows to render. Each takes an id, label, optional icon (SVG path data) and optional badge count.' },
       { kind: 'input', name: 'variant', type: "'pill' | 'bar' | 'dock'", default: "'bar'", description: 'Floating pill, full app bar, or a magnifying dock.' },
       { kind: 'input', name: 'motion', type: "'slide' | 'glow' | 'underline'", default: "'slide'", description: 'What the travelling indicator animates. Ignored by dock.' },
       { kind: 'input', name: 'active', type: 'string', default: "''", description: 'Id of the current item. Supports two-way binding via [(active)].' },
@@ -938,13 +993,15 @@ export class ShellComponent {
     selector: 'hk-tabs',
     category: 'Navigation',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.9,
     tagline: 'Sliding indicator, and badges bound to live counts.',
     description:
       'The indicator reads each tab\'s real box, so labels of any width line up without magic numbers. Works as a router outlet driver or as plain in-page panels. Badges are bound to a count rather than baked in: zero renders nothing, anything past 99 collapses so the strip cannot widen, and opening a tab clears its own.',
     tags: ['tabs', 'segmented'],
-    usage: `<hk-tabs [(active)]="tab" (changed)="track($event)">
+    usage: `import { HkTabsComponent, HkTabComponent, HkTabPanelComponent } from 'hellskitchen-ui';
+
+<hk-tabs [(active)]="tab" (changed)="track($event)">
   <hk-tab value="overview">Overview</hk-tab>
   <hk-tab value="api">API</hk-tab>
   <hk-tab value="theming" [disabled]="!pro">Theming</hk-tab>
@@ -952,11 +1009,14 @@ export class ShellComponent {
   <!-- Bound, not baked in: 0 renders nothing, and opening the tab
        clears it. Whatever feeds the count decides when it goes back up. -->
   <hk-tab value="alerts" [badge]="unread()">Alerts</hk-tab>
-</hk-tabs>
 
-<hk-tab-panel value="overview">…</hk-tab-panel>`,
+  <!-- Panels sit inside hk-tabs and show while their value is active -->
+  <hk-tab-panel value="overview">…</hk-tab-panel>
+</hk-tabs>`,
     api: [
       { kind: 'input', name: 'active', type: 'string', default: 'first tab', description: 'Value of the selected tab. Two-way bindable.' },
+      { kind: 'input', name: 'value', type: 'string', default: 'required', description: 'Per-tab and per-panel, on hk-tab and hk-tab-panel. Links a tab to its panel.' },
+      { kind: 'input', name: 'disabled', type: 'boolean', default: 'false', description: 'Per-tab, on hk-tab. Skipped by the keyboard and ignores clicks.' },
       { kind: 'input', name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Strip direction.' },
       { kind: 'input', name: 'activateOnFocus', type: 'boolean', default: 'true', description: 'Whether arrow keys select as they move, or only move focus.' },
       { kind: 'input', name: 'badge', type: 'number | string | null', default: 'null', description: 'Per-tab, on hk-tab. A numeric 0 renders nothing — a badge reading "0" draws the eye to say there is nothing to see.' },
@@ -968,7 +1028,7 @@ export class ShellComponent {
     ],
     tokens: [
       { name: '--hk-tabs-indicator', default: 'var(--hk-accent)', description: 'Indicator fill.' },
-      { name: '--hk-tabs-track', default: 'transparent', description: 'Strip background.' }
+      { name: '--hk-tabs-track', default: '#ffffff', description: 'Strip background.' }
     ],
     keyboard: [
       { keys: '← / →', action: 'Move between tabs' },
@@ -986,14 +1046,16 @@ export class ShellComponent {
     selector: 'hk-stepper',
     category: 'Navigation',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 3.1,
     tagline: 'Three presentations, one wizard state.',
     description: 'Multi-step flows with validation gating: in linear mode a step only unlocks when the previous one reports valid. Three presentations share that one state — a numbered rail, a vertical panel list, and a compact progress header — so `variant` changes how a wizard looks without touching what it does or what it emits.',
     tags: ['wizard', 'flow'],
-    usage: `<!-- variant changes the presentation only; the state and the outputs are
-     identical across all three -->
-<hk-stepper variant="rail" [(step)]="step" [linear]="true" (completed)="submit()">
+    usage: `import { HkStepperComponent, HkStepComponent } from 'hellskitchen-ui';
+
+<!-- variant changes the presentation only; the state and the outputs are
+     identical across all three. #wizard exposes next() / prev() / go(i). -->
+<hk-stepper #wizard variant="rail" [(step)]="step" [linear]="true" (completed)="submit()">
   <hk-step label="Install" [valid]="true" />
   <hk-step label="Configure" [valid]="form.valid" />
   <hk-step label="Ship" />
@@ -1006,13 +1068,20 @@ export class ShellComponent {
 </hk-stepper>
 
 <!-- The compact one, for a wizard header -->
-<hk-stepper variant="progress" [(step)]="step" />`,
+<hk-stepper variant="progress" [(step)]="step">
+  <hk-step label="Install" />
+  <hk-step label="Configure" />
+</hk-stepper>
+
+<button (click)="wizard.next()">Next</button>`,
     api: [
       { kind: 'input', name: 'step', type: 'number', default: '0', description: 'Zero-based active index. Two-way bindable.' },
       { kind: 'input', name: 'variant', type: "'rail' | 'panels' | 'progress'", default: "'rail'", description: 'Numbered markers on a track, a vertical rail carrying its own copy, or a compact segmented header. Swapping it changes how the wizard looks, never what it emits.' },
       { kind: 'input', name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Rail direction. Panels are vertical regardless.' },
       { kind: 'input', name: 'linear', type: 'boolean', default: 'false', description: 'Requires each step to be valid before advancing.' },
-      { kind: 'output', name: 'completed', type: 'EventEmitter<void>', default: '—', description: 'Fires when the last step is confirmed.' }
+      { kind: 'input', name: 'label / detail / valid', type: 'string / string / boolean', default: "required / '' / true", description: 'Per-step, on hk-step. In linear mode a step unlocks only once every step before it is valid.' },
+      { kind: 'output', name: 'completed', type: 'EventEmitter<void>', default: '—', description: 'Fires when next() is called on the last step.' },
+      { kind: 'method', name: 'next() / prev() / go(index)', type: '() => void', default: '—', description: 'Programmatic navigation, gated by linear.' }
     ],
     a11y: ['Rail is decorative and aria-hidden; progress is announced via aria-current="step".']
   },
@@ -1022,13 +1091,23 @@ export class ShellComponent {
     selector: 'hk-breadcrumb',
     category: 'Navigation',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.2,
     tagline: 'Slash, chevron or pills — all collapsing the same way.',
     description:
       'A route trail that collapses its middle when space runs out, keeping the root and the last two crumbs — the ones people actually navigate by. Three presentations share that one rule: plain separators, icon chevrons with the root reduced to its glyph, or a segmented path bar.',
     tags: ['trail', 'router'],
-    usage: `<hk-breadcrumb [items]="trail" [maxVisible]="4" separator="/" />
+    usage: `import { HkBreadcrumbComponent, HkBreadcrumbItem } from 'hellskitchen-ui';
+
+// No router dependency: give a crumb an href, or handle (navigate)
+// icon is SVG path data for a 24×24 stroked glyph
+trail: HkBreadcrumbItem[] = [
+  { label: 'Home', href: '/', icon: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
+  { label: 'Services', href: '/services' },
+  { label: 'billing-api' }
+];
+
+<hk-breadcrumb [items]="trail" [maxVisible]="4" separator="/" (navigate)="go($event)" />
 
 <!-- Icons, with the root reduced to its glyph -->
 <hk-breadcrumb variant="chevron" [items]="trail" [icons]="true" />
@@ -1036,12 +1115,12 @@ export class ShellComponent {
 <!-- A path bar; the last segment carries the accent -->
 <hk-breadcrumb variant="pills" [items]="trail" />`,
     api: [
-      { kind: 'input', name: 'items', type: 'HkCrumb[]', default: '[]', description: 'Trail, root first. Each carries a label and an optional routerLink.' },
+      { kind: 'input', name: 'items', type: 'HkBreadcrumbItem[]', default: '[]', description: 'Trail, root first. Each carries a label, an optional href and an optional icon (SVG path data).' },
       { kind: 'input', name: 'maxVisible', type: 'number', default: '4', description: 'Crumbs shown before the middle collapses behind an ellipsis.' },
       { kind: 'input', name: 'variant', type: "'slash' | 'chevron' | 'pills'", default: "'slash'", description: 'Plain separators, icon chevrons with the root reduced to its glyph, or a segmented path bar.' },
       { kind: 'input', name: 'separator', type: 'string', default: "'/'", description: 'Character drawn between crumbs. Ignored by chevron and pills.' },
       { kind: 'input', name: 'icons', type: 'boolean', default: 'false', description: 'Renders each crumb\'s icon. On by default under the chevron variant.' },
-      { kind: 'output', name: 'navigate', type: 'EventEmitter<HkCrumb>', default: '—', description: 'Emits when a crumb is activated.' },
+      { kind: 'output', name: 'navigate', type: 'EventEmitter<HkBreadcrumbItem>', default: '—', description: 'Emits when a crumb is activated.' },
     ],
     tokens: [
       { name: '--hk-crumb-separator', default: '#94a3b8', description: 'Separator colour.' },
@@ -1062,13 +1141,15 @@ export class ShellComponent {
     selector: 'hk-pagination',
     category: 'Navigation',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.0,
     tagline: 'Page list with ellipsis windowing and page-size select.',
     description:
       'Page links that window with an ellipsis, so the control keeps a stable width whether you are on page 2 or page 200. The page-size control is a button and a panel rather than a native select: an OS-painted option list ignores every class on the element and comes back white on a dark theme.',
     tags: ['pager', 'table'],
-    usage: `<hk-pagination
+    usage: `import { HkPaginationComponent } from 'hellskitchen-ui';
+
+<hk-pagination
   [(page)]="page"
   [(pageSize)]="size"
   [total]="487"
@@ -1077,7 +1158,7 @@ export class ShellComponent {
       { kind: 'input', name: 'page', type: 'number', default: '1', description: 'Current page, 1-based. Two-way bindable.' },
       { kind: 'input', name: 'pageSize', type: 'number', default: '10', description: 'Rows per page. Two-way bindable.' },
       { kind: 'input', name: 'total', type: 'number', default: '0', description: 'Total record count.' },
-      { kind: 'input', name: 'pageLinks', type: 'number', default: '5', description: 'How many numbered links to show around the current page.' },
+      { kind: 'input', name: 'pageLinks', type: 'number', default: '5', description: 'How many numbered links to show, counting the first and last page; the rest are windowed around the current page.' },
       { kind: 'input', name: 'pageSizeOptions', type: 'number[]', default: '[]', description: 'Page sizes offered. Empty hides the selector. The control is a button and a panel, never a native select — an OS-painted option list ignores the component\'s theme and comes back white on dark.' },
       { kind: 'output', name: 'pageChange / pageSizeChange', type: 'EventEmitter<number>', default: '—', description: 'Emits on navigation.' },
     ],
@@ -1101,13 +1182,15 @@ export class ShellComponent {
     selector: 'hk-menu',
     category: 'Navigation',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 3.6,
     tagline: 'Nested, keyboard-driven, burger or labelled trigger.',
     description:
       'A menu that nests. Submenus open on hover and on keyboard focus, and the panel flips when it would run off the viewport. The trigger is a slot rather than a fixed button: a burger by default, since that is what a menu usually hangs off, with a label or both where the word carries meaning the glyph does not — and an accessible name either way.',
     tags: ['dropdown', 'context'],
-    usage: `<!-- Default: a burger that folds into an X while open. The label is still
+    usage: `import { HkMenuComponent, HkMenuTriggerDirective, HkMenuItem } from 'hellskitchen-ui';
+
+<!-- Default: a burger that folds into an X while open. The label is still
      required — it becomes the button's aria-label -->
 <hk-menu [items]="actions" triggerLabel="Actions" (select)="run($event)" />
 
@@ -1123,7 +1206,7 @@ export class ShellComponent {
       { kind: 'input', name: 'placement', type: '\'bottom-start\' | \'bottom-end\' | \'right-start\'', default: '\'bottom-start\'', description: 'Preferred anchor; flips when it would overflow.' },
       { kind: 'input', name: 'trigger', type: "'icon' | 'label' | 'both'", default: "'icon'", description: 'A burger by default, since that is what a menu usually hangs off. Whichever is chosen the button keeps an accessible name.' },
       { kind: 'input', name: 'triggerLabel', type: 'string', default: "'Actions'", description: 'Text for the label and both triggers, and the aria-label for the icon one.' },
-      { kind: 'input', name: 'triggerIcon', type: 'string', default: "'burger'", description: 'Glyph for the icon trigger. The burger animates into an X while open.' },
+      { kind: 'input', name: 'triggerIcon', type: "'burger' | 'kebab'", default: "'burger'", description: 'Glyph for the icon trigger. The burger animates into an X while open.' },
       { kind: 'input', name: 'closeOnSelect', type: 'boolean', default: 'true', description: 'Dismisses the whole menu after a leaf is chosen.' },
       { kind: 'output', name: 'select', type: 'EventEmitter<HkMenuItem>', default: '—', description: 'Emits the chosen leaf item.' },
     ],
@@ -1150,27 +1233,36 @@ export class ShellComponent {
     selector: 'hk-sidebar-nav',
     category: 'Navigation',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.7,
     tagline: 'Collapsible route tree with active-branch tracking.',
     description:
       'A navigation rail that collapses to icons without losing its landmarks, so muscle memory survives the collapse.',
     tags: ['nav', 'tree'],
-    usage: `<hk-sidebar-nav
+    usage: `import { HkSidebarNavComponent, HkSidebarNavSection } from 'hellskitchen-ui';
+
+// No router dependency: navigate from (activeChange)
+// icon is SVG path data for a 24×24 stroked glyph
+sections: HkSidebarNavSection[] = [
+  { id: 'overview', label: 'Overview', icon: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
+  { id: 'services', label: 'Services', children: [{ id: 'billing', label: 'billing-api' }] }
+];
+
+<hk-sidebar-nav
   [sections]="sections"
   [(collapsed)]="railCollapsed"
   [(active)]="activeSection" />`,
     api: [
-      { kind: 'input', name: 'sections', type: 'HkNavSection[]', default: '[]', description: 'Sections, each with a label, icon and optional children.' },
+      { kind: 'input', name: 'sections', type: 'HkSidebarNavSection[]', default: '[]', description: 'Sections, each with an id, label, icon (SVG path data) and optional children.' },
       { kind: 'input', name: 'collapsed', type: 'boolean', default: 'false', description: 'Collapses to the icon rail. Two-way bindable.' },
-      { kind: 'input', name: 'active', type: 'string', default: '\'\'', description: 'Active section id. Two-way bindable.' },
-      { kind: 'input', name: 'overlayBelow', type: 'string', default: '\'lg\'', description: 'Breakpoint under which the rail overlays instead of pushing content.' },
+      { kind: 'input', name: 'active', type: 'string', default: '\'\'', description: 'Active section or child id. Two-way bindable.' },
+      { kind: 'input', name: 'overlayBelow', type: 'string', default: '\'lg\'', description: 'Breakpoint (sm, md, lg, xl, 2xl or a CSS length) under which the rail overlays instead of pushing content.' },
       { kind: 'output', name: 'activeChange', type: 'EventEmitter<string>', default: '—', description: 'Emits on navigation.' },
     ],
     tokens: [
       { name: '--hk-nav-width', default: '13rem', description: 'Expanded width.' },
       { name: '--hk-nav-rail', default: '3.25rem', description: 'Collapsed width.' },
-      { name: '--hk-nav-active-bg', default: 'rgb(220 38 38 / 0.10)', description: 'Active item fill.' },
+      { name: '--hk-nav-active-bg', default: '#fef2f2', description: 'Active item fill.' },
     ],
     keyboard: [
       { keys: 'Tab', action: 'Moves through items' },
@@ -1189,27 +1281,31 @@ export class ShellComponent {
     selector: 'hk-command',
     category: 'Navigation',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 5.4,
     tagline: 'Fuzzy-matched command list on a global hotkey.',
     description:
       'Fuzzy subsequence matching over grouped commands — typing "dbi" still finds "Deploy billing-api". Arrow keys move, Enter runs.',
     tags: ['cmdk', 'search'],
-    usage: `<hk-command-palette
+    usage: `import { HkCommandPaletteComponent, HkCommandPaletteItem } from 'hellskitchen-ui';
+
+<!-- Renders in place while open; put it in your own overlay if you want one.
+     Content projected inside is shown under the list. -->
+<hk-command-palette
   [(open)]="paletteOpen"
   [commands]="commands"
   hotkey="mod+k"
   (run)="execute($event)" />`,
     api: [
       { kind: 'input', name: 'open', type: 'boolean', default: 'false', description: 'Visibility. Two-way bindable.' },
-      { kind: 'input', name: 'commands', type: 'HkCommand[]', default: '[]', description: 'Commands, each with a label, group and optional hint.' },
+      { kind: 'input', name: 'commands', type: 'HkCommandPaletteItem[]', default: '[]', description: 'Commands, each with a label, group and optional hint.' },
       { kind: 'input', name: 'hotkey', type: 'string', default: '\'mod+k\'', description: 'Global shortcut that opens the palette.' },
       { kind: 'input', name: 'placeholder', type: 'string', default: '\'Type a command…\'', description: 'Search field placeholder.' },
-      { kind: 'output', name: 'run', type: 'EventEmitter<HkCommand>', default: '—', description: 'Emits the chosen command.' },
+      { kind: 'output', name: 'run', type: 'EventEmitter<HkCommandPaletteItem>', default: '—', description: 'Emits the chosen command.' },
     ],
     tokens: [
-      { name: '--hk-palette-bg', default: '#ffffff', description: 'Panel background.' },
-      { name: '--hk-palette-active', default: 'rgb(220 38 38 / 0.10)', description: 'Highlighted row fill.' },
+      { name: '--hk-palette-bg', default: 'rgb(255 255 255 / 0.95)', description: 'Panel background.' },
+      { name: '--hk-palette-active', default: '#fee2e2', description: 'Highlighted row fill.' },
     ],
     keyboard: [
       { keys: 'Mod + K', action: 'Opens the palette from anywhere' },
@@ -1228,16 +1324,18 @@ export class ShellComponent {
   {
     slug: 'toast',
     name: 'Toast',
-    selector: 'hk-toast',
+    selector: 'hk-toast-host',
     category: 'Feedback',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 3.4,
     tagline: 'Stacked, auto-dismissing, pause-on-hover.',
     description:
       'Pushed from a service, rendered by one host you drop in once. The stack caps itself, pauses its timers while hovered or focused, and never traps a screen reader mid-announcement. Four tones, including an orange `warn` that sits between info and danger — for the case where something needs attention but nothing has failed yet, which a two-tone set has to misreport as one or the other.',
     tags: ['notification', 'snackbar'],
-    usage: `// Once, at the app root:
+    usage: `import { HkToastHostComponent, HkToastService } from 'hellskitchen-ui';
+
+// Once, at the app root:
 // <hk-toast-host position="bottom-right" [max]="3" />
 
 export class DeployComponent {
@@ -1264,10 +1362,10 @@ export class DeployComponent {
   }
 }`,
     api: [
-      { kind: 'method', name: 'push(toast)', type: '(t: HkToast) => string', default: '—', description: 'Queues a toast and returns its id.' },
+      { kind: 'method', name: 'push(toast)', type: '(toast: HkToast) => string', default: '—', description: 'Queues a toast and returns its id.' },
       { kind: 'method', name: 'dismiss(id)', type: '(id: string) => void', default: '—', description: 'Removes one toast early.' },
       { kind: 'method', name: 'clear()', type: '() => void', default: '—', description: 'Empties the stack.' },
-      { kind: 'input', name: 'position', type: "'top-right' | 'bottom-right' | 'top-center' | …", default: "'bottom-right'", description: 'Host corner.' },
+      { kind: 'input', name: 'position', type: "'top-right' | 'top-left' | 'top-center' | 'bottom-right' | 'bottom-left' | 'bottom-center' | 'inline'", default: "'bottom-right'", description: 'Host corner, or `inline` to stay in the normal flow.' },
       { kind: 'input', name: 'max', type: 'number', default: '3', description: 'Stack cap — oldest drops out first.' },
       { kind: 'input', name: 'tone', type: "'success' | 'info' | 'warn' | 'danger'", default: "'info'", description: 'Per-toast. `warn` is orange and sits between info and danger: something needs attention, but nothing has failed yet.' },
       { kind: 'input', name: 'duration', type: 'number', default: '4200', description: 'Milliseconds before auto-dismiss. 0 keeps it until dismissed.' }
@@ -1287,21 +1385,25 @@ export class DeployComponent {
     selector: 'hk-accordion',
     category: 'Feedback',
     status: 'new',
-    packaged: false,
+    packaged: true,
     size: 2.2,
     tagline: 'Height-animated panels, single or multi expand.',
     description:
       'Animates on grid-template-rows rather than max-height, so panels of unknown content height still ease properly.',
     tags: ['collapse', 'faq'],
-    usage: `<hk-accordion [multiple]="false" [(open)]="openIds">
-  @for (item of faqs; track item.q) {
-    <hk-panel [header]="item.q">{{ item.a }}</hk-panel>
+    usage: `import { HkAccordionComponent, HkAccordionPanelComponent } from 'hellskitchen-ui';
+
+<hk-accordion [multiple]="false" [(open)]="openIds">
+  @for (item of faqs; track item.id) {
+    <hk-panel [id]="item.id" [header]="item.q">{{ item.a }}</hk-panel>
   }
 </hk-accordion>`,
     api: [
-      { kind: 'input', name: 'multiple', type: 'boolean', default: 'false', description: 'Allows more than one panel open. Switching back to single keeps only the first, so the mode is never contradicted by the state.' },
+      { kind: 'input', name: 'multiple', type: 'boolean', default: 'false', description: 'Allows more than one panel open. Switching back to single keeps only the first, so the mode is never contradicted by the state. Two-way bindable, since expandAll() turns it on.' },
       { kind: 'input', name: 'open', type: 'string[]', default: '[]', description: 'Ids of open panels. Two-way bindable.' },
       { kind: 'input', name: 'collapsible', type: 'boolean', default: 'true', description: 'Whether the last open panel can be closed. An accordion that cannot be fully closed traps the reader.' },
+      { kind: 'input', name: 'id', type: 'string', default: 'auto', description: 'Per-panel, on hk-panel. The id used in the open list.' },
+      { kind: 'input', name: 'header', type: 'string', default: '\'\'', description: 'Per-panel, on hk-panel. Header text.' },
       { kind: 'input', name: 'disabled', type: 'boolean', default: 'false', description: 'Per-panel, on hk-panel. A disabled header is skipped by the arrow keys rather than focused.' },
       { kind: 'output', name: 'toggled', type: 'EventEmitter<string>', default: '—', description: 'Emits the panel id that changed.' },
       { kind: 'method', name: 'expandAll()', type: '() => void', default: '—', description: 'Opens every enabled panel; implies multiple.' },
@@ -1323,13 +1425,15 @@ export class DeployComponent {
     selector: 'hk-alert',
     category: 'Feedback',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.3,
     tagline: 'Inline banner in four tones, dismissible.',
     description:
       'An inline banner in four tones. Dismissal actually removes it, and the tone is carried by an icon as well as colour.',
     tags: ['banner', 'message'],
-    usage: `<hk-alert
+    usage: `import { HkAlertComponent } from 'hellskitchen-ui';
+
+<hk-alert
   tone="warning"
   title="Quota at 84%"
   [dismissible]="true"
@@ -1340,7 +1444,7 @@ export class DeployComponent {
       { kind: 'input', name: 'tone', type: '\'info\' | \'success\' | \'warning\' | \'danger\'', default: '\'info\'', description: 'Sets the skin and the icon.' },
       { kind: 'input', name: 'title', type: 'string', default: '\'\'', description: 'Bold first line.' },
       { kind: 'input', name: 'dismissible', type: 'boolean', default: 'false', description: 'Shows the close button.' },
-      { kind: 'input', name: 'icon', type: 'string | null', default: 'null', description: 'Overrides the tone icon.' },
+      { kind: 'input', name: 'icon', type: 'string | null', default: 'null', description: 'Icon class (from your own icon font) that overrides the built-in tone icon.' },
       { kind: 'output', name: 'dismissed', type: 'EventEmitter<void>', default: '—', description: 'Emits when closed.' },
     ],
     tokens: [
@@ -1363,13 +1467,15 @@ export class DeployComponent {
     selector: 'hk-progress',
     category: 'Feedback',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.1,
     tagline: 'Linear and circular progress, determinate or not.',
     description:
       'Linear and circular off the same value, plus an indeterminate mode for when there is genuinely no percentage to report.',
     tags: ['loading', 'bar'],
-    usage: `<hk-progress [value]="pct" label="Reindexing" />
+    usage: `import { HkProgressComponent } from 'hellskitchen-ui';
+
+<hk-progress [value]="pct" label="Reindexing" />
 <hk-progress variant="circular" [value]="pct" />
 <hk-progress [indeterminate]="true" />`,
     api: [
@@ -1395,13 +1501,15 @@ export class DeployComponent {
     selector: 'hk-skeleton',
     category: 'Feedback',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.8,
     tagline: 'Shimmer placeholders that match your real layout.',
     description:
       'Placeholders shaped like the content they stand in for, so the layout does not shift when data lands. Three motions: a travelling sheen, a soft pulse, or none at all.',
     tags: ['loading', 'placeholder'],
-    usage: `<hk-skeleton [loading]="pending()">
+    usage: `import { HkSkeletonComponent, HkSkeletonLineComponent, HkSkeletonCircleComponent } from 'hellskitchen-ui';
+
+<hk-skeleton [loading]="pending()">
   <hk-skeleton-circle size="2.75rem" />
   <hk-skeleton-line width="60%" />
   <hk-skeleton-line width="40%" />
@@ -1410,11 +1518,12 @@ export class DeployComponent {
 <!-- Or drive the primitives directly -->
 <hk-skeleton-line [lines]="3" motion="shimmer" />`,
     api: [
-      { kind: 'input', name: 'loading', type: 'boolean', default: 'true', description: 'Shows placeholders; projects the real content when false.' },
-      { kind: 'input', name: 'motion', type: '\'shimmer\' | \'pulse\' | \'none\'', default: '\'shimmer\'', description: 'How the placeholder animates.' },
-      { kind: 'input', name: 'width / height', type: 'string', default: '\'100%\' / \'1em\'', description: 'Box size. Match the real element to avoid a shift.' },
-      { kind: 'input', name: 'radius', type: 'string', default: '\'0.375rem\'', description: 'Corner radius. Use 50% for an avatar.' },
-      { kind: 'input', name: 'lines', type: 'number', default: '1', description: 'Repeats the line primitive, tapering the last one.' },
+      { kind: 'input', name: 'loading', type: 'boolean', default: 'true', description: 'On hk-skeleton. Shows its hk-skeleton-line / hk-skeleton-circle children; projects the rest (the real content) when false.' },
+      { kind: 'input', name: 'motion', type: '\'shimmer\' | \'pulse\' | \'none\'', default: '\'shimmer\'', description: 'How the placeholder animates. Set on hk-skeleton it is inherited by every placeholder inside.' },
+      { kind: 'input', name: 'width / height', type: 'string', default: '\'100%\' / \'1em\'', description: 'On hk-skeleton-line. Box size. Match the real element to avoid a shift.' },
+      { kind: 'input', name: 'size', type: 'string', default: '\'2.5rem\'', description: 'On hk-skeleton-circle. Diameter.' },
+      { kind: 'input', name: 'radius', type: 'string', default: '\'0.375rem\'', description: 'On hk-skeleton-line. Corner radius.' },
+      { kind: 'input', name: 'lines', type: 'number', default: '1', description: 'On hk-skeleton-line. Repeats the line, tapering the last one.' },
     ],
     tokens: [
       { name: '--hk-skeleton-base', default: '#e8ecf1', description: 'Placeholder fill.' },
@@ -1433,13 +1542,15 @@ export class DeployComponent {
     selector: 'hk-spinner',
     category: 'Feedback',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.6,
     tagline: 'Seven styles, all sized off the current font.',
     description:
       'Seven shapes, all sized in em, so the same component works in a button, a card or a full-page overlay without a size prop. Four are workhorses; orbit, comet and morph are for the splash and empty states where a plain ring reads as nothing happening.',
     tags: ['loading'],
-    usage: `<hk-spinner />
+    usage: `import { HkSpinnerComponent } from 'hellskitchen-ui';
+
+<hk-spinner />
 <hk-spinner variant="dots" />
 
 <!-- The louder set, for a splash or an empty state -->
@@ -1478,32 +1589,33 @@ export class DeployComponent {
     selector: 'hk-empty',
     category: 'Feedback',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.0,
     tagline: 'Illustration, message and call to action.',
     description:
       'Three empty states that genuinely differ — nothing yet, nothing matching, and something broke — because the right next action is different in each.',
     tags: ['zero', 'placeholder'],
-    usage: `<hk-empty
+    usage: `import { HkEmptyComponent } from 'hellskitchen-ui';
+
+<hk-empty
   icon="pi pi-filter-slash"
   title="No services match"
   body="Three filters are narrowing this list to nothing."
   actionLabel="Clear filters"
   (action)="clearFilters()" />`,
     api: [
-      { kind: 'input', name: 'icon', type: 'string', default: '\'\'', description: 'Icon class shown above the title.' },
+      { kind: 'input', name: 'icon', type: 'string', default: '\'\'', description: 'Icon class (from your own icon font) shown above the title.' },
       { kind: 'input', name: 'title', type: 'string', default: '\'\'', description: 'Headline.' },
       { kind: 'input', name: 'body', type: 'string', default: '\'\'', description: 'Supporting sentence — say what to do next.' },
       { kind: 'input', name: 'actionLabel', type: 'string', default: '\'\'', description: 'Primary button label. Omit for no button.' },
       { kind: 'output', name: 'action', type: 'EventEmitter<void>', default: '—', description: 'Emits when the button is pressed.' },
     ],
     tokens: [
-      { name: '--hk-empty-icon', default: '#94a3b8', description: 'Icon colour.' },
-      { name: '--hk-empty-pad', default: '2.5rem 1rem', description: 'Block padding.' },
+      { name: '--hk-empty-icon', default: '#475569', description: 'Icon colour.' },
+      { name: '--hk-empty-pad', default: '2.5rem 1.5rem', description: 'Block padding.' },
     ],
     a11y: [
       'The title is a heading, so the state is reachable by heading navigation.',
-      'The action is a button when it triggers work and a link when it navigates — not always a button.',
     ],
   },
 
@@ -1514,15 +1626,18 @@ export class DeployComponent {
     selector: 'hk-dialog',
     category: 'Overlay',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 3.8,
     tagline: 'Focus-trapped modal built on the native dialog element.',
     description:
       'Built on the native <dialog> element, so focus trapping, Escape, inertness of the page behind and the top layer all come from the platform rather than a JavaScript reimplementation.',
     tags: ['modal', 'popup'],
-    usage: `<hk-dialog #invite (closed)="onClose($event)">
+    usage: `import { HkDialogComponent, HkDialogTitleDirective, HkDialogBodyDirective, HkDialogCloseDirective } from 'hellskitchen-ui';
+
+<hk-dialog #invite (closed)="onClose($event)">
   <h3 hkDialogTitle>Invite to Night Shift</h3>
   <p hkDialogBody>They will get read access to every service.</p>
+  <input placeholder="name@company.com" autofocus />
   <button hkDialogClose value="cancel">Cancel</button>
   <button hkDialogClose value="invited">Send invite</button>
 </hk-dialog>
@@ -1556,13 +1671,16 @@ export class DeployComponent {
     selector: 'hk-drawer',
     category: 'Overlay',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 3.0,
     tagline: 'Edge sheet from any side, swipe-dismissable on touch.',
     description:
       'An edge sheet from any side. The panel slides, the scrim fades, and on touch it can be swiped away.',
     tags: ['sheet', 'panel'],
-    usage: `<hk-drawer [(open)]="filtersOpen" side="right" size="18rem">
+    usage: `import { HkDrawerComponent } from 'hellskitchen-ui';
+
+<!-- Covers its nearest positioned ancestor -->
+<hk-drawer [(open)]="filtersOpen" side="right" size="18rem" label="Filters">
   <h3>Filters</h3>
   <!-- … -->
 </hk-drawer>`,
@@ -1571,6 +1689,7 @@ export class DeployComponent {
       { kind: 'input', name: 'side', type: '\'left\' | \'right\' | \'top\' | \'bottom\'', default: '\'right\'', description: 'Which edge it enters from.' },
       { kind: 'input', name: 'size', type: 'string', default: '\'18rem\'', description: 'Width for side drawers, height for top and bottom.' },
       { kind: 'input', name: 'swipeToClose', type: 'boolean', default: 'true', description: 'Allows a touch drag to dismiss.' },
+      { kind: 'input', name: 'label', type: 'string', default: '\'Drawer\'', description: 'Accessible name of the panel.' },
       { kind: 'output', name: 'openChange', type: 'EventEmitter<boolean>', default: '—', description: 'Emits on open and close.' },
     ],
     tokens: [
@@ -1594,13 +1713,15 @@ export class DeployComponent {
     selector: 'hk-popover',
     category: 'Overlay',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.6,
     tagline: 'Anchored panel that flips and shifts to stay on screen.',
     description:
       'An anchored panel that flips and shifts to stay on screen. Positioned from the trigger rect, so a scrolling container cannot clip it. Placement is one string — a side, plus an alignment when it is not centred — and the panel and its arrow both derive from it, so they cannot end up pointing different ways.',
     tags: ['flyout', 'anchor'],
-    usage: `<!-- placement is side, or side-alignment when not centred -->
+    usage: `import { HkPopoverComponent, HkPopoverTriggerDirective } from 'hellskitchen-ui';
+
+<!-- placement is side, or side-alignment when not centred -->
 <hk-popover placement="top">
   <button hkPopoverTrigger>Deploy details</button>
   <div hkPopoverContent>
@@ -1612,7 +1733,10 @@ export class DeployComponent {
 <hk-popover placement="bottom-end">…</hk-popover>
 
 <!-- flip is what makes the placement a promise rather than a preference -->
-<hk-popover placement="bottom" [flip]="true" [shift]="true">…</hk-popover>`,
+<hk-popover placement="bottom" [flip]="true" [shift]="true">…</hk-popover>
+
+<!-- open is two-way bindable; resolvedSide() says where it actually went -->
+<hk-popover #pop [(open)]="detailsOpen">…</hk-popover>`,
     api: [
       { kind: 'input', name: 'placement', type: "'top' | 'right' | 'bottom' | 'left' | `${Side}-start` | `${Side}-end`", default: "'bottom'", description: 'Side plus optional alignment — the only two decisions there are. The panel and its arrow both derive from it, so they cannot disagree.' },
       { kind: 'input', name: 'flip', type: 'boolean', default: 'true', description: 'What separates a placement preference from a promise: a panel that would leave the viewport swaps to the opposite side rather than being clipped.' },
@@ -1620,11 +1744,12 @@ export class DeployComponent {
       { kind: 'input', name: 'trigger', type: '\'click\' | \'hover\'', default: '\'click\'', description: 'What opens it.' },
       { kind: 'input', name: 'offset', type: 'number', default: '8', description: 'Gap between trigger and panel, in px.' },
       { kind: 'input', name: 'arrow', type: 'boolean', default: 'true', description: 'Draws the pointer toward the trigger.' },
+      { kind: 'input', name: 'open', type: 'boolean', default: 'false', description: 'Visibility. Two-way bindable.' },
       { kind: 'output', name: 'openChange', type: 'EventEmitter<boolean>', default: '—', description: 'Emits on open and close.' },
     ],
     tokens: [
       { name: '--hk-popover-bg', default: '#ffffff', description: 'Panel background.' },
-      { name: '--hk-popover-shadow', default: '0 18px 40px rgb(15 23 42 / 0.14)', description: 'Panel shadow.' },
+      { name: '--hk-popover-shadow', default: '0 25px 50px -12px rgb(15 23 42 / 0.1)', description: 'Panel shadow.' },
     ],
     keyboard: [
       { keys: 'Enter / Space', action: 'Opens from the trigger' },
@@ -1642,14 +1767,16 @@ export class DeployComponent {
     selector: 'hkTooltip',
     category: 'Overlay',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.4,
     tagline: 'Directive tooltip with hover, focus and touch triggers.',
     description:
       'A directive, not a component. Shows on hover and on keyboard focus — the second being the one most tooltips forget — and stays out of the accessibility tree as a duplicate label.',
     tags: ['hint', 'directive'],
-    usage: `<button hkTooltip="Copy install command" hkTooltipPlacement="top">
-  <i class="pi pi-copy"></i>
+    usage: `import { HkTooltipDirective } from 'hellskitchen-ui';
+
+<button hkTooltip="Copy install command" hkTooltipPlacement="top" aria-label="Copy">
+  <svg aria-hidden="true"><!-- icon --></svg>
 </button>`,
     api: [
       { kind: 'input', name: 'hkTooltip', type: 'string', default: '\'\'', description: 'Tooltip text. Empty disables it.' },
@@ -1660,7 +1787,6 @@ export class DeployComponent {
     tokens: [
       { name: '--hk-tooltip-bg', default: '#0f172a', description: 'Bubble background.' },
       { name: '--hk-tooltip-text', default: '#ffffff', description: 'Bubble text colour.' },
-      { name: '--hk-tooltip-delay', default: '400ms', description: 'Hover delay.' },
     ],
     keyboard: [
       { keys: 'Tab', action: 'Focus shows the tooltip' },
@@ -1678,24 +1804,30 @@ export class DeployComponent {
     selector: 'HkConfirmService',
     category: 'Overlay',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.9,
     tagline: 'Promise-returning confirmation, no template needed.',
     description:
       'A service, not a template. Ask returns a promise, so a destructive action reads as a single await instead of a callback and a boolean flag.',
     tags: ['dialog', 'service'],
-    usage: `const ok = await this.confirm.ask({
+    usage: `import { HkConfirmService } from 'hellskitchen-ui';
+
+private confirm = inject(HkConfirmService);
+
+const ok = await this.confirm.ask({
   title: 'Delete this service?',
   body: 'Every deploy record and log stream goes with it.',
   confirmLabel: 'Delete',
+  cancelLabel: 'Keep it',
   tone: 'danger'
 });
 if (ok) this.remove();`,
     api: [
-      { kind: 'method', name: 'ask(options)', type: 'Promise<boolean>', default: '—', description: 'Opens the dialog and resolves true on confirm, false on cancel or dismiss.' },
+      { kind: 'method', name: 'ask(options)', type: '(options: HkConfirmOptions) => Promise<boolean>', default: '—', description: 'Opens the dialog and resolves true on confirm, false on cancel or dismiss.' },
       { kind: 'input', name: 'title', type: 'string', default: '\'\'', description: 'Headline. Ask a question.' },
       { kind: 'input', name: 'body', type: 'string', default: '\'\'', description: 'What will actually happen, and whether it can be undone.' },
       { kind: 'input', name: 'confirmLabel', type: 'string', default: '\'Confirm\'', description: 'Primary button label — name the action, not "OK".' },
+      { kind: 'input', name: 'cancelLabel', type: 'string', default: '\'Cancel\'', description: 'Secondary button label.' },
       { kind: 'input', name: 'tone', type: '\'default\' | \'danger\'', default: '\'default\'', description: 'Danger restyles the confirm button.' },
     ],
     tokens: [
@@ -1717,19 +1849,23 @@ if (ok) this.remove();`,
     selector: 'hkContextMenu',
     category: 'Overlay',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.3,
     tagline: 'Right-click menu that respects viewport edges.',
     description:
       'A right-click menu that clamps itself inside its container, so it never opens half off-screen near an edge.',
     tags: ['menu', 'right-click'],
-    usage: `<div [hkContextMenu]="rowActions" (menuSelect)="run($event)">
+    usage: `import { HkContextMenuDirective, HkContextMenuItem } from 'hellskitchen-ui';
+
+rowActions: HkContextMenuItem[] = [{ label: 'Open' }, { label: 'Delete', danger: true }];
+
+<div [hkContextMenu]="rowActions" (menuSelect)="run($event)">
   <!-- right-click target -->
 </div>`,
     api: [
-      { kind: 'input', name: 'hkContextMenu', type: 'HkMenuItem[]', default: '[]', description: 'Items to show.' },
+      { kind: 'input', name: 'hkContextMenu', type: 'HkContextMenuItem[]', default: '[]', description: 'Items to show.' },
       { kind: 'input', name: 'disabled', type: 'boolean', default: 'false', description: 'Falls back to the browser menu.' },
-      { kind: 'output', name: 'menuSelect', type: 'EventEmitter<HkMenuItem>', default: '—', description: 'Emits the chosen item.' },
+      { kind: 'output', name: 'menuSelect', type: 'EventEmitter<HkContextMenuItem>', default: '—', description: 'Emits the chosen item.' },
     ],
     tokens: [
       { name: '--hk-context-bg', default: '#ffffff', description: 'Panel background.' },
@@ -1754,13 +1890,18 @@ if (ok) this.remove();`,
     selector: 'hk-card',
     category: 'Layout',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.9,
     tagline: 'Header, body, footer and media — every slot independent.',
     description:
       'A surface with four optional slots — media, header, body, footer — that collapse cleanly when unused, so one component covers every card on the page. None of them implies another: showing the media does not oblige you to drop the copy, and dropping the copy does not take the media with it. The card supplies only the padding and the rules between whatever is actually there, so an omitted slot leaves no stray line or gap.',
     tags: ['surface', 'panel'],
-    usage: `<hk-card>
+    usage: `import {
+  HkCardComponent, HkCardMediaDirective, HkCardHeaderDirective,
+  HkCardBodyDirective, HkCardFooterDirective
+} from 'hellskitchen-ui';
+
+<hk-card>
   <img hkCardMedia src="cover.jpg" alt="" />
   <div hkCardHeader>
     <h3>billing-api</h3>
@@ -1783,7 +1924,6 @@ if (ok) this.remove();`,
   <p hkCardBody>Handles invoicing and dunning.</p>
 </hk-card>`,
     api: [
-      { kind: 'input', name: 'media', type: 'TemplateRef | null', default: 'null', description: 'Media slot. Independent of the rest — showing it does not oblige you to drop the copy, and dropping the copy does not take it with you.' },
       { kind: 'input', name: 'mediaPosition', type: "'top' | 'left'", default: "'top'", description: 'Media above the content, or beside it as a rail.' },
       { kind: 'input', name: 'dividers', type: 'boolean', default: 'true', description: 'Rules between the slots that are actually present. An empty slot leaves no stray line or gap.' },
       { kind: 'input', name: 'interactive', type: 'boolean', default: 'false', description: 'Adds hover lift and makes the whole card the click target.' },
@@ -1809,13 +1949,15 @@ if (ok) this.remove();`,
     selector: 'hk-divider',
     category: 'Layout',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.4,
     tagline: 'Horizontal or vertical rule with an optional label.',
     description:
       'A rule that can carry a label. Horizontal or vertical, and decorative by default so it does not clutter the accessibility tree.',
     tags: ['separator'],
-    usage: `<hk-divider />
+    usage: `import { HkDividerComponent } from 'hellskitchen-ui';
+
+<hk-divider />
 <hk-divider label="or" />
 <hk-divider orientation="vertical" />`,
     api: [
@@ -1838,13 +1980,15 @@ if (ok) this.remove();`,
     selector: 'hk-split',
     category: 'Layout',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.5,
     tagline: 'Draggable splitter with keyboard resize and min sizes.',
     description:
       'A draggable splitter with keyboard resize and real minimum sizes, so neither pane can be collapsed into uselessness by accident.',
     tags: ['resize', 'panes'],
-    usage: `<hk-split [(split)]="ratio" [min]="18" [max]="82">
+    usage: `import { HkSplitComponent, HkPaneDirective } from 'hellskitchen-ui';
+
+<hk-split [(split)]="ratio" [min]="18" [max]="82">
   <div hkPane>Request</div>
   <div hkPane>Response</div>
 </hk-split>`,
@@ -1852,17 +1996,17 @@ if (ok) this.remove();`,
       { kind: 'input', name: 'split', type: 'number', default: '50', description: 'First pane size as a percentage. Two-way bindable.' },
       { kind: 'input', name: 'min / max', type: 'number', default: '10 / 90', description: 'Clamp bounds, as percentages.' },
       { kind: 'input', name: 'orientation', type: '\'horizontal\' | \'vertical\'', default: '\'horizontal\'', description: 'Splitter direction.' },
-      { kind: 'input', name: 'step', type: 'number', default: '4', description: 'Percentage moved per arrow-key press.' },
-      { kind: 'output', name: 'splitChange', type: 'EventEmitter<number>', default: '—', description: 'Emits while dragging.' },
+      { kind: 'input', name: 'step', type: 'number', default: '4', description: 'Percentage moved per arrow-key press (← / →, or ↑ / ↓ when vertical).' },
+      { kind: 'output', name: 'splitChange', type: 'EventEmitter<number>', default: '—', description: 'Emits whenever the split changes — dragging, keys or Enter.' },
     ],
     tokens: [
-      { name: '--hk-split-handle', default: 'rgb(15 23 42 / 0.06)', description: 'Handle colour at rest.' },
+      { name: '--hk-split-handle', default: '#f1f5f9', description: 'Handle colour at rest.' },
       { name: '--hk-split-handle-active', default: '#dc2626', description: 'Handle colour while dragging or focused.' },
     ],
     keyboard: [
       { keys: '← / →', action: 'Moves the splitter by one step' },
       { keys: 'Home / End', action: 'Jumps to the min / max bound' },
-      { keys: 'Enter', action: 'Toggles the pane collapsed' },
+      { keys: 'Enter', action: 'Collapses the first pane to the min bound, and restores it' },
     ],
     a11y: [
       'The handle is role="separator" with aria-valuenow, and it is focusable — resizing is not mouse-only.',
@@ -1875,23 +2019,25 @@ if (ok) this.remove();`,
     selector: 'hk-scroll-area',
     category: 'Layout',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.6,
     tagline: 'Styled scrollbars with edge-fade affordances.',
     description:
       'Styled scrollbars with edge fades that track the real scroll position, so the fade only appears when there is genuinely more content that way.',
     tags: ['overflow'],
-    usage: `<hk-scroll-area maxHeight="11rem" [fade]="true">
+    usage: `import { HkScrollAreaComponent } from 'hellskitchen-ui';
+
+<hk-scroll-area maxHeight="11rem" [fade]="true">
   <!-- long content -->
 </hk-scroll-area>`,
     api: [
       { kind: 'input', name: 'maxHeight', type: 'string', default: '\'20rem\'', description: 'Height before the area scrolls.' },
-      { kind: 'input', name: 'fade', type: 'boolean', default: 'true', description: 'Shows gradient affordances at the scrollable edges.' },
+      { kind: 'input', name: 'fade', type: 'boolean', default: 'true', description: 'Shows gradient affordances at the top and bottom edges while there is more content that way.' },
       { kind: 'input', name: 'axis', type: '\'y\' | \'x\' | \'both\'', default: '\'y\'', description: 'Which direction scrolls.' },
-      { kind: 'output', name: 'scrolled', type: 'EventEmitter<{ top: boolean; bottom: boolean }>', default: '—', description: 'Emits when an edge is reached.' },
+      { kind: 'output', name: 'scrolled', type: 'EventEmitter<{ top: boolean; bottom: boolean }>', default: '—', description: 'Emits when the top or bottom edge is reached or left.' },
     ],
     tokens: [
-      { name: '--hk-scroll-thumb', default: '#cbd5e1', description: 'Scrollbar thumb.' },
+      { name: '--hk-scroll-thumb', default: '#e2e8f0', description: 'Scrollbar thumb.' },
       { name: '--hk-scroll-width', default: '8px', description: 'Scrollbar thickness.' },
       { name: '--hk-scroll-fade', default: '2rem', description: 'Height of the edge fade.' },
     ],
@@ -1910,19 +2056,21 @@ if (ok) this.remove();`,
     selector: 'hk-stack',
     category: 'Layout',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.5,
     tagline: 'Flex row or column with token-driven gaps.',
     description:
       'Flex row or column with token-driven gaps. The layout primitive you reach for before writing another one-off flex utility.',
     tags: ['flex', 'spacing'],
-    usage: `<hk-stack direction="row" gap="0.75rem" align="center">
+    usage: `import { HkStackComponent } from 'hellskitchen-ui';
+
+<hk-stack direction="row" gap="0.75rem" align="center">
   <button>Save</button>
   <button>Cancel</button>
 </hk-stack>`,
     api: [
       { kind: 'input', name: 'direction', type: '\'row\' | \'column\'', default: '\'column\'', description: 'Main axis.' },
-      { kind: 'input', name: 'gap', type: 'string', default: '\'0.5rem\'', description: 'Space between children.' },
+      { kind: 'input', name: 'gap', type: 'string', default: '\'\' (--hk-stack-gap, 0.5rem)', description: 'Space between children. Empty falls back to the token.' },
       { kind: 'input', name: 'align', type: '\'start\' | \'center\' | \'end\' | \'stretch\'', default: '\'stretch\'', description: 'Cross-axis alignment.' },
       { kind: 'input', name: 'justify', type: '\'start\' | \'center\' | \'end\' | \'between\'', default: '\'start\'', description: 'Main-axis distribution.' },
       { kind: 'input', name: 'wrap', type: 'boolean', default: 'false', description: 'Allows children to wrap.' },
@@ -1940,20 +2088,22 @@ if (ok) this.remove();`,
     selector: 'hk-app-shell',
     category: 'Layout',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.8,
     tagline: 'Header, sidebar and content frame with responsive rules.',
     description:
       'Header, navigation rail and content frame with the responsive rule built in — below the breakpoint the rail overlays the content instead of squeezing it.',
     tags: ['shell', 'layout'],
-    usage: `<hk-app-shell [(navOpen)]="navOpen" overlayBelow="lg">
+    usage: `import { HkAppShellComponent } from 'hellskitchen-ui';
+
+<hk-app-shell [(navOpen)]="navOpen" overlayBelow="lg">
   <header hkShellHeader>…</header>
   <nav hkShellNav>…</nav>
   <main hkShellContent>…</main>
 </hk-app-shell>`,
     api: [
       { kind: 'input', name: 'navOpen', type: 'boolean', default: 'true', description: 'Rail visibility. Two-way bindable.' },
-      { kind: 'input', name: 'overlayBelow', type: 'string', default: '\'lg\'', description: 'Breakpoint under which the rail overlays rather than pushes.' },
+      { kind: 'input', name: 'overlayBelow', type: 'string', default: '\'lg\'', description: 'Breakpoint (sm, md, lg, xl, 2xl or a CSS length) under which the rail overlays rather than pushes.' },
       { kind: 'input', name: 'navWidth', type: 'string', default: '\'13rem\'', description: 'Expanded rail width.' },
       { kind: 'output', name: 'navOpenChange', type: 'EventEmitter<boolean>', default: '—', description: 'Emits on toggle.' },
     ],
@@ -1978,13 +2128,15 @@ if (ok) this.remove();`,
     selector: 'hk-carousel',
     category: 'Layout',
     status: 'new',
-    packaged: false,
+    packaged: true,
     size: 3.1,
     tagline: 'One transform, swipe and keys, and autoplay that knows when to stop.',
     description:
       'The whole track moves on a single transform rather than each slide animating itself, so it stays on the compositor however many slides there are. Autoplay is the part carousels usually get wrong: it suspends on hover, on focus anywhere inside, and mid-drag, and it never starts at all under prefers-reduced-motion — the user has already told the OS how they feel about things that move on their own.',
     tags: ['slider', 'gallery', 'swipe'],
-    usage: `<hk-carousel [(index)]="slide" [autoplay]="true" [interval]="4000" [loop]="true">
+    usage: `import { HkCarouselComponent, HkCarouselSlideComponent } from 'hellskitchen-ui';
+
+<hk-carousel aria-label="Highlights" [(index)]="slide" [autoplay]="true" [interval]="4000" [loop]="true">
   @for (item of highlights; track item.id) {
     <hk-slide>…</hk-slide>
   }
@@ -1998,6 +2150,7 @@ if (ok) this.remove();`,
       { kind: 'input', name: 'showArrows', type: 'boolean', default: 'true', description: 'Previous / next controls.' },
       { kind: 'input', name: 'showDots', type: 'boolean', default: 'true', description: 'The position indicator, which doubles as direct navigation.' },
       { kind: 'output', name: 'changed', type: 'EventEmitter<number>', default: '—', description: 'Emits the new index.' },
+      { kind: 'method', name: 'playing()', type: 'Signal<boolean>', default: '—', description: 'Whether autoplay is actually running right now (false while held by hover, focus, drag or reduced motion).' },
       { kind: 'method', name: 'next() / prev()', type: '() => void', default: '—', description: 'Advance or retreat, honouring loop.' },
       { kind: 'method', name: 'go(index)', type: '(index: number) => void', default: '—', description: 'Jump to a slide, clamped or wrapped by loop.' }
     ],
@@ -2167,24 +2320,27 @@ export class DeploysComponent {
     selector: 'hk-tree',
     category: 'Data',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 4.1,
     tagline: 'Lazy-loading tree with checkbox cascade.',
     description:
       'A tree whose checkbox cascade reports partial state honestly: a parent is checked, unchecked, or indeterminate based on its children, not on its own stale flag.',
     tags: ['hierarchy'],
-    usage: `<hk-tree
+    usage: `import { HkTreeComponent, HkTreeNode } from 'hellskitchen-ui';
+
+<hk-tree
   [nodes]="regions"
   [(checked)]="selectedRegions"
   [(expanded)]="openNodes"
   [cascade]="true" />`,
     api: [
-      { kind: 'input', name: 'nodes', type: 'HkTreeNode[]', default: '[]', description: 'Tree data. Children nest to any depth.' },
+      { kind: 'input', name: 'nodes', type: 'HkTreeNode[]', default: '[]', description: 'Tree data — { id?, label, children?, hasChildren? }. Children nest to any depth; id falls back to label.' },
       { kind: 'input', name: 'checked', type: 'string[]', default: '[]', description: 'Checked node ids. Two-way bindable.' },
       { kind: 'input', name: 'expanded', type: 'string[]', default: '[]', description: 'Expanded node ids. Two-way bindable.' },
       { kind: 'input', name: 'cascade', type: 'boolean', default: 'true', description: 'Checking a parent checks its whole subtree.' },
-      { kind: 'input', name: 'loadChildren', type: '(node) => Promise<HkTreeNode[]>', default: 'null', description: 'Lazy loader, called the first time a node expands.' },
-      { kind: 'output', name: 'checkedChange', type: 'EventEmitter<string[]>', default: '—', description: 'Emits on any check change.' },
+      { kind: 'input', name: 'loadChildren', type: '(node: HkTreeNode) => Promise<HkTreeNode[]>', default: 'null', description: 'Lazy loader, called the first time a node marked hasChildren expands.' },
+      { kind: 'output', name: 'checkedChange', type: 'string[]', default: '—', description: 'Emits on any check change.' },
+      { kind: 'output', name: 'expandedChange', type: 'string[]', default: '—', description: 'Emits when a node expands or collapses.' },
     ],
     tokens: [
       { name: '--hk-tree-indent', default: '1.25rem', description: 'Indent per level.' },
@@ -2208,20 +2364,22 @@ export class DeploysComponent {
     selector: 'hk-tag',
     category: 'Data',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.7,
     tagline: 'Compact label with tone, icon and remove button.',
     description:
       'A compact label with a tone, an optional icon and a remove button that actually removes. Tones pair an icon with the colour so meaning survives colour blindness.',
     tags: ['chip', 'badge'],
-    usage: `<hk-tag tone="success" icon="pi pi-check">healthy</hk-tag>
+    usage: `import { HkTagComponent } from 'hellskitchen-ui';
+
+<hk-tag tone="success" icon="pi pi-check">healthy</hk-tag>
 <hk-tag [removable]="true" (removed)="drop(tag)">canary</hk-tag>`,
     api: [
       { kind: 'input', name: 'tone', type: '\'neutral\' | \'success\' | \'warning\' | \'danger\' | \'info\'', default: '\'neutral\'', description: 'Colour scheme.' },
-      { kind: 'input', name: 'icon', type: 'string', default: '\'\'', description: 'Leading icon class.' },
+      { kind: 'input', name: 'icon', type: 'string', default: '\'\'', description: 'Leading icon class from your own icon font (the library ships none).' },
       { kind: 'input', name: 'removable', type: 'boolean', default: 'false', description: 'Shows the remove button.' },
       { kind: 'input', name: 'size', type: '\'sm\' | \'md\'', default: '\'md\'', description: 'Scale.' },
-      { kind: 'output', name: 'removed', type: 'EventEmitter<void>', default: '—', description: 'Emits when the remove button is pressed.' },
+      { kind: 'output', name: 'removed', type: 'void', default: '—', description: 'Emits when the remove button is pressed.' },
     ],
     tokens: [
       { name: '--hk-tag-radius', default: '999px', description: 'Corner radius.' },
@@ -2243,21 +2401,25 @@ export class DeploysComponent {
     selector: 'hk-badge',
     category: 'Data',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.5,
     tagline: 'Count or dot indicator, anchorable to any element.',
     description:
       'A count or a dot, anchorable to any element. Counts past the cap collapse to "99+" so the badge never widens the layout underneath it.',
     tags: ['count', 'dot'],
-    usage: `<hk-badge [count]="unread" [max]="99">
+    usage: `import { HkBadgeComponent } from 'hellskitchen-ui';
+
+<hk-badge [count]="unread" [max]="99">
   <i class="pi pi-bell"></i>
 </hk-badge>
 
-<hk-badge variant="dot" [show]="hasUpdates" />`,
+<hk-badge variant="dot" [count]="updates">
+  <i class="pi pi-inbox"></i>
+</hk-badge>`,
     api: [
       { kind: 'input', name: 'count', type: 'number', default: '0', description: 'Number shown. Zero hides the badge unless showZero.' },
       { kind: 'input', name: 'max', type: 'number', default: '99', description: 'Cap; anything above renders as "max+".' },
-      { kind: 'input', name: 'variant', type: '\'count\' | \'dot\'', default: '\'count\'', description: 'Number or a bare dot.' },
+      { kind: 'input', name: 'variant', type: '\'count\' | \'dot\'', default: '\'count\'', description: 'Number or a bare dot. Both follow count / showZero for visibility.' },
       { kind: 'input', name: 'showZero', type: 'boolean', default: 'false', description: 'Keeps the badge visible at zero.' },
       { kind: 'input', name: 'tone', type: '\'danger\' | \'neutral\' | \'success\'', default: '\'danger\'', description: 'Colour.' },
     ],
@@ -2267,7 +2429,7 @@ export class DeploysComponent {
       { name: '--hk-badge-ring', default: '#ffffff', description: 'Ring separating it from the content beneath.' },
     ],
     a11y: [
-      'The count is announced with its meaning through aria-label — "12 unread notifications", not a bare "12".',
+      'The count is real text in the DOM, next to the content it is anchored to — give that content its own accessible name.',
       'A dot badge is aria-hidden and relies on its host having a real accessible name.',
       'Capping at max keeps the badge from resizing the control it is anchored to.',
     ],
@@ -2278,23 +2440,27 @@ export class DeploysComponent {
     selector: 'hk-avatar',
     category: 'Data',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.1,
     tagline: 'Image, initials or icon avatar with stack grouping.',
     description:
       'Image, initials or icon, with a stack mode that collapses the overflow into a +N. Initials are derived from the name, so a missing image is never a broken image.',
     tags: ['user', 'image'],
-    usage: `<hk-avatar name="Debashish Roy" src="/avatars/deb.jpg" [online]="true" />
+    usage: `import { HkAvatarComponent, HkAvatarStackComponent } from 'hellskitchen-ui';
+
+<hk-avatar name="Debashish Roy" src="/avatars/deb.jpg" [online]="true" />
 
 <hk-avatar-stack [max]="3">
-  <hk-avatar *ngFor="let p of people" [name]="p.name" />
+  @for (p of people; track p.name) {
+    <hk-avatar size="sm" [name]="p.name" />
+  }
 </hk-avatar-stack>`,
     api: [
       { kind: 'input', name: 'name', type: 'string', default: '\'\'', description: 'Used for initials and for the accessible name.' },
       { kind: 'input', name: 'src', type: 'string', default: '\'\'', description: 'Image URL. Falls back to initials on error.' },
       { kind: 'input', name: 'size', type: '\'sm\' | \'md\' | \'lg\'', default: '\'md\'', description: 'Diameter.' },
       { kind: 'input', name: 'online', type: 'boolean | null', default: 'null', description: 'Shows a presence dot when set.' },
-      { kind: 'input', name: 'max', type: 'number', default: '3', description: 'On a stack, how many to show before the +N.' },
+      { kind: 'input', name: 'max', type: 'number', default: '3', description: 'On <hk-avatar-stack>, how many to show before the +N.' },
     ],
     tokens: [
       { name: '--hk-avatar-size', default: '2.75rem', description: 'Diameter.' },
@@ -2316,17 +2482,19 @@ export class DeploysComponent {
     selector: 'hk-timeline',
     category: 'Data',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 2.0,
     tagline: 'Vertical or horizontal event rail with custom markers.',
     description:
       'An event rail, vertical or horizontal, with a marker per tone. Built as an ordered list, because that is what a chronology is.',
     tags: ['events', 'history'],
-    usage: `<hk-timeline [events]="deployEvents" orientation="vertical" />`,
+    usage: `import { HkTimelineComponent, HkTimelineEvent } from 'hellskitchen-ui';
+
+<hk-timeline [events]="deployEvents" orientation="vertical" />`,
     api: [
-      { kind: 'input', name: 'events', type: 'HkTimelineEvent[]', default: '[]', description: 'Events in order, each with a time, title and tone.' },
+      { kind: 'input', name: 'events', type: 'HkTimelineEvent[]', default: '[]', description: 'Events in order — { at, title, body?, tone?, datetime? }. Tone is brand | neutral | success | warning | danger.' },
       { kind: 'input', name: 'orientation', type: '\'vertical\' | \'horizontal\'', default: '\'vertical\'', description: 'Rail direction.' },
-      { kind: 'input', name: 'markerTemplate', type: 'TemplateRef | null', default: 'null', description: 'Replaces the default dot.' },
+      { kind: 'input', name: 'markerTemplate', type: 'TemplateRef<HkTimelineMarkerContext> | null', default: 'null', description: 'Replaces the default dot. Gets the event as $implicit, plus index.' },
     ],
     tokens: [
       { name: '--hk-timeline-rail', default: '#e2e8f0', description: 'Connecting line.' },
@@ -2343,13 +2511,15 @@ export class DeploysComponent {
     selector: 'hk-stat',
     category: 'Data',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.3,
     tagline: 'Metric tile with delta, sparkline slot and count-up.',
     description:
       'A metric tile with a count-up value, a delta whose tone follows its sign, and a slot for a sparkline.',
     tags: ['kpi', 'metric'],
-    usage: `<hk-stat
+    usage: `import { HkStatComponent } from 'hellskitchen-ui';
+
+<hk-stat
   label="Deploys / week"
   [value]="128"
   [delta]="12"
@@ -2368,12 +2538,12 @@ export class DeploysComponent {
     tokens: [
       { name: '--hk-stat-up', default: '#059669', description: 'Positive delta colour.' },
       { name: '--hk-stat-down', default: '#dc2626', description: 'Negative delta colour.' },
-      { name: '--hk-stat-label', default: '#64748b', description: 'Label colour.' },
+      { name: '--hk-stat-label', default: '#475569', description: 'Label colour.' },
     ],
     a11y: [
       'The delta pairs an arrow glyph with its colour, so direction is not colour-only.',
       'The count-up is decorative: the final value is in the DOM from the start, so assistive tech never reads a partial number.',
-      'A falling metric is not always bad — tone follows the sign, and can be inverted per stat.',
+      'The sparkline slot is drawn in the delta colour through currentColor, so it agrees with the arrow.',
     ],
   },
 
@@ -2842,49 +3012,47 @@ readonly series: HkSeries[] = [
     selector: 'hk-chatbot',
     category: 'AI',
     status: 'new',
-    packaged: false,
+    packaged: true,
     size: 7.4,
     tagline: 'Streaming transcript, tool calling and voice — bring your own model.',
     description:
-      'A complete assistant surface with the vendor left out. The engine is plain TypeScript: it owns the transcript, streams tokens into the current message, runs whatever tools you registered and feeds the results back for another round. What talks to a model is a single function you supply, so the demo runs on a local transport with no key and no network, and going live is one swap. Voice is both directions — dictation into the composer, synthesis out of it — and both are feature-detected, so a browser without them simply does not show the button.',
+      'A complete assistant surface with the vendor left out. The component draws the transcript, the composer, tool-call rows and voice; what talks to a model is yours — an engine with send, abort and reset, whose messages and busy state you feed back in. The demo runs on a local engine with no key and no network, so going live is one swap. Voice is both directions — dictation into the composer, synthesis out of it — and both are feature-detected, so a browser without them simply does not show the button.',
     tags: ['ai', 'chat', 'assistant', 'voice', 'tools'],
-    usage: `const engine = new HkChatEngine({
-  // Your own server, which holds the key. Never call a provider from
-  // the browser — the key would ship to every visitor.
-  transport: streamFromEndpoint('/api/chat'),
-  systemPrompt: 'You are a support assistant. Be brief.',
-  tools: STARTER_TOOLS,
-  onChange: (messages) => this.messages.set(messages)
+    usage: `import { HkChatbotComponent, HkChatbotEngine, HkChatbotMessage } from 'hellskitchen-ui';
+
+// The component never calls a backend. Your engine does — through your own
+// server, which holds the key — and reports back through signals.
+readonly messages = signal<HkChatbotMessage[]>([]);
+readonly busy = signal(false);
+readonly engine: HkChatbotEngine = new MyChatEngine({
+  endpoint: '/api/chat',
+  onChange: (messages) => this.messages.set(messages),
+  onBusy: (busy) => this.busy.set(busy)
 });
 
-// A tool is a name, a description, a parameter list and a function.
-// Register one at any time — it is callable from that turn on.
-engine.registerTool({
-  name: 'refund_order',
-  description: 'Refund an order by id.',
-  parameters: [
-    { name: 'orderId', type: 'string', description: 'Order to refund.', required: true }
-  ],
-  run: async ({ orderId }) => api.refund(String(orderId))
-});
-
-await engine.send('refund order 8823');`,
+<hk-chatbot
+  [engine]="engine"
+  [messages]="messages()"
+  [busy]="busy()"
+  [tools]="[{ name: 'refund_order', icon: 'pi pi-wallet' }]"
+  [suggestions]="['Refund order 8823']"
+  [(speakReplies)]="speak" />`,
     api: [
-      { kind: 'input', name: 'transport', type: 'HkChatTransport', default: '—', description: 'Turns a request into an async stream of chunks. The only thing that knows about a model.' },
-      { kind: 'input', name: 'systemPrompt', type: 'string', default: "''", description: 'Seeded as the first message and restored on reset(). Never rendered as a bubble.' },
-      { kind: 'input', name: 'tools', type: 'HkTool[]', default: '[]', description: 'Initial tool registry. Add to it later with registerTool().' },
-      { kind: 'input', name: 'maxToolRounds', type: 'number', default: '3', description: 'How many tool rounds one turn may take, so a model that keeps calling itself cannot loop forever.' },
-      { kind: 'input', name: 'speakReplies', type: 'boolean', default: 'false', description: 'Read replies aloud as they stream, a sentence at a time.' },
-      { kind: 'output', name: 'onChange', type: '(messages: HkChatMessage[]) => void', default: '—', description: 'Fires on every mutation with a fresh array, so a signal can hold it.' },
-      { kind: 'output', name: 'onToolCall', type: '(call: HkToolCall) => void', default: '—', description: 'Fires per finished call, with args, result and elapsed ms.' },
-      { kind: 'method', name: 'send(text)', type: '(text: string) => Promise<void>', default: '—', description: 'Runs a full turn: stream, tool calls, and the rounds they trigger.' },
-      { kind: 'method', name: 'registerTool(tool)', type: '(tool: HkTool) => void', default: '—', description: 'Add or replace a tool, including mid-conversation.' },
-      { kind: 'method', name: 'abort()', type: '() => void', default: '—', description: 'Cancels the in-flight turn and keeps whatever already streamed.' },
-      { kind: 'method', name: 'reset()', type: '() => void', default: '—', description: 'Clears the transcript back to the system prompt.' }
+      { kind: 'input', name: 'engine', type: 'HkChatbotEngine | null', default: 'null', description: 'The send / abort / reset logic — { send(text), abort(), reset() }. The only thing that knows about a model.' },
+      { kind: 'input', name: 'messages', type: 'HkChatbotMessage[]', default: '[]', description: 'The transcript to render, including streaming state and tool calls. System messages are never shown.' },
+      { kind: 'input', name: 'busy', type: 'boolean', default: 'false', description: 'A turn is in flight: shows Stop, disables Send, and Esc aborts.' },
+      { kind: 'input', name: 'tools', type: 'HkChatbotTool[]', default: '[]', description: 'Registered tools ({ name, icon? }) — counted in the toolbar; icon is a class from your icon font.' },
+      { kind: 'input', name: 'speakReplies', type: 'boolean', default: 'false', description: 'Read replies aloud as they stream, a sentence at a time. Two-way bindable.' },
+      { kind: 'input', name: 'logHeight', type: 'string | null', default: 'null', description: 'Transcript height; falls back to --hk-chat-log-height.' },
+      { kind: 'input', name: 'showToolbar', type: 'boolean', default: 'true', description: 'The status / Speak / Clear row.' },
+      { kind: 'input', name: 'suggestions', type: 'string[]', default: '[]', description: 'Prompts offered while the transcript is empty.' },
+      { kind: 'input', name: 'emptyMessage', type: 'string', default: "'Ask something to get started.'", description: 'Shown while the transcript is empty.' },
+      { kind: 'output', name: 'speakRepliesChange', type: 'boolean', default: '—', description: 'Emits when the Speak toggle flips.' },
+      { kind: 'method', name: 'focusComposer()', type: '() => void', default: '—', description: 'Moves focus to the message box.' }
     ],
     tokens: [
       { name: '--hk-chat-bubble-user', default: 'var(--hk-accent)', description: 'User bubble fill.' },
-      { name: '--hk-chat-bubble-bot', default: 'var(--hk-surface)', description: 'Assistant bubble fill.' },
+      { name: '--hk-chat-bubble-bot', default: '#ffffff', description: 'Assistant bubble fill.' },
       { name: '--hk-chat-log-height', default: '20rem', description: 'Transcript height before it scrolls.' }
     ],
     keyboard: [
@@ -2905,19 +3073,21 @@ await engine.send('refund order 8823');`,
     selector: 'hkReveal',
     category: 'Utility',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.6,
     tagline: 'Scroll-triggered enter animation with stagger.',
     description:
       'A scroll-triggered entrance with a stagger. Observes once and then unhooks, so a long page does not carry a hundred live observers.',
     tags: ['directive', 'scroll'],
-    usage: `<div appReveal [revealDelay]="i * 90" [revealThreshold]="0.2">
+    usage: `import { HkRevealDirective } from 'hellskitchen-ui';
+
+<div hkReveal [revealDelay]="i * 90" [revealThreshold]="0.2">
   <!-- content -->
 </div>`,
     api: [
       { kind: 'input', name: 'revealDelay', type: 'number', default: '0', description: 'Milliseconds before the animation starts. Multiply by index to stagger.' },
       { kind: 'input', name: 'revealThreshold', type: 'number', default: '0.15', description: 'How much must be visible before it fires, 0–1.' },
-      { kind: 'input', name: 'revealOnce', type: 'boolean', default: 'true', description: 'Disconnects after the first reveal.' },
+      { kind: 'input', name: 'revealOnce', type: 'boolean', default: 'true', description: 'Disconnects after the first reveal; when false it hides again on exit.' },
     ],
     tokens: [
       { name: '--hk-reveal-distance', default: '28px', description: 'How far it travels.' },
@@ -2935,24 +3105,23 @@ await engine.send('refund order 8823');`,
     selector: 'hkCountUp',
     category: 'Utility',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.5,
     tagline: 'Animates a number into view, reduced-motion aware.',
     description:
-      'Animates a number into view and retriggers when the target changes. The final value is in the DOM the whole time, so it is never read as a partial figure.',
+      'Animates a number into view and retriggers when the target changes, counting from wherever it currently is.',
     tags: ['directive', 'number'],
-    usage: `<span appCountUp [countTo]="8420" countPrefix="$" [countDuration]="1400">0</span>`,
+    usage: `import { HkCountUpDirective } from 'hellskitchen-ui';
+
+<span hkCountUp [countTo]="8420" countPrefix="$" [countDuration]="1400">0</span>`,
     api: [
       { kind: 'input', name: 'countTo', type: 'number', default: '0', description: 'Target value.' },
       { kind: 'input', name: 'countDuration', type: 'number', default: '1600', description: 'Animation length in milliseconds.' },
       { kind: 'input', name: 'countPrefix / countSuffix', type: 'string', default: '\'\'', description: 'Text either side of the number.' },
       { kind: 'input', name: 'countDecimals', type: 'number', default: '0', description: 'Fraction digits held during the count.' },
     ],
-    tokens: [
-      { name: '--hk-countup-ease', default: 'cubic-bezier(0.16, 1, 0.3, 1)', description: 'Easing curve.' },
-    ],
     a11y: [
-      'The element is aria-live="off" and carries the final value, so screen readers announce the figure once, not every frame.',
+      'The element is aria-live="off", so screen readers are not told about every frame of the count.',
       'prefers-reduced-motion jumps straight to the target.',
     ],
   },
@@ -2962,30 +3131,30 @@ await engine.send('refund order 8823');`,
     selector: 'hkCopy',
     category: 'Utility',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.4,
     tagline: 'Copy-to-clipboard directive with a confirmation state.',
     description:
       'Copy with a confirmation state that reverts itself — and reports failure, because the Clipboard API is refused often enough that silence is a bug.',
     tags: ['directive', 'copy'],
-    usage: `<button [hkCopy]="installCommand" (copied)="ok()" (copyFailed)="warn()">
-  Copy
+    usage: `import { HkCopyDirective } from 'hellskitchen-ui';
+
+<button [hkCopy]="installCommand" #copy="hkCopy" (copied)="ok()" (copyFailed)="warn()">
+  {{ copy.confirmed() ? 'Copied' : 'Copy' }}
 </button>`,
     api: [
       { kind: 'input', name: 'hkCopy', type: 'string', default: '\'\'', description: 'Text to write to the clipboard.' },
       { kind: 'input', name: 'copyResetDelay', type: 'number', default: '1600', description: 'How long the confirmed state lasts.' },
-      { kind: 'output', name: 'copied', type: 'EventEmitter<string>', default: '—', description: 'Emits the copied text on success.' },
-      { kind: 'output', name: 'copyFailed', type: 'EventEmitter<Error>', default: '—', description: 'Emits when the browser refuses.' },
-    ],
-    tokens: [
-      { name: '--hk-copy-success', default: '#059669', description: 'Confirmed state colour.' },
+      { kind: 'output', name: 'copied', type: 'string', default: '—', description: 'Emits the copied text on success.' },
+      { kind: 'output', name: 'copyFailed', type: 'Error', default: '—', description: 'Emits when the browser refuses.' },
+      { kind: 'method', name: 'confirmed()', type: 'Signal<boolean>', default: '—', description: 'True for copyResetDelay ms after a copy (exportAs "hkCopy"). The host also gets .hk-copied.' },
     ],
     keyboard: [
       { keys: 'Enter / Space', action: 'Copies from a focused host' },
     ],
     a11y: [
-      'Success is announced through an aria-live region, so it is not conveyed by the tick alone.',
-      'Failure surfaces as a message — a permission-blocked clipboard must not look like success.',
+      'It binds to click, so on a native button Enter and Space copy too.',
+      'Failure surfaces as an output — a permission-blocked clipboard must not look like success.',
     ],
   },
   {
@@ -2994,13 +3163,15 @@ await engine.send('refund order 8823');`,
     selector: 'HkHotkeyService',
     category: 'Utility',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.9,
     tagline: 'Scoped keyboard shortcuts that clean themselves up.',
     description:
       'Scoped keyboard shortcuts that unbind themselves with the component that registered them, and never fire while the user is typing in a field.',
     tags: ['keyboard', 'service'],
-    usage: `private readonly hotkeys = inject(HkHotkeyService);
+    usage: `import { HkHotkeyService } from 'hellskitchen-ui';
+
+private readonly hotkeys = inject(HkHotkeyService);
 
 constructor() {
   this.hotkeys.bind('mod+k', () => this.openPalette());
@@ -3010,7 +3181,7 @@ constructor() {
       { kind: 'method', name: 'bind(keys, handler)', type: '(keys: string, handler: () => void) => void', default: '—', description: 'Registers a shortcut, unbound automatically on destroy.' },
       { kind: 'method', name: 'unbind(keys)', type: '(keys: string) => void', default: '—', description: 'Removes one binding early.' },
       { kind: 'method', name: 'scope(name)', type: '(name: string) => HkHotkeyScope', default: '—', description: 'Creates a scope so a dialog can shadow global bindings.' },
-      { kind: 'input', name: 'sequences', type: 'boolean', default: 'true', description: 'Supports two-key runs such as "g d".' },
+      { kind: 'input', name: 'sequences', type: 'boolean', default: 'true', description: 'Property on the service: supports two-key runs such as "g d".' },
     ],
     a11y: [
       'Never fires while focus is in an input, textarea or select — a shortcut must not eat what someone is typing.',
@@ -3024,13 +3195,15 @@ constructor() {
     selector: 'HkThemeService',
     category: 'Utility',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 1.2,
     tagline: 'Reads, writes and persists the token layer at runtime.',
     description:
       'Reads, writes and persists the token layer at runtime. One class on the root element retunes every component, with no rebuild and no per-component theme prop.',
     tags: ['theming', 'service'],
-    usage: `private readonly theme = inject(HkThemeService);
+    usage: `import { HkThemeService } from 'hellskitchen-ui';
+
+private readonly theme = inject(HkThemeService);
 
 this.theme.toggle();
 this.theme.set('light');
@@ -3039,9 +3212,9 @@ this.theme.setToken('--hk-accent', '#3b82f6');`,
       { kind: 'method', name: 'toggle()', type: '() => void', default: '—', description: 'Flips between light and dark.' },
       { kind: 'method', name: 'set(theme)', type: '(theme: \'light\' | \'dark\') => void', default: '—', description: 'Applies a theme and persists the choice.' },
       { kind: 'method', name: 'setToken(name, value)', type: '(name: string, value: string) => void', default: '—', description: 'Overrides one token at runtime.' },
-      { kind: 'input', name: 'theme', type: 'Signal<\'light\' | \'dark\'>', default: '\'dark\'', description: 'Current theme, readable as a signal.' },
-      { kind: 'input', name: 'storageKey', type: 'string', default: "'hk-theme'", description: 'Where the choice is remembered.' },
-      { kind: 'input', name: 'accents', type: 'HkAccent[]', default: '16 named presets', description: 'The built-in palette, from Crimson through Slate. A shortcut, not the API — any CSS colour works.' },
+      { kind: 'input', name: 'theme', type: 'Signal<HkThemeMode>', default: '\'dark\'', description: 'Current theme (\'light\' | \'dark\'), readable as a signal.' },
+      { kind: 'input', name: 'storageKey', type: 'string', default: "'hk-theme'", description: 'Property on the service: where the choice is remembered.' },
+      { kind: 'input', name: 'accents', type: 'readonly HkAccent[]', default: '16 named presets', description: 'The built-in palette, from Crimson through Slate (also exported as HK_ACCENTS). A shortcut, not the API — any CSS colour works.' },
       { kind: 'method', name: 'setAccent(colour)', type: '(colour: string) => void', default: '—', description: 'Writes --hk-accent. Every shade is derived from it with color-mix, so an accent is one value rather than a five-step ramp.' },
     ],
     tokens: [
@@ -3052,7 +3225,7 @@ this.theme.setToken('--hk-accent', '#3b82f6');`,
     a11y: [
       'Sets color-scheme alongside the class, so browser-drawn controls — dropdown popups, scrollbars, date pickers — are painted the right way round.',
       'The stored choice wins over the OS preference; the OS only decides for a first-time visitor.',
-      'The class is applied before first paint by an inline script, so a dark-mode visitor never sees a white flash.',
+      'Apply the class before first paint with a small inline script in index.html, so a dark-mode visitor never sees a white flash.',
     ],
   },
   {
@@ -3061,21 +3234,23 @@ this.theme.setToken('--hk-accent', '#3b82f6');`,
     selector: 'hkIntersect',
     category: 'Utility',
     status: 'stable',
-    packaged: false,
+    packaged: true,
     size: 0.5,
     tagline: 'Emits when an element enters or leaves the viewport.',
     description:
       'Emits when an element enters or leaves the viewport — the primitive behind lazy loading, infinite scroll and scroll-spy.',
     tags: ['directive', 'observer'],
-    usage: `<div hkIntersect [intersectThreshold]="0.5"
+    usage: `import { HkIntersectDirective } from 'hellskitchen-ui';
+
+<div hkIntersect [intersectThreshold]="0.5"
   (entered)="load()" (left)="pause()">
 </div>`,
     api: [
       { kind: 'input', name: 'intersectThreshold', type: 'number', default: '0', description: 'Visible fraction that counts as intersecting, 0–1.' },
       { kind: 'input', name: 'intersectRoot', type: 'Element | null', default: 'null', description: 'Scroll container. Defaults to the viewport.' },
       { kind: 'input', name: 'intersectOnce', type: 'boolean', default: 'false', description: 'Disconnects after the first entry.' },
-      { kind: 'output', name: 'entered', type: 'EventEmitter<IntersectionObserverEntry>', default: '—', description: 'Emits on enter.' },
-      { kind: 'output', name: 'left', type: 'EventEmitter<IntersectionObserverEntry>', default: '—', description: 'Emits on exit.' },
+      { kind: 'output', name: 'entered', type: 'IntersectionObserverEntry', default: '—', description: 'Emits on enter.' },
+      { kind: 'output', name: 'left', type: 'IntersectionObserverEntry', default: '—', description: 'Emits on exit (not on the initial off-screen report).' },
     ],
     a11y: [
       'Purely observational — it adds no roles and changes nothing in the accessibility tree.',

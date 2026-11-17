@@ -1,28 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { HkControlDirective, HkFormFieldComponent } from 'hellskitchen-ui';
 
 /** Label, hint, error and aria wiring for any control you drop inside. */
 @Component({
   selector: 'app-form-field-demo',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [HkFormFieldComponent, HkControlDirective],
   template: `
     <form class="w-full max-w-sm space-y-4" (submit)="submit($event)">
-      <div>
-        <label for="ff-email" class="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-gray-400">
-          Work email <span class="text-red-600 dark:text-red-400">*</span>
-        </label>
-        <input id="ff-email" type="email" [value]="email()"
-          (input)="email.set($any($event.target).value)" (blur)="touched.set(true)"
-          [attr.aria-invalid]="showError()" [attr.aria-describedby]="showError() ? 'ff-error' : 'ff-hint'"
-          class="w-full rounded-xl border bg-white dark:bg-neutral-950 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition-colors"
-          [class]="showError() ? 'border-red-400 dark:border-red-600/50' : 'border-slate-200 dark:border-white/10 focus:border-red-500 dark:focus:border-red-600/70'" />
-        @if (showError()) {
-          <p id="ff-error" class="mt-1.5 flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
-            <span aria-hidden="true">⚠</span> Use your company address.
-          </p>
-        } @else {
-          <p id="ff-hint" class="mt-1.5 text-xs text-slate-600 dark:text-gray-400">We only use this for deploy alerts.</p>
-        }
-      </div>
+      <hk-form-field
+        label="Work email"
+        hint="We only use this for deploy alerts."
+        [error]="showError() ? 'Use your company address.' : ''"
+        [required]="true">
+        <input hkControl type="email" [value]="email()"
+          (input)="email.set($any($event.target).value)" (blur)="touched.set(true)" />
+      </hk-form-field>
 
       <button type="submit" [disabled]="showError() || !email()"
         class="w-full rounded-xl bg-gradient-to-r from-red-600 to-red-800 py-2.5 text-sm font-semibold text-white transition disabled:opacity-40">

@@ -1,0 +1,180 @@
+@layer components {
+  :host {
+    --hk-dp-surface: #ffffff;
+    --hk-dp-border: #e2e8f0;
+    --hk-dp-divider: rgb(226 232 240 / 0.6);
+    --hk-dp-ink: #0f172a;
+    --hk-dp-day-ink: #334155;
+    --hk-dp-muted: #475569;
+    --hk-dp-faint: #94a3b8;
+    --hk-dp-hover: #f1f5f9;
+    --hk-dp-focus: #ef4444;
+    --hk-dp-selected: var(--hk-date-selected, #dc2626);
+    --hk-dp-range: var(--hk-date-in-range, #fee2e2);
+    --hk-dp-range-ink: #991b1b;
+    --hk-dp-today: var(--hk-date-today-ring, #94a3b8);
+
+    display: block;
+    width: 100%;
+    max-width: 24rem;
+  }
+
+  :host-context(.dark) {
+    --hk-dp-surface: #0a0a0a;
+    --hk-dp-border: rgb(255 255 255 / 0.1);
+    --hk-dp-divider: rgb(255 255 255 / 0.05);
+    --hk-dp-ink: #ffffff;
+    --hk-dp-day-ink: #d1d5db;
+    --hk-dp-muted: #9ca3af;
+    --hk-dp-faint: #6b7280;
+    --hk-dp-hover: rgb(255 255 255 / 0.05);
+    --hk-dp-focus: rgb(220 38 38 / 0.7);
+    --hk-dp-range: var(--hk-date-in-range, rgb(69 10 10 / 0.6));
+    --hk-dp-range-ink: #fecaca;
+  }
+
+  .hk-dp {
+    box-sizing: border-box;
+    border: 1px solid var(--hk-dp-border);
+    border-radius: 1rem;
+    background: var(--hk-dp-surface);
+    padding: 1rem;
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+  }
+  button:focus-visible {
+    outline: 2px solid var(--hk-accent, #dc2626);
+    outline-offset: 1px;
+  }
+
+  .hk-dp-head {
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .hk-dp-nav {
+    border: 0;
+    background: none;
+    padding: 0 0.5rem;
+    color: var(--hk-dp-muted);
+  }
+  .hk-dp-nav:hover {
+    color: var(--hk-dp-ink);
+  }
+  .hk-dp-title {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: var(--hk-dp-ink);
+  }
+
+  .hk-dp-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.125rem;
+  }
+  .hk-dp-weekdays {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--hk-dp-muted);
+  }
+  .hk-dp-weekdays span {
+    padding: 0.25rem 0;
+  }
+
+  .hk-dp-day {
+    aspect-ratio: 1 / 1;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    padding: 0;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--hk-dp-day-ink);
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+  .hk-dp-day:hover {
+    background: var(--hk-dp-hover);
+  }
+  .hk-dp-day.is-today {
+    box-shadow: inset 0 0 0 1px var(--hk-dp-today);
+  }
+  .hk-dp-day.is-range {
+    background: var(--hk-dp-range);
+    color: var(--hk-dp-range-ink);
+  }
+  .hk-dp-day.is-selected {
+    background: var(--hk-dp-selected);
+    font-weight: 600;
+    color: #ffffff;
+  }
+  .hk-dp-day:disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+  }
+  .hk-dp-day:disabled:hover {
+    background: transparent;
+  }
+
+  .hk-dp-time {
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-top: 1px solid var(--hk-dp-divider);
+    padding-top: 0.75rem;
+  }
+  .hk-dp-muted {
+    font-size: 0.75rem;
+    color: var(--hk-dp-muted);
+  }
+  .hk-dp-faint {
+    color: var(--hk-dp-faint);
+  }
+  .hk-dp-num {
+    width: 3rem;
+    box-sizing: border-box;
+    border: 1px solid var(--hk-dp-border);
+    border-radius: 0.5rem;
+    background: var(--hk-dp-surface);
+    padding: 0.25rem 0.5rem;
+    text-align: center;
+    font: inherit;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--hk-dp-ink);
+    outline: none;
+  }
+  .hk-dp-num:focus {
+    border-color: var(--hk-dp-focus);
+  }
+  .hk-dp-btn {
+    border: 1px solid var(--hk-dp-border);
+    border-radius: 0.5rem;
+    background: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--hk-dp-muted);
+    transition: color 150ms ease;
+  }
+  .hk-dp-btn:hover {
+    color: var(--hk-dp-ink);
+  }
+  .hk-dp-now {
+    margin-left: auto;
+  }
+
+  .hk-dp-hint {
+    margin: 0.75rem 0 0;
+    border-top: 1px solid var(--hk-dp-divider);
+    padding-top: 0.75rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--hk-dp-muted);
+  }
+}

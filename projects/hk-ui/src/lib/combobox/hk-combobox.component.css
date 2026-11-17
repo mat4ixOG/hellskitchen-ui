@@ -1,0 +1,145 @@
+@layer components {
+  :host {
+    --hk-cb-surface: #ffffff;
+    --hk-cb-border: #e2e8f0;
+    --hk-cb-focus: var(--hk-accent, #ef4444);
+    --hk-cb-ink: #0f172a;
+    --hk-cb-option-ink: #334155;
+    --hk-cb-muted: #475569;
+    --hk-cb-placeholder: #94a3b8;
+    --hk-cb-hover: #f1f5f9;
+    --hk-cb-chip: var(--hk-combobox-chip-bg, #fee2e2);
+    --hk-cb-chip-ink: var(--hk-combobox-chip-text, #b91c1c);
+    --hk-cb-chip-x: rgb(248 113 113 / 0.7);
+    --hk-cb-chip-x-hover: #991b1b;
+
+    display: block;
+    width: 100%;
+    max-width: 24rem;
+  }
+
+  :host-context(.dark) {
+    --hk-cb-surface: #0a0a0a;
+    --hk-cb-border: rgb(255 255 255 / 0.1);
+    --hk-cb-focus: rgb(220 38 38 / 0.7);
+    --hk-cb-ink: #ffffff;
+    --hk-cb-option-ink: #d1d5db;
+    --hk-cb-muted: #9ca3af;
+    --hk-cb-placeholder: #6b7280;
+    --hk-cb-hover: rgb(255 255 255 / 0.05);
+    --hk-cb-chip: var(--hk-combobox-chip-bg, rgb(69 10 10 / 0.6));
+    --hk-cb-chip-ink: var(--hk-combobox-chip-text, #fca5a5);
+    --hk-cb-chip-x-hover: #fecaca;
+  }
+
+  .hk-cb-field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    border: 1px solid var(--hk-cb-border);
+    border-radius: 0.75rem;
+    background: var(--hk-cb-surface);
+    padding: 0.5rem;
+    transition: border-color 150ms ease;
+  }
+  .hk-cb-field:focus-within {
+    border-color: var(--hk-cb-focus);
+  }
+
+  .hk-cb-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 0.5rem;
+    background: var(--hk-cb-chip);
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--hk-cb-chip-ink);
+  }
+  .hk-cb-chip-remove {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: var(--hk-cb-chip-x);
+    cursor: pointer;
+  }
+  .hk-cb-chip-remove:hover {
+    color: var(--hk-cb-chip-x-hover);
+  }
+
+  .hk-cb-input {
+    min-width: 6rem;
+    flex: 1;
+    border: 0;
+    background: transparent;
+    padding: 0.25rem;
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--hk-cb-ink);
+    outline: none;
+  }
+  .hk-cb-input::placeholder {
+    color: var(--hk-cb-placeholder);
+  }
+  .hk-cb-input:disabled {
+    cursor: not-allowed;
+  }
+
+  .hk-cb-spinner {
+    height: 0.875rem;
+    width: 0.875rem;
+    margin-right: 0.25rem;
+    border: 2px solid var(--hk-cb-border);
+    border-top-color: var(--hk-cb-focus);
+    border-radius: 9999px;
+    animation: hk-cb-spin 700ms linear infinite;
+  }
+
+  .hk-cb-list {
+    margin: 0.375rem 0 0;
+    overflow: hidden;
+    border: 1px solid var(--hk-cb-border);
+    border-radius: 0.75rem;
+    background: var(--hk-cb-surface);
+    padding: 0;
+    list-style: none;
+  }
+
+  .hk-cb-option {
+    display: block;
+    width: 100%;
+    border: 0;
+    background: none;
+    padding: 0.375rem 0.75rem;
+    text-align: left;
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--hk-cb-option-ink);
+    cursor: pointer;
+  }
+  .hk-cb-option:hover,
+  .hk-cb-option.is-active {
+    background: var(--hk-cb-hover);
+  }
+
+  .hk-cb-hint {
+    margin: 0.375rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--hk-cb-muted);
+  }
+  .hk-cb-hint b {
+    color: var(--hk-cb-ink);
+  }
+
+  @keyframes hk-cb-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

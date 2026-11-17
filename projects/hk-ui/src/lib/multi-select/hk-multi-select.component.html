@@ -1,0 +1,86 @@
+<div class="hk-ms" (keydown)="onKeydown($event)">
+  <!-- Trigger -->
+  <div class="hk-ms-trigger" [class.is-open]="open()" [class.is-disabled]="disabled()">
+    @if (!value().length) {
+      <button type="button" class="hk-ms-placeholder" [disabled]="disabled()" (click)="toggleOpen()">
+        {{ placeholder() }}
+      </button>
+    } @else {
+      @for (chip of chips(); track chip) {
+        <span class="hk-ms-chip">
+          {{ labelFor(chip) }}
+          <button type="button" class="hk-ms-chip-remove" [disabled]="disabled()" (click)="remove(chip)"
+            [attr.aria-label]="'Remove ' + labelFor(chip)">×</button>
+        </span>
+      }
+      @if (overflow() > 0) {
+        <button type="button" class="hk-ms-more" [disabled]="disabled()" (click)="toggleOpen()">
+          +{{ overflow() }} more
+        </button>
+      }
+      <button type="button" class="hk-ms-spacer" [disabled]="disabled()" (click)="toggleOpen()"
+        aria-label="Open list"></button>
+    }
+
+    @if (value().length) {
+      <button type="button" class="hk-ms-icon" [disabled]="disabled()" (click)="clear()"
+        aria-label="Clear all">×</button>
+    }
+    <button type="button" class="hk-ms-icon hk-ms-caret" [class.is-open]="open()" [disabled]="disabled()"
+      (click)="toggleOpen()" [attr.aria-expanded]="open()" [attr.aria-controls]="id + '-list'"
+      aria-label="Toggle list">▾</button>
+  </div>
+
+  <!-- Panel -->
+  @if (open()) {
+    <div class="hk-ms-panel">
+      @if (filter()) {
+        <input #filterBox class="hk-ms-filter" placeholder="Filter…" aria-label="Filter options"
+          [attr.aria-controls]="id + '-list'" [attr.aria-activedescendant]="activeId()"
+          [value]="query()" (input)="onQuery($any($event.target).value)" />
+      }
+
+      <!-- Select-all acts on what is visible, not on the whole list. -->
+      @if (selectAll()) {
+        <button type="button" class="hk-ms-all" role="checkbox"
+          [attr.aria-checked]="allChecked() ? 'true' : someChecked() ? 'mixed' : 'false'"
+          (click)="toggleAll()">
+          <span class="hk-ms-box" [class.is-on]="allChecked() || someChecked()" aria-hidden="true">
+            <!-- Indeterminate is the same filled box as checked, distinguished
+                 by a bar rather than a tick. -->
+            @if (allChecked()) { ✓ } @else if (someChecked()) {
+              <span class="hk-ms-bar"></span>
+            }
+          </span>
+          {{ allChecked() ? 'Deselect' : 'Select' }} all {{ query() ? 'matching' : '' }} ({{ visible().length }})
+        </button>
+      }
+
+      <ul class="hk-ms-list" role="listbox" aria-multiselectable="true" [id]="id + '-list'">
+        @for (group of grouped(); track group.name) {
+          @if (group.name) {
+            <li class="hk-ms-group" role="presentation">{{ group.name }}</li>
+          }
+          @for (option of group.options; track option.value) {
+            <li role="option" class="hk-ms-option"
+              [id]="id + '-opt-' + indexOf(option)"
+              [class.is-picked]="isPicked(option.value)"
+              [class.is-active]="active() === indexOf(option)"
+              [class.is-blocked]="isBlocked(option.value)"
+              [attr.aria-selected]="isPicked(option.value)"
+              [attr.aria-disabled]="isBlocked(option.value) ? 'true' : null"
+              (mousedown)="$event.preventDefault()"
+              (click)="toggle(option.value)">
+              <span class="hk-ms-box" [class.is-on]="isPicked(option.value)" aria-hidden="true">
+                {{ isPicked(option.value) ? '✓' : '' }}
+              </span>
+              {{ option.label }}
+            </li>
+          }
+        } @empty {
+          <li class="hk-ms-empty">No option matches “{{ query() }}”</li>
+        }
+      </ul>
+    </div>
+  }
+</div>

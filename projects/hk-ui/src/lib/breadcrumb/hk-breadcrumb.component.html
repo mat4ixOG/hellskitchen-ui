@@ -1,0 +1,48 @@
+<ng-template #content let-crumb let-first="first">
+  @if (showIcons() && crumb.icon) {
+    <svg class="hk-crumb-icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="crumb.icon" /></svg>
+  }
+  <!-- Under chevron the root collapses to its icon; everything else keeps its label. -->
+  @if (!(variant() === 'chevron' && first && crumb.icon)) {
+    <span class="hk-crumb-label">{{ crumb.label }}</span>
+  } @else {
+    <span class="hk-sr">{{ crumb.label }}</span>
+  }
+</ng-template>
+
+<nav aria-label="Breadcrumb" class="hk-crumbs" [attr.data-variant]="variant()">
+  @for (crumb of shown(); track $index; let last = $last; let first = $first) {
+    @if (crumb === null) {
+      <button type="button" class="hk-crumb-more" (click)="expanded.set(true)" aria-label="Show hidden path">
+        @switch (variant()) {
+          @case ('chevron') {
+            <svg class="hk-crumb-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01" /></svg>
+          }
+          @case ('pills') { +{{ hidden() }} }
+          @default { … }
+        }
+      </button>
+    } @else if (last) {
+      <span class="hk-crumb is-current" aria-current="page">
+        <ng-container *ngTemplateOutlet="content; context: { $implicit: crumb, first: first }" />
+      </span>
+    } @else if (crumb.href) {
+      <a class="hk-crumb" [href]="crumb.href" (click)="activate(crumb)">
+        <ng-container *ngTemplateOutlet="content; context: { $implicit: crumb, first: first }" />
+      </a>
+    } @else {
+      <button type="button" class="hk-crumb" (click)="activate(crumb)">
+        <ng-container *ngTemplateOutlet="content; context: { $implicit: crumb, first: first }" />
+      </button>
+    }
+
+    @if (!last) {
+      @switch (variant()) {
+        @case ('slash') { <span class="hk-crumb-sep" aria-hidden="true">{{ separator() }}</span> }
+        @case ('chevron') {
+          <svg class="hk-crumb-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+        }
+      }
+    }
+  }
+</nav>

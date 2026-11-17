@@ -1,0 +1,37 @@
+<div class="hk-cb-field">
+  @for (tag of value(); track tag) {
+    <span class="hk-cb-chip">
+      {{ tag }}
+      <button type="button" class="hk-cb-chip-remove" (click)="remove(tag)"
+        [attr.aria-label]="'Remove ' + tag">&times;</button>
+    </span>
+  }
+  <input class="hk-cb-input" role="combobox" aria-autocomplete="list"
+    [attr.aria-expanded]="suggestions().length > 0"
+    [attr.aria-controls]="id + '-list'"
+    [attr.aria-activedescendant]="activeId()"
+    [attr.aria-busy]="loading() ? 'true' : null"
+    [placeholder]="placeholder()" [value]="draft()"
+    (input)="onInput($any($event.target).value)"
+    (keydown.enter)="commit($event)"
+    (keydown.backspace)="onBackspace()"
+    (keydown.arrowdown)="move($event, 1)"
+    (keydown.arrowup)="move($event, -1)"
+    (keydown.escape)="dismiss()" />
+  @if (loading()) {
+    <span class="hk-cb-spinner" aria-hidden="true"></span>
+  }
+</div>
+
+@if (suggestions().length) {
+  <ul class="hk-cb-list" role="listbox" [id]="id + '-list'">
+    @for (item of suggestions(); track item) {
+      <li role="option" [id]="id + '-opt-' + $index" [attr.aria-selected]="active() === $index">
+        <button type="button" tabindex="-1" class="hk-cb-option" [class.is-active]="active() === $index"
+          (click)="add(item)">{{ item }}</button>
+      </li>
+    }
+  </ul>
+} @else if (draft().trim() && allowCustom() && !full() && !loading()) {
+  <p class="hk-cb-hint">Enter to create “<b>{{ draft() }}</b>”</p>
+}

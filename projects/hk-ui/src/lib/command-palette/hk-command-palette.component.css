@@ -1,0 +1,120 @@
+@layer components {
+  :host {
+    --hk-cmd-surface: var(--hk-palette-bg, rgb(255 255 255 / 0.95));
+    --hk-cmd-active: var(--hk-palette-active, #fee2e2);
+    --hk-cmd-edge: #e2e8f0;
+    --hk-cmd-ink: #0f172a;
+    --hk-cmd-ink-body: #334155;
+    --hk-cmd-ink-dim: #475569;
+    --hk-cmd-placeholder: #94a3b8;
+    --hk-cmd-shadow: 0 25px 50px -12px rgb(15 23 42 / 0.1);
+
+    display: block;
+    width: 100%;
+  }
+
+  :host-context(.dark) {
+    --hk-cmd-surface: var(--hk-palette-bg, rgb(10 10 10 / 0.95));
+    --hk-cmd-active: var(--hk-palette-active, rgb(69 10 10 / 0.6));
+    --hk-cmd-edge: rgb(255 255 255 / 0.1);
+    --hk-cmd-ink: #ffffff;
+    --hk-cmd-ink-body: #d1d5db;
+    --hk-cmd-ink-dim: #9ca3af;
+    --hk-cmd-placeholder: #6b7280;
+    --hk-cmd-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.6);
+  }
+
+  .hk-cmd {
+    overflow: hidden;
+    border: 1px solid var(--hk-cmd-edge);
+    border-radius: 1rem;
+    background: var(--hk-cmd-surface);
+    box-shadow: var(--hk-cmd-shadow);
+  }
+
+  .hk-cmd-head {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--hk-cmd-edge);
+  }
+
+  .hk-cmd-glyph {
+    color: var(--hk-cmd-ink-dim);
+  }
+
+  .hk-cmd-field {
+    flex: 1 1 0%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--hk-cmd-ink);
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .hk-cmd-field::placeholder {
+    color: var(--hk-cmd-placeholder);
+  }
+
+  .hk-cmd-kbd {
+    padding: 0.125rem 0.375rem;
+    border: 1px solid var(--hk-cmd-edge);
+    border-radius: 0.25rem;
+    color: var(--hk-cmd-ink-dim);
+    font-family: inherit;
+    font-size: 0.72rem;
+  }
+
+  .hk-cmd-kbd.is-hint {
+    padding-block: 0;
+  }
+
+  .hk-cmd-list {
+    max-height: 14rem;
+    margin: 0;
+    padding: 0.375rem;
+    overflow: auto;
+    list-style: none;
+  }
+
+  .hk-cmd-group {
+    padding: 0.5rem 0.5rem 0.25rem;
+    color: var(--hk-cmd-ink-dim);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .hk-cmd-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.5rem;
+    color: var(--hk-cmd-ink-body);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  .hk-cmd-option.is-active {
+    background: var(--hk-cmd-active);
+    color: var(--hk-cmd-ink);
+  }
+
+  .hk-cmd-empty {
+    padding: 1.5rem 0.75rem;
+    color: var(--hk-cmd-ink-dim);
+    text-align: center;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+}

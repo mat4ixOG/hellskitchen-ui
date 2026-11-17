@@ -1,0 +1,299 @@
+@layer components {
+  :host {
+    --hk-step-accent: var(--hk-accent, #dc2626);
+    --hk-step-accent-soft: #ef4444;
+    --hk-step-ink: #0f172a;
+    --hk-step-ink-dim: #475569;
+    --hk-step-line: #e2e8f0;
+    --hk-step-surface: #ffffff;
+    --hk-step-edge: #e2e8f0;
+    --hk-step-reached-edge: #ef4444;
+    --hk-step-done: #059669;
+
+    display: block;
+    width: 100%;
+  }
+
+  :host-context(.dark) {
+    --hk-step-ink: #ffffff;
+    --hk-step-ink-dim: #9ca3af;
+    --hk-step-line: #262626;
+    --hk-step-surface: #0a0a0a;
+    --hk-step-edge: rgb(255 255 255 / 0.1);
+    --hk-step-reached-edge: rgb(220 38 38 / 0.7);
+    --hk-step-done: #34d399;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .hk-step-check {
+    width: 0.75rem;
+    height: 0.75rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Marker shared by rail and panels */
+  .hk-step-marker {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    box-sizing: border-box;
+    border: 2px solid var(--hk-step-line);
+    border-radius: 9999px;
+    background: var(--hk-step-surface);
+    color: var(--hk-step-ink-dim);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 700;
+    transition: all 300ms ease;
+  }
+
+  .is-reached .hk-step-marker {
+    border-color: var(--hk-step-reached-edge);
+    background: var(--hk-step-accent);
+    color: #ffffff;
+  }
+
+  /* ── Rail ─────────────────────────────────────────────── */
+  .hk-step-rail {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hk-step-track,
+  .hk-step-fill {
+    position: absolute;
+    left: 1.25rem;
+    top: 1.25rem;
+    height: 2px;
+  }
+
+  .hk-step-track {
+    right: 1.25rem;
+    background: var(--hk-step-line);
+  }
+
+  .hk-step-fill {
+    background: linear-gradient(to right, var(--hk-step-accent), var(--hk-step-accent-soft));
+    transition: all 500ms ease;
+  }
+
+  .hk-step-rail-item {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+
+  .hk-step-rail-item.is-reached .hk-step-marker {
+    box-shadow:
+      0 10px 15px -3px rgb(239 68 68 / 0.25),
+      0 4px 6px -4px rgb(239 68 68 / 0.25);
+  }
+
+  .hk-step-rail-label {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    color: var(--hk-step-ink-dim);
+  }
+
+  .is-reached .hk-step-rail-label {
+    color: var(--hk-step-ink);
+  }
+
+  :host(.is-vertical) .hk-step-rail {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  :host(.is-vertical) .hk-step-track {
+    right: auto;
+    bottom: 1.25rem;
+    width: 2px;
+    height: auto;
+  }
+
+  :host(.is-vertical) .hk-step-fill {
+    width: 2px;
+    background: linear-gradient(to bottom, var(--hk-step-accent), var(--hk-step-accent-soft));
+  }
+
+  :host(.is-vertical) .hk-step-track,
+  :host(.is-vertical) .hk-step-fill {
+    left: calc(1.25rem - 1px);
+  }
+
+  :host(.is-vertical) .hk-step-rail-item {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+
+  /* ── Panels ───────────────────────────────────────────── */
+  .hk-step-panels {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hk-step-panel {
+    position: relative;
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .hk-step-panel:last-child {
+    padding-bottom: 0;
+  }
+
+  .hk-step-connector {
+    position: absolute;
+    left: 1rem;
+    top: 2.25rem;
+    bottom: 0.25rem;
+    width: 2px;
+    background: var(--hk-step-line);
+    transition: background-color 500ms ease;
+  }
+
+  .hk-step-panel.is-done .hk-step-connector {
+    background: var(--hk-step-accent);
+  }
+
+  .hk-step-marker.is-small {
+    position: relative;
+    z-index: 10;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    cursor: pointer;
+  }
+
+  .hk-step-marker.is-small .hk-step-check {
+    width: 0.6rem;
+    height: 0.6rem;
+  }
+
+  .hk-step-panel-body {
+    min-width: 0;
+    flex: 1 1 0%;
+    padding-top: 0.125rem;
+  }
+
+  .hk-step-panel-title {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: var(--hk-step-ink-dim);
+    transition: color 150ms ease;
+  }
+
+  .is-reached .hk-step-panel-title {
+    color: var(--hk-step-ink);
+  }
+
+  .hk-step-detail {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1.625;
+    color: var(--hk-step-ink-dim);
+  }
+
+  .hk-step-done {
+    padding-top: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--hk-step-done);
+  }
+
+  /* ── Progress ─────────────────────────────────────────── */
+  .hk-step-progress {
+    padding: 1.25rem;
+    border: 1px solid var(--hk-step-edge);
+    border-radius: 1rem;
+    background: var(--hk-step-surface);
+  }
+
+  .hk-step-progress-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .hk-step-progress-title {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 700;
+    color: var(--hk-step-ink);
+  }
+
+  .hk-step-progress-count {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--hk-step-ink-dim);
+  }
+
+  .hk-step-segments {
+    display: flex;
+    gap: 0.375rem;
+    margin-top: 1rem;
+  }
+
+  .hk-step-segment {
+    height: 0.375rem;
+    flex: 1 1 0%;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--hk-step-line);
+    cursor: pointer;
+    transition: background-color 150ms ease;
+  }
+
+  .hk-step-segment > span {
+    display: block;
+    height: 100%;
+    border-radius: 9999px;
+    background: linear-gradient(to right, var(--hk-step-accent), var(--hk-step-accent-soft));
+    transform-origin: left;
+    transition: transform 500ms ease;
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--hk-step-accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hk-step-marker,
+    .hk-step-fill,
+    .hk-step-segment > span {
+      transition: none;
+    }
+  }
+}

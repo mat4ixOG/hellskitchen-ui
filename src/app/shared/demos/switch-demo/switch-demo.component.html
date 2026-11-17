@@ -1,21 +1,5 @@
 <div class="flex flex-col items-center gap-7">
-  <button
-    type="button"
-    role="switch"
-    [attr.aria-checked]="checked()"
-    aria-label="Email me on deploy"
-    (click)="checked.set(!checked())"
-    class="relative flex shrink-0 items-center rounded-full p-1 transition-colors duration-300 cursor-pointer
-           focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50"
-    [class]="trackClass() + ' ' + (checked()
-      ? 'bg-gradient-to-r from-red-600 to-red-800 shadow-lg shadow-red-500/25'
-      : 'bg-slate-300 dark:bg-neutral-800')">
-    <span
-      class="rounded-full bg-white dark:bg-neutral-950 shadow-md transition-transform duration-300
-             [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]"
-      [class]="thumbClass()">
-    </span>
-  </button>
+  <hk-switch [(checked)]="checked" [size]="size()" label="Email me on deploy" />
 
   <p class="text-sm text-slate-600 dark:text-gray-400">
     Email me on deploy —

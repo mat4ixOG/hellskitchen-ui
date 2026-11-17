@@ -1,0 +1,54 @@
+@if (!customTrigger()) {
+  <button #triggerButton type="button" class="hk-menu-trigger" [class.is-icon]="trigger() === 'icon'"
+    (click)="toggle()" [attr.aria-expanded]="open()" aria-haspopup="menu" [attr.aria-label]="triggerLabel()">
+    @if (trigger() !== 'label') {
+      @if (triggerIcon() === 'kebab') {
+        <svg class="hk-menu-kebab" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5h.01M12 12h.01M12 19h.01" /></svg>
+      } @else {
+        <!-- Three bars that fold into an X while the menu is open. -->
+        <span class="hk-menu-burger" [class.is-open]="open()" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </span>
+      }
+    }
+
+    @if (trigger() !== 'icon') {
+      <span>{{ triggerLabel() }}</span>
+      <span class="hk-menu-caret" [class.is-open]="open()" aria-hidden="true">▾</span>
+    }
+  </button>
+}
+<ng-content />
+
+@if (open()) {
+  <div class="hk-menu-panel" role="menu" [attr.data-placement]="placement()"
+    [class.flip-x]="flipX()" [class.flip-y]="flipY()" (keydown)="onKey($event)">
+    @for (item of items(); track $index; let i = $index) {
+      <div class="hk-menu-entry" (mouseenter)="submenu.set(item.children?.length ? i : null)" (mouseleave)="submenu.set(null)">
+        <button type="button" role="menuitem" class="hk-menu-item" [class.is-danger]="item.danger"
+          [attr.data-index]="i"
+          [attr.aria-haspopup]="item.children?.length ? 'menu' : null"
+          [attr.aria-expanded]="item.children?.length ? submenu() === i : null"
+          (click)="choose(item, i)">
+          <span>{{ item.label }}</span>
+          @if (item.children?.length) {
+            <span class="hk-menu-aside" aria-hidden="true">›</span>
+          } @else if (item.hint) {
+            <span class="hk-menu-aside is-hint">{{ item.hint }}</span>
+          }
+        </button>
+
+        @if (item.children?.length && submenu() === i) {
+          <div class="hk-menu-sub" role="menu" [attr.aria-label]="item.label">
+            @for (child of item.children; track $index) {
+              <button type="button" role="menuitem" class="hk-menu-item" [class.is-danger]="child.danger" (click)="choose(child)">
+                <span>{{ child.label }}</span>
+                @if (child.hint) { <span class="hk-menu-aside is-hint">{{ child.hint }}</span> }
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,12 @@
+@if (open()) {
+  <div class="hk-drawer-scrim" (click)="close()" aria-hidden="true"></div>
+  <aside #panel class="hk-drawer-panel" role="dialog" aria-modal="true" tabindex="-1"
+    [attr.aria-label]="label()" [attr.data-side]="side()" [style.--hk-drawer-size]="size()"
+    (keydown)="onKeydown($event)" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+    <div class="hk-drawer-content"><ng-content /></div>
+    <button type="button" class="hk-drawer-close" (click)="close()" aria-label="Close">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button>
+  </aside>
+}

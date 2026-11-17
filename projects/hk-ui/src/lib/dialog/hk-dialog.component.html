@@ -1,0 +1,11 @@
+<dialog #box class="hk-dialog" [attr.data-size]="size()" [attr.aria-labelledby]="labelledBy()"
+  (close)="onClose()" (click)="onClick($event)">
+  <div class="hk-dialog-header">
+    <ng-content select="[hkDialogTitle]" />
+    <ng-content select="[hkDialogBody]" />
+  </div>
+  <div class="hk-dialog-content"><ng-content /></div>
+  <div class="hk-dialog-footer">
+    <ng-content select="[hkDialogClose]" />
+  </div>
+</dialog>

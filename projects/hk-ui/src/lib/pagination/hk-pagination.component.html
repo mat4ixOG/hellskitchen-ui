@@ -1,0 +1,45 @@
+<div class="hk-page-bar">
+  <span class="hk-page-range">{{ firstRow() }}–{{ lastRow() }} of {{ total() }}</span>
+
+  <nav class="hk-page-links" aria-label="Pagination">
+    <button type="button" class="hk-page-step" [disabled]="page() === 1" (click)="go(page() - 1)" aria-label="Previous">‹</button>
+
+    @for (item of items(); track $index) {
+      @if (item === 0) {
+        <span class="hk-page-gap" aria-hidden="true">…</span>
+      } @else {
+        <button type="button" class="hk-page-link" (click)="go(item)"
+          [class.is-current]="item === page()"
+          [attr.aria-current]="item === page() ? 'page' : null">{{ item }}</button>
+      }
+    }
+
+    <button type="button" class="hk-page-step" [disabled]="page() === pages()" (click)="go(page() + 1)" aria-label="Next">›</button>
+  </nav>
+
+  @if (pageSizeOptions().length) {
+    <div class="hk-page-size">
+      <button type="button" class="hk-page-size-trigger" (click)="sizeOpen.set(!sizeOpen())"
+        [attr.aria-expanded]="sizeOpen()" aria-haspopup="listbox" aria-label="Rows per page">
+        {{ pageSize() }} / page
+        <span class="hk-page-caret" [class.is-open]="sizeOpen()" aria-hidden="true">▾</span>
+      </button>
+
+      @if (sizeOpen()) {
+        <ul class="hk-page-size-panel" role="listbox" aria-label="Rows per page">
+          @for (option of pageSizeOptions(); track option) {
+            <li>
+              <button type="button" role="option" class="hk-page-option"
+                [class.is-selected]="pageSize() === option"
+                [attr.aria-selected]="pageSize() === option"
+                (click)="resize(option)">
+                {{ option }} / page
+                @if (pageSize() === option) { <span aria-hidden="true">✓</span> }
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</div>

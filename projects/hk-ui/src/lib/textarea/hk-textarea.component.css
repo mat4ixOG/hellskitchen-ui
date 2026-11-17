@@ -1,0 +1,57 @@
+@layer components {
+  :host {
+    display: block;
+  }
+
+  .hk-textarea-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background: #ffffff;
+  }
+  .hk-textarea-box:focus-within { border-color: #ef4444; }
+  :host-context(.dark) .hk-textarea-box {
+    border-color: rgb(255 255 255 / 0.1);
+    background: #0a0a0a;
+  }
+  :host-context(.dark) .hk-textarea-box:focus-within { border-color: rgb(220 38 38 / 0.7); }
+
+  .hk-textarea-control {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: var(--hk-textarea-min, 4rem);
+    max-height: var(--hk-textarea-max, 16rem);
+    margin: 0;
+    padding: 0.75rem 0.875rem;
+    border: 0;
+    background: transparent;
+    color: #0f172a;
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.625;
+    resize: none;
+    outline: none;
+  }
+  .hk-textarea-control::placeholder { color: #94a3b8; }
+  :host-context(.dark) .hk-textarea-control { color: #ffffff; }
+  :host-context(.dark) .hk-textarea-control::placeholder { color: #6b7280; }
+
+  .hk-textarea-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.875rem;
+    border-top: 1px solid rgb(226 232 240 / 0.6);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #475569;
+  }
+  :host-context(.dark) .hk-textarea-footer {
+    border-top-color: rgb(255 255 255 / 0.05);
+    color: #9ca3af;
+  }
+
+  .hk-textarea-counter { font-weight: 600; }
+  .hk-textarea-counter.is-low { color: #dc2626; }
+  :host-context(.dark) .hk-textarea-counter.is-low { color: #f87171; }
+}

@@ -1,31 +1,23 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { HkNavbarComponent, HkNavbarItem, HkNavbarMotion, HkNavbarVariant } from 'hellskitchen-ui';
 
-export type NavVariant = 'pill' | 'bar' | 'dock';
-export type NavMotion = 'slide' | 'glow' | 'underline';
-
-export interface NavItem {
-  id: string;
-  label: string;
-  icon: string;
-  badge?: number;
-}
+export type NavVariant = HkNavbarVariant;
+export type NavMotion = HkNavbarMotion;
+export type NavItem = HkNavbarItem;
 
 /**
  * Three navbars over one model.
  *
- * The active indicator is the part worth being careful about. It is a single
- * absolutely-positioned element that *moves* between items rather than a border
- * that appears on whichever item is current — one element transitioning is what
- * makes the travel readable, and it means the motion style is a swap of which
- * properties animate rather than three separate implementations.
- *
- * The measurement is deliberately arithmetic, not DOM: every item in a strip is
- * the same width, so the indicator's offset is `index / count`. No
- * ResizeObserver, no layout read, and nothing to go stale on a re-render.
+ * The active indicator is a single element that *moves* between items rather
+ * than a border that appears on whichever item is current — one element
+ * transitioning is what makes the travel readable, and it means the motion
+ * style is a swap of which properties animate rather than three
+ * implementations. The offset is arithmetic (`index / count`), not measured.
  */
 @Component({
   selector: 'app-navbar-demo',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [HkNavbarComponent],
   templateUrl: './navbar-demo.component.html',
   styleUrl: './navbar-demo.component.css'
 })
@@ -42,54 +34,22 @@ export class NavbarDemoComponent {
     { id: 'underline', label: 'Underline' }
   ];
 
+  /** Icons are SVG path data (24×24, stroked). */
   readonly items: NavItem[] = [
-    { id: 'home', label: 'Home', icon: 'pi-home' },
-    { id: 'projects', label: 'Projects', icon: 'pi-folder' },
-    { id: 'activity', label: 'Activity', icon: 'pi-chart-line', badge: 4 },
-    { id: 'team', label: 'Team', icon: 'pi-users' },
-    { id: 'settings', label: 'Settings', icon: 'pi-cog' }
+    { id: 'home', label: 'Home', icon: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
+    { id: 'projects', label: 'Projects', icon: 'M3 6a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' },
+    { id: 'activity', label: 'Activity', icon: 'M3 3v18h18M7 14l4-4 3 3 5-6', badge: 4 },
+    { id: 'team', label: 'Team', icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8' },
+    { id: 'settings', label: 'Settings', icon: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1' }
   ];
 
   readonly variant = signal<NavVariant>('pill');
   readonly motion = signal<NavMotion>('slide');
   readonly active = signal('home');
-  readonly mobileOpen = signal(false);
-  /** The dock's magnifier needs to know which icon the pointer is over. */
-  readonly hovered = signal<string | null>(null);
 
-  readonly index = computed(() => {
-    const found = this.items.findIndex((item) => item.id === this.active());
-    return found === -1 ? 0 : found;
-  });
-
-  readonly current = computed(() => this.items[this.index()]);
-
-  /** Percent offset of the indicator, one item wide. */
-  readonly offset = computed(() => this.index() * 100);
-  readonly width = computed(() => 100 / this.items.length);
-
-  select(id: string): void {
-    this.active.set(id);
-    this.mobileOpen.set(false);
-  }
-
-  /**
-   * How far a dock icon lifts: full at the pointer, half either side, nothing
-   * beyond. Distance-based rather than hover-only, which is what makes the row
-   * bulge as one surface instead of one icon popping out of a flat line.
-   */
-  magnify(id: string): number {
-    const hovered = this.hovered();
-    if (!hovered) return 0;
-    const distance = Math.abs(
-      this.items.findIndex((item) => item.id === id) -
-        this.items.findIndex((item) => item.id === hovered)
-    );
-    if (distance === 0) return 1;
-    if (distance === 1) return 0.45;
-    if (distance === 2) return 0.15;
-    return 0;
-  }
+  readonly current = computed(
+    () => this.items.find((item) => item.id === this.active()) ?? this.items[0]
+  );
 
   chip(active: boolean): string {
     const base = 'cursor-pointer rounded-md border px-2.5 py-1 text-xs transition-colors';

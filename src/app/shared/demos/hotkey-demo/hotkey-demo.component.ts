@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { HkHotkeyService } from 'hellskitchen-ui';
 
 /** Scoped shortcuts that unbind themselves when the scope goes away. */
 @Component({
@@ -25,6 +26,8 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
   `
 })
 export class HotkeyDemoComponent {
+  private readonly hotkeys = inject(HkHotkeyService);
+
   readonly bindings = [
     { keys: 'g', label: 'Go to services' },
     { keys: 'd', label: 'Deploy current service' },
@@ -35,16 +38,12 @@ export class HotkeyDemoComponent {
   readonly log = signal('');
 
   constructor() {
-    const onKey = (event: KeyboardEvent): void => {
-      // Never steal a key from a field the user is typing in.
-      if ((event.target as HTMLElement).matches('input,textarea,select')) return;
-      const binding = this.bindings.find((item) => item.keys === event.key);
-      if (!binding) return;
-      this.last.set(binding.keys);
-      this.log.set(`Fired: ${binding.label}`);
-    };
-
-    window.addEventListener('keydown', onKey);
-    inject(DestroyRef).onDestroy(() => window.removeEventListener('keydown', onKey));
+    // Unbound automatically when this demo is destroyed.
+    for (const binding of this.bindings) {
+      this.hotkeys.bind(binding.keys, () => {
+        this.last.set(binding.keys);
+        this.log.set(`Fired: ${binding.label}`);
+      });
+    }
   }
 }

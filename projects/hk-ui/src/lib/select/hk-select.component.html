@@ -1,0 +1,41 @@
+<div class="hk-select" (keydown)="onKeydown($event)">
+  <button #trigger type="button" class="hk-select-trigger" role="combobox"
+    [disabled]="disabled()"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="id + '-list'"
+    [attr.aria-activedescendant]="filterable() ? null : activeId()"
+    (click)="toggleOpen()">
+    <span class="hk-select-label" [class.is-placeholder]="!selected().length">
+      {{ selected().length ? triggerLabel() : placeholder() }}
+    </span>
+    <span class="hk-select-caret" [class.is-open]="open()" aria-hidden="true">▾</span>
+  </button>
+
+  @if (open()) {
+    <div class="hk-select-panel">
+      @if (filterable()) {
+        <input #filterBox class="hk-select-filter" placeholder="Filter…" aria-label="Filter options"
+          [attr.aria-controls]="id + '-list'"
+          [attr.aria-activedescendant]="activeId()"
+          [value]="query()" (input)="onQuery($any($event.target).value)" />
+      }
+      <ul class="hk-select-list" role="listbox" [id]="id + '-list'"
+        [attr.aria-multiselectable]="multiple() ? 'true' : null">
+        @for (option of visible(); track $index) {
+          <li role="option" class="hk-select-option"
+            [id]="id + '-opt-' + $index"
+            [class.is-picked]="isPicked(option)"
+            [class.is-active]="active() === $index"
+            [attr.aria-selected]="isPicked(option)"
+            (mousedown)="$event.preventDefault()"
+            (click)="pick(option)">
+            {{ option.label }}
+            @if (isPicked(option)) { <span aria-hidden="true">✓</span> }
+          </li>
+        } @empty {
+          <li class="hk-select-empty">No match</li>
+        }
+      </ul>
+    </div>
+  }
+</div>

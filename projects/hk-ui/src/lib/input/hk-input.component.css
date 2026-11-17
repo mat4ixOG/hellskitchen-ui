@@ -1,0 +1,121 @@
+@layer components {
+  :host {
+    display: block;
+    font-size: 0.875rem;
+  }
+  :host(.is-grouped) {
+    display: flex;
+    flex: 1 1 0%;
+    min-width: 0;
+  }
+
+  .hk-input-label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    color: #475569;
+  }
+  :host-context(.dark) .hk-input-label { color: #9ca3af; }
+
+  .hk-input-box {
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    border: 1px solid var(--hk-input-border, #e2e8f0);
+    border-radius: 0.75rem;
+    background: var(--hk-input-bg, #ffffff);
+    transition: border-color 150ms;
+  }
+  .hk-input-box:focus-within { border-color: var(--hk-input-border-focus, #ef4444); }
+  .hk-input-box.is-error { border-color: var(--hk-input-error, #ef4444); }
+  .hk-input-box.is-disabled { opacity: 0.5; }
+
+  :host-context(.dark) .hk-input-box {
+    border-color: var(--hk-input-border, rgb(255 255 255 / 0.1));
+    background: var(--hk-input-bg, #0a0a0a);
+  }
+  :host-context(.dark) .hk-input-box:focus-within { border-color: var(--hk-input-border-focus, rgb(220 38 38 / 0.7)); }
+  :host-context(.dark) .hk-input-box.is-error { border-color: var(--hk-input-error, rgb(153 27 27 / 0.7)); }
+
+  /* Inside a group the group owns the border, the fill and the focus ring. */
+  :host(.is-grouped) .hk-input-box {
+    flex: 1 1 0%;
+    min-width: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .hk-input-control {
+    flex: 1 1 0%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0.625rem 0.875rem;
+    border: 0;
+    background: transparent;
+    color: #0f172a;
+    font: inherit;
+    line-height: 1.25rem;
+    text-align: inherit;
+    outline: none;
+  }
+  .hk-input-control.has-prefix { padding-left: 0.25rem; }
+  .hk-input-control.has-trail { padding-right: 0.25rem; }
+  .hk-input-control::placeholder { color: #94a3b8; }
+  .hk-input-control:disabled { cursor: not-allowed; }
+  :host-context(.dark) .hk-input-control { color: #ffffff; }
+  :host-context(.dark) .hk-input-control::placeholder { color: #6b7280; }
+
+  .hk-input-affix {
+    display: flex;
+    align-items: center;
+    color: #475569;
+    line-height: 1.25rem;
+  }
+  .hk-input-affix.is-prefix { padding-left: 0.75rem; }
+  .hk-input-affix.is-suffix { padding-right: 0.75rem; }
+  :host-context(.dark) .hk-input-affix { color: #9ca3af; }
+
+  .hk-input-addon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    padding: 0 0.75rem;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .hk-input-addon.is-before { border-right: 1px solid #e2e8f0; }
+  .hk-input-addon.is-after { border-left: 1px solid #e2e8f0; }
+  :host-context(.dark) .hk-input-addon {
+    border-color: rgb(255 255 255 / 0.1);
+    background: rgb(255 255 255 / 0.04);
+    color: #9ca3af;
+  }
+
+  .hk-input-clear {
+    padding: 0 0.75rem;
+    border: 0;
+    background: transparent;
+    color: #475569;
+    font: inherit;
+    cursor: pointer;
+  }
+  .hk-input-clear:hover { color: #0f172a; }
+  :host-context(.dark) .hk-input-clear { color: #9ca3af; }
+  :host-context(.dark) .hk-input-clear:hover { color: #ffffff; }
+
+  .hk-input-message {
+    margin: 0.5rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #475569;
+  }
+  .hk-input-message.is-error { color: var(--hk-input-error, #dc2626); }
+  :host-context(.dark) .hk-input-message { color: #9ca3af; }
+  :host-context(.dark) .hk-input-message.is-error { color: var(--hk-input-error, #f87171); }
+}

@@ -1,9 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-
-interface Accent {
-  name: string;
-  value: string;
-}
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { HkAccent, HkThemeService } from 'hellskitchen-ui';
 
 /**
  * Rewrites the token layer at runtime — no rebuild, no class swap.
@@ -87,24 +83,8 @@ interface Accent {
   `
 })
 export class ThemeDemoComponent {
-  readonly palette: Accent[] = [
-    { name: 'Crimson', value: '#dc2626' },
-    { name: 'Rose', value: '#e11d48' },
-    { name: 'Orange', value: '#ea580c' },
-    { name: 'Amber', value: '#f59e0b' },
-    { name: 'Lime', value: '#65a30d' },
-    { name: 'Emerald', value: '#10b981' },
-    { name: 'Teal', value: '#0d9488' },
-    { name: 'Cyan', value: '#06b6d4' },
-    { name: 'Sky', value: '#0ea5e9' },
-    { name: 'Blue', value: '#3b82f6' },
-    { name: 'Indigo', value: '#6366f1' },
-    { name: 'Violet', value: '#8b5cf6' },
-    { name: 'Purple', value: '#a855f7' },
-    { name: 'Fuchsia', value: '#d946ef' },
-    { name: 'Pink', value: '#ec4899' },
-    { name: 'Slate', value: '#64748b' }
-  ];
+  /** The service's 16 presets — a shortcut, not the API; any CSS colour works. */
+  readonly palette: readonly HkAccent[] = inject(HkThemeService).accents;
 
   readonly accent = signal('#dc2626');
   readonly radius = signal(16);

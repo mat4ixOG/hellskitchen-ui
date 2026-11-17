@@ -1,4 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import {
+  HkCardBodyDirective,
+  HkCardComponent,
+  HkCardFooterDirective,
+  HkCardHeaderDirective,
+  HkCardMediaDirective
+} from 'hellskitchen-ui';
 
 /**
  * Media, header, body and footer — every slot independent of the others.
@@ -13,20 +20,18 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 @Component({
   selector: 'app-card-demo',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [HkCardComponent, HkCardMediaDirective, HkCardHeaderDirective, HkCardBodyDirective, HkCardFooterDirective],
   template: `
     <div class="w-full max-w-sm">
-      <article class="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-neutral-950">
+      <hk-card>
         @if (media()) {
-          <div class="grid h-24 place-items-center bg-gradient-to-br from-red-500 via-red-600 to-red-800">
+          <div hkCardMedia class="grid h-24 place-items-center bg-gradient-to-br from-red-500 via-red-600 to-red-800">
             <i class="pi pi-server text-2xl text-white/70"></i>
           </div>
         }
 
         @if (header()) {
-          <!-- With no body under it the header owns the bottom padding,
-               or its text sits flush against the footer rule. -->
-          <header class="flex items-start justify-between gap-3 px-4 pt-4"
-            [class.pb-4]="!body()">
+          <header hkCardHeader class="flex items-start justify-between gap-3">
             <div>
               <h3 class="text-sm font-bold text-slate-900 dark:text-white">billing-api</h3>
               <p class="mt-0.5 text-xs text-slate-600 dark:text-gray-400">eu-west-1 · v4.2.0</p>
@@ -38,15 +43,13 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
         }
 
         @if (body()) {
-          <p class="px-4 text-xs leading-relaxed text-slate-600 dark:text-gray-400"
-            [class]="header() ? 'py-3' : 'py-4'">
+          <p hkCardBody class="text-xs leading-relaxed text-slate-600 dark:text-gray-400">
             Handles invoicing and dunning. Owns the ledger write path, so deploys go out canary-first.
           </p>
         }
 
         @if (footer()) {
-          <footer class="flex items-center justify-between border-slate-200/60 px-4 py-2.5 dark:border-white/5"
-            [class.border-t]="header() || body()">
+          <footer hkCardFooter class="flex items-center justify-between">
             <span class="text-xs text-slate-600 dark:text-gray-400">Updated 14 min ago</span>
             <button type="button" class="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400">Open →</button>
           </footer>
@@ -57,7 +60,7 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
         @if (!media() && !header() && !body() && !footer()) {
           <p class="px-4 py-8 text-center text-xs text-slate-500 dark:text-gray-500">Every slot is empty.</p>
         }
-      </article>
+      </hk-card>
 
       <div class="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Slots">
         @for (slot of slots; track slot.id) {

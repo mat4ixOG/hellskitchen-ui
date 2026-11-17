@@ -1,0 +1,31 @@
+@layer components {
+  :host {
+    --hk-avatar-ring: #ffffff;
+    display: flex;
+    align-items: center;
+  }
+
+  :host-context(.dark) { --hk-avatar-ring: #000000; }
+
+  .hk-avatar-more {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin-left: -0.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: #334155;
+    box-shadow: 0 0 0 2px var(--hk-avatar-ring);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .hk-avatar-more:focus-visible { outline: 2px solid var(--hk-accent, #dc2626); outline-offset: 2px; }
+
+  :host-context(.dark) .hk-avatar-more { background: rgb(255 255 255 / 0.1); color: #d1d5db; }
+}

@@ -1,0 +1,13 @@
+<ng-content select="[hkPopoverTrigger]" />
+
+@if (open()) {
+  <div #panel class="hk-popover-panel" role="dialog" [id]="panelId"
+    [attr.data-side]="resolvedSide()" [attr.data-align]="align()"
+    [style.--hk-popover-offset.px]="offset()"
+    [style.--hk-popover-shift-x.px]="shiftX()" [style.--hk-popover-shift-y.px]="shiftY()">
+    <ng-content select="[hkPopoverContent]" />
+    @if (arrow()) {
+      <span class="hk-popover-arrow" aria-hidden="true"></span>
+    }
+  </div>
+}
